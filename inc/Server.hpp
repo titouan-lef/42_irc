@@ -15,25 +15,26 @@
 
 #define MAX_CLIENTS 100
 
-class Server{
+class Server
+{
 public:
 
 	Server();
 	// ~Server();
 
-	void			initServerConnection(int port);
-	void			closeServerConnection();
-	void			run();
-	void			stop();
+	void initServerConnection(int port);
+	void closeServerConnection();
+	void run();
+	void stop();
 
 private:
 
-	void			checkNewConnections();
-	void			listenClients();
+	void checkNewConnections();
+	void listenClients();
 
-	int				serverSocket;
-	bool			running;
-	struct pollfd	pollfds[MAX_CLIENTS + 1];
-	int				nfds;
+	int serverSocket;
+	bool running;
+	struct pollfd pollfds[MAX_CLIENTS + 1];
+	int nfds;
 
 };
