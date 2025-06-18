@@ -1,22 +1,43 @@
 # IRC
 
-## General rules 📏
-### Coding ⌨️
+## Contents
 
-- Class name must be write in UpperCamelCase.
-- All class must have a .cpp and .hpp.
-- Function in cpp file must be write in read direction.
+* [Coding](#coding-%EF%B8%8F)
+   * [General rules](#general-rules-)
+   * [Header Organisation](#header-organisation)
+   * [Comments](#comments)
+   * [Norm](#norm)
+* [Git Organisation](#git-organisation-)
+   * [Commit Rules](#commit-rules)
+   * [Branch](#branch)
+      * [Rule](#rule)
+      * [Commands](#commands)
+   * [Commit Rules](#commit-rules)
+   * [Log commands](#log-commands)
+   * [Update a local branch](#update-a-local-branch)
+   * [ Update your branch with current main](#update-your-branch-with-current-main)
+   * [Merge](#merge)
+   * [Rebase](#rebase)
+   * [Git Helper](#git-helper)
+* [Links](#links)
+
+## Coding ⌨️
+
+### General rules 📏
+- Class names must be written in UpperCamelCase.
+- Classes must have a `.cpp` and `.hpp`.
+- Functions in cpp file must be written in the read direction.
 - Braces are alone on their own line for conditions and functions (can be on the same line for the rest).
-- If an object is pass in a function and not modify by it, it must be declare with const and pass by reference.
-- If a simple type (int, float, pointer, ect) is pass in a function and not modify by it, it must be declare with const.
-- If possible, not use accessor and avoid as much as possible mutator.
+- If an object is passed in a function and not modified by it, it must be declared with `const` and passed by reference.
+- If a simple type (int, float, pointer, etc.) is passed to a function and not modified by it, it must be declared with `const`.
+- If possible, not use the accessor and avoid as much as possible mutator.
 - Use a private/protected function whenever is possible.
-- Function's and varaible's name must be write in camelCase.
-- All members must be private/protected.
-- All members in class must be finish with `_`.
-- `&` and `*` must be attached to the type.
+- Function's and variable's names must be written in camelCase.
+- Members must be private or protected.
+- Members in class must be finished with `_`.
+- `&` and `*` must be attached to the type.
 
-#### Header Organisation
+### Header Organisation
 1) public
    - public types (typedef, using, enum)
    - Constructors, destructor
@@ -32,7 +53,7 @@
     - private methods
     - private members
 
-#### Comments
+### Comments
 - Try to comment as much as possible on the functions.
 - Comments should be in a format similar to :
 ```c++
@@ -49,26 +70,57 @@
 int	ft_strlcpy(char *dst, const char *src, int size){}
 ```
 
-### Project Managment 📜
-- Respect the [Git Organisation](#git-organisation)
-- A branch must be created for each feature
-- Merge on the `main` branch as soon as a feature is done
-- Commit title must be formated like `KEY_WORD(feature or branch): commit title` with the followings key_words: 
+### Norm
+Meaningful names:
+- Choose searchable names.
+- Class names are defined by nouns or noun phrases.
+- Function names are defined by verbs or verb phrases.
+- Choose computer science/algorithm/pattern/mathematics/etc. names first, and if none exist, use technical terms related to the problem.
+
+Functions:
+- Try to make functions less than 20 lines long.
+- A line should not exceed 150 characters.
+- Maximum 2 nested loops/conditional structures.
+- Try to use 1 statement per loop (function call).
+- A function must do only one thing and cannot be broken down into sections.
+- Try to use switch and if/else statements only once, used to create polymorphic objects, and hidden behind an inheritance relationship so that the rest of the system cannot see them.
+- Try to have a maximum of 3 arguments per function.
+- Prefer using function returns over argument modification.
+- Avoid passing a boolean value to a function.
+- Use classes or structures to reduce the number of arguments.
+- Try to write function names that facilitate argument ordering (for example, assertExpectedEqualsActual(expected, actual) instead of assertEquals(expected, actual) because expected and actual have the same type and should not be reversed).
+- Separate commands and requests.
+- Prefer exceptions to error code returns.
+- Extract try/catch blocks using throws to have a single statement in try/catch and so that the function starts with the try and ends with the catch.
+- Rather than using enums or classes for all error codes, use multiple classes inheriting from the Exception class; this will avoid recompilation when adding errors.
+
+## Git Organisation 📜
+
+### Commit Rules
+
+- Use `git config pull.rebase true` to define the rule of branch conflicts.
+- Merge or rebase on the `main` branch as soon as a feature is done.
+- Commit title must be formated like `KEY_WORD(feature or branch): commit title` with the followings key words: 
   - **ADD**
   - **UPDATE**
   - **REMOVE**
   - **FIX**
-  - **TEST**
-  - **STYLE**
-  - **DOCS**
-  - **PERF**
-  - **REFACTO**
-  - **WIP** (Work In Progress)
+  - **TEST** --> Code relate to unit test.
+  - **STYLE** --> Changing the formatting of the code, not the code itself (norm). 
+  - **DOCS** --> Add or update docs, like readme or comments.
+  - **PERF** --> Modify code to increase performance.
+  - **REFACTO** --> Change code architecture.
+  - **WIP** --> Work In Progress.
 ```bash
-git commit -m 'KEY_WORD: commit title' -m 'commit description'
+git commit -m 'KEY_WORD(feature or branch): commit title' -m 'commit description'
 ```
-## Git Organisation
-### Work in your branch
+
+### Branch
+
+#### Rule
+A branch must be created for each feature.
+
+#### Commands
 See all branches in local (and what is the current branch)
 ```bash 
 git branch
@@ -93,6 +145,8 @@ Switch to a branch `branch_name`
 ```bash
 git switch <branch_name>
 ```
+
+### Log commands
 Log
 ```bash
 git log
@@ -105,11 +159,13 @@ Better log
 ```bash
 git adog
 ```
+
 ### Update a local branch
 ```bash
 git switch <branch>
 git pull
 ```
+
 ### Update your branch with current `main`
 1. Switch to your branch (if you are on another) and push to ensure your branch is up-to-date before merging
 ```bash
@@ -120,6 +176,7 @@ git push
 ```bash
 git pull <remote> main
 ```
+
 ### Merge
 1. Switch to `main`
 ```bash
@@ -153,6 +210,7 @@ git push
 ```bash
 git merge --abort
 ```
+
 ### Rebase
 1. Switch to `main`
 ```bash
@@ -186,6 +244,7 @@ git push
 ```bash
 git rebase --abort
 ```
+
 ### Git Helper
 Change the message of the last commit
 ```bash
@@ -199,5 +258,21 @@ Remove the last commit (remove commit and modifications)
 ```bash
 git reset --hard HEAD~1
 ```
+View logs and hide logs
+```bash
+git reflog
+```
+Merge the last `n` commits
+1. Define the number of last commits to change
+```bash
+git rebase -i HEAD~<n>
+```
+2. Change the `n-1` last commit from `pick` to `squash`
+3. Quit Vim (Echap and :x)
+4. Give name to the new commit which contains merge commits
+5. **Only if commits was push**, force push to apply modifications
+```bash
+git push --force
+```
 
-## Link
+## Links
