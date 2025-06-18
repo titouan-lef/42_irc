@@ -115,7 +115,7 @@ void Server::checkNewConnections()
 
 void Server::listenClients()
 {
-	for (int i = 1; i < nfds; i++)
+	for (int i = nfds - 1; i >= 1; i--)
 	{
 		if (pollfds[i].revents & POLLIN)
 		{
@@ -129,7 +129,6 @@ void Server::listenClients()
 				close(pollfds[i].fd);
 				pollfds[i] = pollfds[nfds - 1];
 				nfds--;
-				i--;
 			}
 			else
 			{
