@@ -9,7 +9,7 @@ NAME			:=	ircserv
 #==================== SOURCE ====================#
 
 SRC_DIR			:=	./src/
-SRC				:=	main Server
+SRC				:=	main Server Client User
 SRC				:=	$(addsuffix .cpp, $(SRC))
 
 #==================== OBJECT ====================#
