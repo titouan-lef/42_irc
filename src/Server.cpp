@@ -103,20 +103,18 @@ void Server::addNewUser(int clientSocket, struct sockaddr_in clientAddr)
 	{
 		std::cerr << "Max clients reached, rejecting connection" << std::endl;
 		close(clientSocket);
+		return;
 	}
-	else
-	{
-		User newUser(clientSocket, clientAddr);
-		userList.push_back(newUser);
-		pollfds_[nfds_].fd = clientSocket;
-		pollfds_[nfds_].events = POLLIN;
-		pollfds_[nfds_].revents = 0;
-		nfds_++;
+	User newUser(clientSocket, clientAddr);
+	userList.push_back(newUser);
+	pollfds_[nfds_].fd = clientSocket;
+	pollfds_[nfds_].events = POLLIN;
+	pollfds_[nfds_].revents = 0;
+	nfds_++;
 
-		std::cout << "Accepted connection from "
-					<< inet_ntoa(clientAddr.sin_addr) << ":"
-					<< ntohs(clientAddr.sin_port) << std::endl;
-	}
+	std::cout << "Accepted connection from "
+				<< inet_ntoa(clientAddr.sin_addr) << ":"
+				<< ntohs(clientAddr.sin_port) << std::endl;
 }
 
 void Server::listenClients()
@@ -135,7 +133,7 @@ void Server::listenClients()
 		}
 		catch(const User::ClientDisconnected& e)
 		{
-			std::cout << "Client disconnected" << std::endl; //handle by someone esle
+			std::cout << "Client disconnected" << std::endl; //handle by manageUser and pop the user from userList
 			close(pollfds_[i].fd);
 			pollfds_[i] = pollfds_[nfds_ - 1];
 			nfds_--;
