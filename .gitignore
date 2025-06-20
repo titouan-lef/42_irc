@@ -1,3 +1,9 @@
-.vscode
+# VS Code
+.vscode/
+
+# Makefile
+.display_done
+
+# IRC
 .build
 ircserv
