@@ -96,12 +96,11 @@ void Server::checkNewConnections()
 		struct sockaddr_in clientAddr;
 		socklen_t clientLen = sizeof(clientAddr);
 		int clientSocket = accept(pollfd_.fd, (struct sockaddr*)&clientAddr, &clientLen);
-		if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
-			throw std::runtime_error("Error: fcntl failed, cannot connect client");
 		if (clientSocket < 0)
 			throw std::runtime_error("Error: accept failed");
-		else
-			addNewUser(clientSocket, clientAddr);
+		if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+			throw std::runtime_error("Error: fcntl failed, cannot connect client");
+		addNewUser(clientSocket, clientAddr);
 	}
 }
 
