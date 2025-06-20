@@ -1,0 +1,33 @@
+#pragma once
+
+#define MAX_CLIENTS 100
+
+#include <iostream>
+#include <vector>
+#include <poll.h>
+
+#include "User.hpp"
+
+class UserManager
+{
+public:
+	static UserManager& getInstance();
+
+	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
+	void listenClients();
+	int findUserSocket(std::string nickname);
+	void closeAllConnection();
+
+	int getNbUserEvent() const;
+
+private:
+	UserManager();
+	UserManager(const UserManager& other);
+	UserManager& operator=(const UserManager& other);
+
+	bool hasDataToRead(const int index) const;
+	void closeConnection(const int index);
+
+	std::vector<User> userList_;
+	std::vector<struct pollfd> pollfdList_;
+};

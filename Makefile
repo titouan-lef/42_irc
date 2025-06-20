@@ -11,7 +11,7 @@ DISPLAY_TRACKER	:= .display_done
 #==================== SOURCE ====================#
 
 SRC_DIR			:= ./src/
-SRC				:= main Server Client User IrcException \
+SRC				:= main Server Client User IrcException UserManager \
 					struct/CommandResponse
 SRC				:= $(addsuffix .cpp, $(SRC))
 

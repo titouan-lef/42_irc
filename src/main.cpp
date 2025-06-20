@@ -1,3 +1,7 @@
+#include <iostream>
+#include <csignal>
+#include <cstdlib>				// atoi
+
 #include "Server.hpp"
 
 Server* globalServerPtr = NULL;

@@ -14,6 +14,7 @@ public:
 	const std::string& receiveMsg();
 	void sendMsg(const std::string& msg);
 	void privateMsg(User* target , const std::string& msg); // ptr on clien on string(nickname)
+	bool is(std::string nickname);
 
 	int getSocket();
 	struct sockaddr_in getAddress();
@@ -32,8 +33,8 @@ public:
 
 private:
 
-	std::string nickname;
-	std::string realName;
+	std::string nickname_;
+	std::string realName_;
 
 	const int clientSocket_; // manage link with pollfds
 	const struct sockaddr_in clientAddr_;

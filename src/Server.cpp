@@ -1,19 +1,30 @@
 #include "Server.hpp"
-#include "User.hpp"
+
+#include <iostream>
+#include <unistd.h>
+#include <cerrno>
+#include <cstring>				// memset
+#include <fcntl.h>
+#include <netdb.h>				// gethostbyname, getprotobyname, htons, htonl
+#include <sys/socket.h>			// socket, bind, accept, listen
+
+#include "UserManager.hpp"
+#include "IrcException.hpp"
 
 Server::Server()
 {
-	serverSocket_ = -1;
 	running_ = false;
-	nfds_ = 1;
+	// Initialize pollfd for listening socket
+	pollfd_.fd = -1;
+	pollfd_.events = POLLIN;
+	pollfd_.revents = 0;
 }
 
 void Server::closeServerConnection()
 {
-	for (int i = 1; i < nfds_; i++)
-		close(pollfds_[i].fd);
-	if (serverSocket_ != -1)
-		close (serverSocket_);
+	UserManager::getInstance().closeAllConnection();
+	if (pollfd_.fd != -1)
+		close (pollfd_.fd);
 	std::cout << "Shutting down server..." << std::endl;
 }
 
@@ -24,15 +35,12 @@ void Server::initServerConnection(int port)
 	if (!proto)
 		throw std::runtime_error("Error: getprotobyname failed");
 	// Creating the Server Socket
-	serverSocket_ = socket(AF_INET, SOCK_STREAM, 0);
-	if (serverSocket_ < 0)
+	pollfd_.fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (pollfd_.fd < 0)
 		throw std::runtime_error("Error: cannot open socket");
-	// Initialize pollfd for listening socket
-	pollfds_[0].fd = serverSocket_;
-	pollfds_[0].events = POLLIN;
 	// Set SO_REUSEADDR to avoid "address already in use" error on restart
 	int opt = 1;
-	if (setsockopt(serverSocket_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
+	if (setsockopt(pollfd_.fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
 		throw std::runtime_error("Error: setsockopt failed");
 	// Bind to all interfaces
 	struct sockaddr_in addr;
@@ -40,10 +48,10 @@ void Server::initServerConnection(int port)
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(serverSocket_, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+	if (bind(pollfd_.fd, (struct sockaddr *) &addr, sizeof(addr)) < 0)
 		throw std::runtime_error("Error: bind failed");
 	// Listen
-	if (listen(serverSocket_, SOMAXCONN) < 0) 
+	if (listen(pollfd_.fd, SOMAXCONN) < 0) 
 		throw std::runtime_error("Error: listen failed");
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
 }
@@ -53,7 +61,7 @@ void Server::run()
 	running_ = true;
 	while (running_)
 	{
-		int poll_count = poll(pollfds_, nfds_, 5000); // 5 sec timeout
+		int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
 		if (poll_count == 0)
 			continue; // Timeout, no events, loop again
 		if (poll_count < 0)
@@ -67,12 +75,12 @@ void Server::run()
 		{
 			checkNewConnections(); // Check if listening socket is readable => new connection
 		}
-		catch(const std::exception& e)
+		catch(const IrcException& e)
 		{
 			std::cerr << e.what() << std::endl;
 			continue;
 		}
-		listenClients();
+		UserManager::getInstance().listenClients();
 	}
 }
 
@@ -83,11 +91,11 @@ void Server::stop()
 
 void Server::checkNewConnections()
 {
-	if (pollfds_[0].revents & POLLIN)
+	if (pollfd_.revents & POLLIN)
 	{
 		struct sockaddr_in clientAddr;
 		socklen_t clientLen = sizeof(clientAddr);
-		int clientSocket = accept(serverSocket_, (struct sockaddr*)&clientAddr, &clientLen);
+		int clientSocket = accept(pollfd_.fd, (struct sockaddr*)&clientAddr, &clientLen);
 		if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
 			throw std::runtime_error("Error: fcntl failed, cannot connect client");
 		if (clientSocket < 0)
@@ -99,74 +107,8 @@ void Server::checkNewConnections()
 
 void Server::addNewUser(int clientSocket, struct sockaddr_in clientAddr)
 {
-	if (nfds_ >= MAX_CLIENTS + 1)
-	{
-		std::cerr << "Max clients reached, rejecting connection" << std::endl;
-		close(clientSocket);
-		return;
-	}
-	User newUser(clientSocket, clientAddr);
-	userList.push_back(newUser);
-	pollfds_[nfds_].fd = clientSocket;
-	pollfds_[nfds_].events = POLLIN;
-	pollfds_[nfds_].revents = 0;
-	nfds_++;
-
+	UserManager::getInstance().addNewUser(clientSocket, clientAddr);
 	std::cout << "Accepted connection from "
-				<< inet_ntoa(clientAddr.sin_addr) << ":"
-				<< ntohs(clientAddr.sin_port) << std::endl;
-}
-
-void Server::listenClients()
-{
-	for (int i = nfds_ - 1; i >= 1; i--)
-	{
-		try
-		{
-			User user = findUserBySocket(pollfds_[i].fd);
-			if (pollfds_[i].revents & POLLIN)
-				ManageMsg(user);
-		}
-		catch(const NoSuchUser& e)
-		{
-			std::cerr << e.what() << '\n';
-		}
-		catch(const User::ClientDisconnected& e)
-		{
-			std::cout << "Client disconnected" << std::endl; //handle by manageUser and pop the user from userList
-			close(pollfds_[i].fd);
-			pollfds_[i] = pollfds_[nfds_ - 1];
-			nfds_--;
-		}
-	}
-}
-
-void Server::ManageMsg(User user)
-{
-	try
-	{
-		std::string msg = user.receiveMsg();
-		std::cout << msg;
-		user.sendMsg("TA GUEULE !!!!\r\n");
-	}
-	catch(const User::ErrorReiceve& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
-}
-
-const User& Server::findUserBySocket(int socket)
-{
-	std::vector<User>::iterator it;
-	for (it = userList.begin(); it < userList.end(); it++)
-	{
-		if (it->getSocket() == socket)
-			return (*it);
-	}
-	throw NoSuchUser();
-}
-
-const char* Server::NoSuchUser::what() const throw()
-{
-	return ("Error: user not found");
+		<< inet_ntoa(clientAddr.sin_addr) << ":"
+		<< ntohs(clientAddr.sin_port) << std::endl;
 }

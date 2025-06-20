@@ -28,6 +28,11 @@ void User::privateMsg(User* target , const std::string& msg) // ptr on clien on 
 	target->sendMsg(msg);
 }
 
+bool User::is(std::string nickname)
+{
+	return (nickname_ == nickname);
+}
+
 int User::getSocket()
 {
 	return (clientSocket_);
