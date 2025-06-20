@@ -39,8 +39,8 @@ CYAN			:= \e[36m
 
 all:	$(NAME)
 
-$(NAME):	$(OBJ) $(DISPLAY_TRACKER)
-	@$(CXX) $(CXXFLAGS) $^ -o $@
+$(NAME):	$(DISPLAY_TRACKER) $(OBJ)
+	@$(CXX) $(CXXFLAGS) $(OBJ) -o $@
 	@echo "$(GREEN)$(NAME) ready ✅️$(INIT)"
 
 $(BUILD_DIR)%.o:	$(SRC_DIR)%.cpp | $(OBJ_DIR)
