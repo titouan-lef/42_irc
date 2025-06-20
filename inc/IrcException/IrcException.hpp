@@ -1,12 +1,11 @@
 #pragma once
 
 #include <iostream>
-#include "utils.hpp"
 
 class IrcException
 {
 public:
-	IrcException(const CommandResponse& CmdResponse);
+	IrcException(const int code, const std::string& name, const std::string& message);
 	virtual ~IrcException() = 0;
 
 	virtual const char* what() const throw();
