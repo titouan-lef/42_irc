@@ -4,14 +4,15 @@ CXX				:= c++
 CXXFLAGS		+= -Wall -Wextra -Werror -MP -MMD -std=c++98 -g
 MAKEFLAGS		+= --no-print-directory
 BUILD_DIR		:= .build/
-HEADERS			:= ./inc/
+HEADERS			:= inc/ inc/IrcException/ inc/IrcException/ConcreteIrcException/ inc/struct/
 NAME			:= ircserv
 DISPLAY_TRACKER	:= .display_done
 
 #==================== SOURCE ====================#
 
 SRC_DIR			:= ./src/
-SRC				:= main Server Client User
+SRC				:= main Server Client User IrcException \
+					struct/CommandResponse
 SRC				:= $(addsuffix .cpp, $(SRC))
 
 #==================== OBJECT ====================#
@@ -44,7 +45,7 @@ $(NAME):	$(OBJ) $(DISPLAY_TRACKER)
 
 $(BUILD_DIR)%.o:	$(SRC_DIR)%.cpp | $(OBJ_DIR)
 	@echo "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)"
-	@$(CXX) $(CXXFLAGS) -I$(HEADERS) -c $< -o $@
+	@$(CXX) $(CXXFLAGS) $(addprefix -I,$(HEADERS)) -c $< -o $@
 
 $(OBJ_DIR):
 	@mkdir -p $@
