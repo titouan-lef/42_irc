@@ -1,4 +1,5 @@
 #include "UserManager.hpp"
+#include "MsgServ.hpp"
 
 #include <unistd.h>
 
@@ -24,6 +25,8 @@ void UserManager::listenClients()
 	{
 		if (!hasDataToRead(i))
 			continue;
+		std::string msg = MsgServ::recvMsg(pollfdList_[i].fd);
+		std::cout << msg ;
 		/**
 		 * @todo
 		 * receive message
@@ -50,7 +53,7 @@ void UserManager::closeAllConnection()
 
 int UserManager::getNbUserEvent() const
 {
-	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);// todo cast
+	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
 }
 
 bool UserManager::hasDataToRead(const int index) const
