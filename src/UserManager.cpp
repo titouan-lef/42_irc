@@ -5,6 +5,14 @@
 
 UserManager::UserManager() {}
 
+void UserManager::initUserManager(const int serverSocket, const struct sockaddr_in& serverAddr)
+{
+	User newUser(serverSocket, serverAddr);
+	struct pollfd newPollfd = {serverSocket, POLLIN, 0};
+	userList_.push_back(newUser);
+	pollfdList_.push_back(newPollfd);
+}
+
 UserManager& UserManager::getInstance()
 {
 	static UserManager instance;
@@ -21,7 +29,7 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 
 void UserManager::listenClients()
 {
-	for (std::size_t i = 0; i < userList_.size(); ++i)
+	for (std::size_t i = 1; i < userList_.size(); ++i)
 	{
 		if (!hasDataToRead(i))
 			continue;
@@ -37,7 +45,7 @@ void UserManager::listenClients()
 
 int UserManager::findUserSocket(std::string nickname)
 {
-	for (std::size_t i = 0; i < userList_.size(); ++i)
+	for (std::size_t i = 1; i < userList_.size(); ++i)
 	{
 		if (userList_[i].is(nickname))
 			return pollfdList_[i].fd;
@@ -47,13 +55,18 @@ int UserManager::findUserSocket(std::string nickname)
 
 void UserManager::closeAllConnection()
 {
-	for (std::size_t i = 0; i < userList_.size(); ++i)
+	for (std::size_t i = 1; i < userList_.size(); ++i)
 		closeConnection(i);
 }
 
 int UserManager::getNbUserEvent() const
 {
 	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
+}
+
+bool UserManager::serverReiceveData() const
+{
+	return (getInstance().hasDataToRead(0));
 }
 
 bool UserManager::hasDataToRead(const int index) const

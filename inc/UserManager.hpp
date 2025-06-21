@@ -13,11 +13,14 @@ class UserManager
 public:
 	static UserManager& getInstance();
 
+	void initUserManager(const int serverSocket, const struct sockaddr_in& serverAddr);
+
 	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
 	void listenClients();
 	int findUserSocket(std::string nickname);
 	void closeAllConnection();
 
+	bool serverReiceveData() const;
 	int getNbUserEvent() const;
 
 private:

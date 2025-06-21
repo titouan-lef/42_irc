@@ -15,16 +15,14 @@ Server::Server()
 {
 	running_ = false;
 	// Initialize pollfd for listening socket
-	pollfd_.fd = -1;
-	pollfd_.events = POLLIN;
-	pollfd_.revents = 0;
+	serverSocket_ = -1;
 }
 
 void Server::closeServerConnection()
 {
 	UserManager::getInstance().closeAllConnection();
-	if (pollfd_.fd != -1)
-		close (pollfd_.fd);
+	if (serverSocket_ != -1)
+		close (serverSocket_);
 	std::cout << "Shutting down server..." << std::endl;
 }
 
@@ -35,24 +33,24 @@ void Server::initServerConnection(int port)
 	if (!proto)
 		throw std::runtime_error("Error: getprotobyname failed");
 	// Creating the Server Socket
-	pollfd_.fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (pollfd_.fd < 0)
+	serverSocket_ = socket(AF_INET, SOCK_STREAM, 0);
+	if (serverSocket_ < 0)
 		throw std::runtime_error("Error: cannot open socket");
 	// Set SO_REUSEADDR to avoid "address already in use" error on restart
 	int opt = 1;
-	if (setsockopt(pollfd_.fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
+	if (setsockopt(serverSocket_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
 		throw std::runtime_error("Error: setsockopt failed");
 	// Bind to all interfaces
-	struct sockaddr_in addr;
-	std::memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(pollfd_.fd, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+	std::memset(&serverAddr_, 0, sizeof(serverAddr_));
+	serverAddr_.sin_family = AF_INET;
+	serverAddr_.sin_port = htons(port);
+	serverAddr_.sin_addr.s_addr = htonl(INADDR_ANY);
+	if (bind(serverSocket_, (struct sockaddr *) &serverAddr_, sizeof(serverAddr_)) < 0)
 		throw std::runtime_error("Error: bind failed");
 	// Listen
-	if (listen(pollfd_.fd, SOMAXCONN) < 0) 
+	if (listen(serverSocket_, SOMAXCONN) < 0) 
 		throw std::runtime_error("Error: listen failed");
+	UserManager::getInstance().initUserManager(serverSocket_, serverAddr_);
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
 }
 
@@ -62,6 +60,7 @@ void Server::run()
 	while (running_)
 	{
 		int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
+		std::cout << poll_count << std::endl;
 		if (poll_count == 0)
 			continue; // Timeout, no events, loop again
 		if (poll_count < 0)
@@ -91,11 +90,11 @@ void Server::stop()
 
 void Server::checkNewConnections()
 {
-	if (pollfd_.revents & POLLIN)
+	if (UserManager::getInstance().serverReiceveData())
 	{
 		struct sockaddr_in clientAddr;
 		socklen_t clientLen = sizeof(clientAddr);
-		int clientSocket = accept(pollfd_.fd, (struct sockaddr*)&clientAddr, &clientLen);
+		int clientSocket = accept(serverSocket_, (struct sockaddr*)&clientAddr, &clientLen);
 		if (clientSocket < 0)
 			throw std::runtime_error("Error: accept failed");
 		if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)

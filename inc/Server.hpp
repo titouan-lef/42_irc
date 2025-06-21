@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <poll.h>
+#include <netinet/in.h>
 
 class Server
 {
@@ -21,6 +21,7 @@ private:
 	void addNewUser(int clientSocket, struct sockaddr_in clientAddr);
 	void listenClients();
 
-	struct pollfd pollfd_;
+	int serverSocket_; // manage link with pollfds
+	struct sockaddr_in serverAddr_;
 	bool running_;
 };
