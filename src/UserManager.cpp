@@ -91,7 +91,16 @@ bool UserManager::hasDataToRead(const int index) const
 
 void UserManager::closeConnection(const int index)
 {
+	User user = userList_[index];
+	struct sockaddr_in addr = user.getAddress();
+	std::string nickname = user.getNickname();
+	if (!nickname.empty())
+		std::cout << nickname + " disconnected" << std::endl;
+	else
+		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	close(pollfdList_[index].fd);
+	pollfdList_.erase(pollfdList_.begin() + index);
+	userList_.erase(userList_.begin() + index);
 	/**
 	 * @todo
 	 * remove pollfd
