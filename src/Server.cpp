@@ -60,7 +60,6 @@ void Server::run()
 	while (running_)
 	{
 		int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
-		std::cout << poll_count << std::endl;
 		if (poll_count == 0)
 			continue; // Timeout, no events, loop again
 		if (poll_count < 0)

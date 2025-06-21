@@ -1,5 +1,7 @@
 #include "UserManager.hpp"
 #include "MsgServ.hpp"
+#include "ClientDisconnectedException.hpp"
+#include "ReiceveException.hpp"
 
 #include <unistd.h>
 
@@ -29,17 +31,30 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 
 void UserManager::listenClients()
 {
-	for (std::size_t i = 1; i < userList_.size(); ++i)
+	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
 		if (!hasDataToRead(i))
 			continue;
-		std::string msg = MsgServ::recvMsg(pollfdList_[i].fd);
-		std::cout << msg ;
-		/**
-		 * @todo
-		 * receive message
-		 * send to command manager
-		 */
+		try
+		{
+			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd);
+			std::cout << msg;
+			std::string test = "testmsg";
+			MsgServ::sendMsg(pollfdList_[i].fd, test);
+			/**
+			 * @todo
+			 * receive message
+			 * send to command manager
+			 */
+		}
+		catch(const ClientDisconnectedException& e)
+		{
+			getInstance().closeConnection(i);
+		}
+		catch(const ReiceveException& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
 	}
 }
 

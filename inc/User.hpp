@@ -11,33 +11,19 @@ public:
 	User(int clientSocket, struct sockaddr_in clientAddr);
 	// ~User();
 
-	const std::string& receiveMsg();
-	void sendMsg(const std::string& msg);
-	void privateMsg(User* target , const std::string& msg); // ptr on clien on string(nickname)
 	bool is(std::string nickname);
 
+	std::string getNickname();
 	int getSocket();
 	struct sockaddr_in getAddress();
-
-	class ErrorReiceve : public std::exception
-	{
-		public:
-			const char* what() const throw();
-	};
-
-	class ClientDisconnected : public std::exception
-	{
-		public:
-			const char* what() const throw();
-	};
 
 private:
 
 	std::string nickname_;
 	std::string realName_;
 
-	const int clientSocket_; // manage link with pollfds
-	const struct sockaddr_in clientAddr_;
+	int clientSocket_; // manage link with pollfds
+	struct sockaddr_in clientAddr_;
 	// Role role_;
 
 	std::string buffer_;
