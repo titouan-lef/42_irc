@@ -11,26 +11,55 @@ Channel::Channel(std::string name, User& moderator): name_(name)
 	connectUser(moderator);
 }
 
+/**
+ * @brief Get the name of the channel.
+ *
+ * @return A constant reference to the channel's name.
+ */
 const std::string& Channel::getName()
 {
 	return name_;
 }
 
+/**
+ * @brief Checks if the channel is invite-only.
+ *
+ * @return True if the channel has invite-only restriction enabled, false otherwise.
+ */
 bool Channel::isInviteRestricted() const
 {
 	return inviteRestricted_;
 }
 
+/**
+ * @brief Checks if the channel's topic can only be changed by moderators.
+ *
+ * @return True if topic changes are restricted to operators, false otherwise.
+ */
 bool Channel::isTopicRestricted() const 
 {
 	return topicRestricted_;
 }
 
+/**
+ * @brief Adds a user to the list of connected users in the channel.
+ *
+ * @param newUser Reference to the user being connected.
+ *
+ * @note Currently does not check if the user is already connected.
+ */
 void Channel::connectUser(User& newUser)
 {
-	connectedUser_.push_back(newUser); //check if allreadty present ??
+	connectedUser_.push_back(newUser);
 }
 
+/**
+ * @brief Removes a user from the list of connected users by nickname.
+ *
+ * @param nickname The nickname of the user to disconnect.
+ *
+ * @throws NoSuchNickException If no user with the given nickname is found in the channel.
+ */
 void Channel::disconnectUser(const std::string& nickname)
 {
 	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
@@ -44,9 +73,17 @@ void Channel::disconnectUser(const std::string& nickname)
 	throw NoSuchNickException(nickname);
 }
 
+
+/**
+ * @brief Checks if a user is a channel moderator by nickname.
+ *
+ * @param nickname The nickname to check.
+ *
+ * @return True if the user is a moderator, false otherwise.
+ */
 bool Channel::isModerator(const std::string& nickname) const
 {
-	for (std::vector<User>::const_iterator it = moderators_.begin(); it < connectedUser_.end(); ++it)
+	for (std::vector<User>::const_iterator it = moderators_.begin(); it < moderators_.end(); ++it)
 	{
 		if (it->getNickname() == nickname)
 			return true;
@@ -54,26 +91,53 @@ bool Channel::isModerator(const std::string& nickname) const
 	return false;
 }
 
+/**
+ * @brief Sets the channel's topic to a new value.
+ *
+ * @param newTopic The new topic string to assign to the channel.
+ */
 void Channel::setTopic(const std::string& newTopic)
 {
 	topic_ = newTopic;
 }
 
+/**
+ * @brief Sets a new password for the channel.
+ *
+ * @param newPassword The new password to protect the channel.
+ */
 void  Channel::setPassword(const std::string& newPassword)
 {
 	password_ = newPassword;
 }
 
+/**
+ * @brief Disables the channel password.
+ */
 void Channel::disablePassword()
 {
 	password_.clear();
 }
 
+/**
+ * @brief Adds a new moderator to the channel.
+ *
+ * @param newModerator Reference to the user to be added as moderator.
+ *
+ * @note Currently does not check if the user is already a moderator.
+ */
 void Channel::addNewModerator(User& newModerator)
 {
-	moderators_.push_back(newModerator); //check if allreadty present before ??
+	moderators_.push_back(newModerator);
 }
 
+/**
+ * @brief Removes a moderator from the channel by nickname.
+ *
+ * @param nickname The nickname of the moderator to remove.
+ *
+ * @throws NoSuchNickException if no moderator with the given nickname is found.
+ */
 void Channel::removeModerator(const std::string& nickname)
 {
 	for (std::vector<User>::iterator it = moderators_.begin(); it < moderators_.end(); ++it)
@@ -87,16 +151,31 @@ void Channel::removeModerator(const std::string& nickname)
 	throw NoSuchNickException(nickname);
 }
 
+/**
+ * @brief Sets the maximum number of users allowed in the channel.
+ *
+ * @param nbUserMax The maximum user count to set.
+ */
 void Channel::setLimitUsers(int nbUserMax)
 {
 	nbMaxUsers_ = nbUserMax;
 }
 
+/**
+ * @brief Disables the user limit on the channel.
+ *
+ * Sets the maximum user count to -1, meaning no limit.
+ */
 void Channel::disableLimitUsers()
 {
 	nbMaxUsers_ = -1;
 }
 
+/**
+ * @brief Sends a message to all users connected to the channel.
+ *
+ * @param msg The message string to send.
+ */
 void Channel::sendMsgToAllUsers(std::string& msg)
 {
 	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
