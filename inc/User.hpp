@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "Client.hpp"
@@ -13,13 +12,16 @@ public:
 
 	bool is(std::string nickname);
 
-	std::string getNickname();
+	const std::string& getNickname() const;
+	const std::string& getUsername() const;
+	const std::string getPrefix() const;
 	int getSocket();
 	struct sockaddr_in getAddress();
 
 private:
 
 	std::string nickname_;
+	std::string username_;
 	std::string realName_;
 
 	int clientSocket_; // manage link with pollfds
