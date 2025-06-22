@@ -4,9 +4,19 @@
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
 
+/**
+ * @brief Sends a message over the given socket.
+ *
+ * @param socket The socket file descriptor to send the message through.
+ * @param msg The message to send; the sent part will be erased from this string.
+ *
+ * @throws SendException if sending fails for reasons other than EAGAIN.
+ *
+ * @note Currently uses a temporary nickname placeholder for error reporting.
+ */
 void MsgServ::sendMsg(int socket, std::string& msg)
 {
-	std::string nickname = "tmpNickname"; /** @todo find right nickname */
+	std::string nickname = "tmpNickname"; /** @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	if (msg.empty())
 		return;
 	ssize_t sent = send(socket, msg.c_str(), msg.size(), 0);
@@ -16,9 +26,21 @@ void MsgServ::sendMsg(int socket, std::string& msg)
 		msg.erase(0, sent);
 }
 
+/**
+ * @brief Receives a message from the specified socket.
+ *
+ * @param socket The socket file descriptor to receive data from.
+ *
+ * @return The received message as a std::string.
+ *
+ * @throws ReiceveException if an error occurs during receiving.
+ * @throws ClientDisconnectedException if the client has closed the connection.
+ *
+ * @note Currently uses a temporary nickname placeholder for exception reporting.
+ */
 std::string MsgServ::recvMsg(int socket)
 {
-	std::string nickname = "tmpNickname"; /** @todo find right nickname */
+	std::string nickname = "tmpNickname"; /** @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	char buffer[1024];
 	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
@@ -29,7 +51,14 @@ std::string MsgServ::recvMsg(int socket)
 	return buffer;
 }
 
-int MsgServ::isMsgComplete(std::string& msg)
+/**
+ * @brief Checks if the message contains the end-of-message delimiter "\r\n".
+ *
+ * @param msg The message string to check.
+ *
+ * @return true if the message contains "\r\n", false otherwise.
+ */
+bool MsgServ::isMsgComplete(std::string& msg)
 {
 	return (msg.find("\r\n") != std::string::npos);
 }

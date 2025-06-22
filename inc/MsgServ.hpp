@@ -9,7 +9,7 @@ public:
 
 	static void sendMsg(int socket, std::string& msg);
 	static std::string recvMsg(int socket);
-	static int isMsgComplete(std::string& msg);
+	static bool isMsgComplete(std::string& msg);
 
 private:
 
