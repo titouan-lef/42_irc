@@ -54,6 +54,20 @@ void Server::initServerConnection(int port)
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
 }
 
+void Server::initPassword(std::string password)
+{
+	if (password.empty())
+		throw std::runtime_error("Error: Password is empty");
+	for (size_t i = 0; i < password.length(); ++i)
+	{
+        unsigned char c = password[i];
+        if (c <= 32 || c > 126) {
+            throw std::runtime_error("Error: Use just ascii value 33 at 126");
+        }
+    }
+	password_ =  password;
+}
+
 void Server::run()
 {
 	running_ = true;

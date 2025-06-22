@@ -4,6 +4,7 @@
 #include "ReiceveException.hpp"
 #include "CommandManager.hpp"
 #include "NoSuchNickException.hpp"
+#include "UnknowCmd.hpp"
 
 #include <unistd.h>
 
@@ -90,6 +91,10 @@ void UserManager::listenClients()
 			std::cerr << e.what() << std::endl;
 		}
 		catch(const NoSuchNickException& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+		catch(const UnknowCmd& e)
 		{
 			std::cerr << e.what() << std::endl;
 		}

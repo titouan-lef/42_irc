@@ -16,6 +16,7 @@
 #include "QuitCmd.hpp"
 #include "TopicCmd.hpp"
 #include "UserCmd.hpp"
+#include "UnknowCmd.hpp"
 
 CommandManager::CommandManager() {
     commands_["INVITE"] = new InviteCmd();
@@ -52,6 +53,7 @@ CommandManager& CommandManager::getInstance()
     static CommandManager instance;
     return instance;
 }
+
 void CommandManager::interpretData(std::string recv, const User & user)
 {
     std::string key, token, trailing;
@@ -76,5 +78,5 @@ void CommandManager::interpretData(std::string recv, const User & user)
     if (it != commands_.end())
         commands_[key]->execute(args, trailing, user);
     else
-        std::cout << "command n existe pas" << std::endl;
+        throw UnknowCmd(key);
 }

@@ -17,14 +17,23 @@ int main(int argc, char** argv)
 {
 	Server server;
 	globalServerPtr = &server;
-	if (argc < 2)
+	if (argc != 3)
 	{
-		std::cerr << "Usage: ./ircserv <port>" << std::endl;
+		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
 		return 1;
 	}
 	// Setup signal handler
 	std::signal(SIGINT, signalHandler);
-
+	try 
+	{
+		server.initPassword(argv[2]);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	
 	int	port = std::atoi(argv[1]);
 	try
 	{
