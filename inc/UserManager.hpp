@@ -1,7 +1,5 @@
 #pragma once
 
-#define MAX_CLIENTS 100
-
 #include <iostream>
 #include <vector>
 #include <poll.h>
