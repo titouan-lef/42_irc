@@ -18,11 +18,17 @@ const char* IrcException::what() const throw()
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
+#include "PasswordDismatchException.hpp"
+#include "ChannelIsFullException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
 ClientDisconnectedException::ClientDisconnectedException(const std::string& nickname): IrcException(504, "ERR_USERNOTONSERV", nickname + " disconnected") {}
 
-ReiceveException::ReiceveException(const std::string& nickname): IrcException(555, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
+ReiceveException::ReiceveException(const std::string& nickname): IrcException(1, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
 
-SendException::SendException(const std::string& nickname): IrcException(556, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
+SendException::SendException(const std::string& nickname): IrcException(1, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
+
+PasswordDismatchException::PasswordDismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
+
+ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}

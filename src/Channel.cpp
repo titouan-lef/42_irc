@@ -1,5 +1,7 @@
 #include "Channel.hpp"
 #include "NoSuchNickException.hpp"
+#include "PasswordDismatchException.hpp"
+#include "ChannelIsFullException.hpp"
 #include "MsgServ.hpp"
 
 Channel::Channel(std::string name, User& moderator): name_(name)
@@ -45,11 +47,33 @@ bool Channel::isTopicRestricted() const
  * @brief Adds a user to the list of connected users in the channel.
  *
  * @param newUser Reference to the user being connected.
- *
- * @note Currently does not check if the user is already connected.
+ * 
+ * @throws PasswordDismatchException if the channel is password protected.
+ * @throws ChannelIsFullException if the maximum number of users is reached.
  */
 void Channel::connectUser(User& newUser)
 {
+	if (isPasswordProtected())
+		throw PasswordDismatchException();
+	if (isLimitNbUserReached())
+		throw ChannelIsFullException(name_);
+	connectedUser_.push_back(newUser);
+}
+
+/**
+ * @brief Adds a user to the list of connected users in the channel.
+ *
+ * @param newUser Reference to the user being connected.
+ * 
+ * @throws PasswordDismatchException if the given password is incorect.
+ * @throws ChannelIsFullException if the maximum number of users is reached.
+ */
+void Channel::connectUser(User& newUser, const std::string& password)
+{
+	if (password != password_)
+		throw PasswordDismatchException();
+	if (isLimitNbUserReached())
+		throw ChannelIsFullException(name_);
 	connectedUser_.push_back(newUser);
 }
 
@@ -99,6 +123,16 @@ bool Channel::isModerator(const std::string& nickname) const
 void Channel::setTopic(const std::string& newTopic)
 {
 	topic_ = newTopic;
+}
+
+/**
+ * @brief Check if a password is needed to access the channel.
+ *
+ * @return true if the channel is password protected, false otherwise.
+ */
+bool Channel::isPasswordProtected() const
+{
+	return password_.empty();
 }
 
 /**
@@ -152,11 +186,21 @@ void Channel::removeModerator(const std::string& nickname)
 }
 
 /**
+ * @brief Checks if the channel has reached the maximum allowed number of users.
+ *
+ * @return true if the number of connected users equals the maximum limit, false otherwise.
+ */
+bool Channel::isLimitNbUserReached() const
+{
+	return static_cast<int>(connectedUser_.size()) == nbMaxUsers_;
+}
+
+/**
  * @brief Sets the maximum number of users allowed in the channel.
  *
  * @param nbUserMax The maximum user count to set.
  */
-void Channel::setLimitUsers(int nbUserMax)
+void Channel::setLimitNbUsers(int nbUserMax)
 {
 	nbMaxUsers_ = nbUserMax;
 }
@@ -166,7 +210,7 @@ void Channel::setLimitUsers(int nbUserMax)
  *
  * Sets the maximum user count to -1, meaning no limit.
  */
-void Channel::disableLimitUsers()
+void Channel::disableLimitNbUsers()
 {
 	nbMaxUsers_ = -1;
 }
