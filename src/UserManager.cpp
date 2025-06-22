@@ -2,6 +2,8 @@
 #include "MsgServ.hpp"
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
+#include "CommandManager.hpp"
+#include "NoSuchNickException.hpp"
 
 #include <unistd.h>
 
@@ -69,6 +71,8 @@ void UserManager::listenClients()
 		{
 			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd);
 			std::cout << msg;
+
+			CommandManager::getInstance().interpretData(msg, userList_[i]);
 			std::string test = "testmsg";
 			MsgServ::sendMsg(pollfdList_[i].fd, test);
 			/**
@@ -82,6 +86,10 @@ void UserManager::listenClients()
 			getInstance().closeConnection(i);
 		}
 		catch(const ReiceveException& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+		catch(const NoSuchNickException& e)
 		{
 			std::cerr << e.what() << std::endl;
 		}
