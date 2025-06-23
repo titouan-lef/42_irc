@@ -11,16 +11,16 @@ public:
 	Channel(std::string name, User& moderator);
 	// ~Channel();
 
-	const std::string& getName();
+	const std::string& getName() const;
 	bool isPasswordProtected() const;
 	bool isInviteRestricted() const;
 	bool isTopicRestricted() const;
 	bool isLimitNbUserReached() const;
-
-	void connectUser(User& newUser);
-	void connectUser(User& newUser, const std::string& password);
-	void disconnectUser(const std::string& nickname);
+	bool isConnected(const std::string& nickname) const;
 	bool isModerator(const std::string& nickname) const;
+
+	void connectUser(User& newUser, const std::string& password = "");
+	void disconnectUser(const std::string& nickname);
 	void setTopic(const std::string& newTopic);
 	void setPassword(const std::string& newPassword);
 	void disablePassword();

@@ -32,7 +32,9 @@ static void testInstance()
 	Tester::assertExpectedEqualsActual(std::string("mychannel"), chan.getName());
 	Tester::assertFalse(chan.isInviteRestricted());
 	Tester::assertFalse(chan.isTopicRestricted());
+	Tester::assertTrue(chan.isConnected("Alice"));
 	Tester::assertTrue(chan.isModerator("Alice"));
+
 }
 
 /**
@@ -95,7 +97,10 @@ static void testUserDisconnection()
 	mod.setNickname("mod");
 	Channel chan("disc", mod);
 
-	Tester::assertThrows<PasswordDismatchException>([&]() {chan.connectUser(mod, "mod");});
+	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("someone");});
+	Tester::assertDoNotThrows([&]() {chan.disconnectUser("mod");});
+	Tester::assertFalse(chan.isConnected("mod"));
+	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("mod");});
 
 }
 

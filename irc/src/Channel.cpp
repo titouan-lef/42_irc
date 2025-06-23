@@ -15,7 +15,7 @@ Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1
  *
  * @return A constant reference to the channel's name.
  */
-const std::string& Channel::getName()
+const std::string& Channel::getName() const
 {
 	return name_;
 }
@@ -45,29 +45,12 @@ bool Channel::isTopicRestricted() const
  *
  * @param newUser Reference to the user being connected.
  * 
- * @throws PasswordDismatchException if the channel is password protected.
- * @throws ChannelIsFullException if the maximum number of users is reached.
- */
-void Channel::connectUser(User& newUser)
-{
-	if (isPasswordProtected())
-		throw PasswordDismatchException();
-	if (isLimitNbUserReached())
-		throw ChannelIsFullException(name_);
-	connectedUser_.push_back(newUser);
-}
-
-/**
- * @brief Adds a user to the list of connected users in the channel.
- *
- * @param newUser Reference to the user being connected.
- * 
  * @throws PasswordDismatchException if the given password is incorect.
  * @throws ChannelIsFullException if the maximum number of users is reached.
  */
 void Channel::connectUser(User& newUser, const std::string& password)
 {
-	if (password != password_)
+	if (isPasswordProtected() && password != password_)
 		throw PasswordDismatchException();
 	if (isLimitNbUserReached())
 		throw ChannelIsFullException(name_);
@@ -94,6 +77,23 @@ void Channel::disconnectUser(const std::string& nickname)
 	throw NoSuchNickException(nickname);
 }
 
+
+/**
+ * @brief Checks if a user is a channel moderator by nickname.
+ *
+ * @param nickname The nickname to check.
+ *
+ * @return True if the user is a moderator, false otherwise.
+ */
+bool Channel::isConnected(const std::string& nickname) const
+{
+	for (std::vector<User>::const_iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	{
+		if (it->getNickname() == nickname)
+			return true;
+	}
+	return false;
+}
 
 /**
  * @brief Checks if a user is a channel moderator by nickname.
