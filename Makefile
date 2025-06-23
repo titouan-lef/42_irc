@@ -11,21 +11,7 @@ DISPLAY_TRACKER	:= .display_done
 #==================== SOURCE ====================#
 
 SRC_DIR			:= ./src/
-SRC				:= main Server Client User IrcException UserManager Service MsgServ Channel ChanServ \
-					Commands/CommandManager \
-					Commands/JoinCmd \
-					Commands/KickCmd \
-					Commands/ModeCmd \
-					Commands/NickCmd \
-					Commands/PartCmd \
-					Commands/PingCmd \
-					Commands/PongCmd \
-					Commands/QuitCmd \
-					Commands/UserCmd \
-					Commands/TopicCmd \
-					Commands/InviteCmd \
-					Commands/PrivmsgCmd \
-					struct/CommandResponse
+include			sources.mk
 SRC				:= $(addsuffix .cpp, $(SRC))
 
 #==================== OBJECT ====================#
