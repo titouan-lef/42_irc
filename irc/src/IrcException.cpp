@@ -26,14 +26,17 @@ const char* IrcException::what() const throw()
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
+#include "NeedMoreParamsException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
 UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
 
-ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname): IrcException(432, "  " , nickname + " :Erroneous nickname"){}
+ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname): IrcException(432, "*" , nickname + " :Erroneous nickname"){}
 
-NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "  " , nickname + " :Nickname is already in use"){}
+NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "*" , nickname + " :Nickname is already in use"){}
+
+NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", "PASS :Not enough parameters"){}
 
 PasswordMismatchException::PasswordMismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
 
