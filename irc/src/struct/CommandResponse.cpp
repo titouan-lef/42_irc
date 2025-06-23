@@ -2,12 +2,7 @@
 #include <iomanip>
 #include <sstream>
 
-CommandResponse::CommandResponse(const int code, const std::string& name, const std::string& message)
-{
-	this->code = code;
-	this->name = name;
-	this->message = message;
-}
+CommandResponse::CommandResponse(const int code, const std::string& name, const std::string& message): code(code), name(name), message(message) {}
 
 const std::string CommandResponse::getCommandResponse() const
 {

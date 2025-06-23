@@ -4,11 +4,8 @@
 #include "ChannelIsFullException.hpp"
 #include "MsgServ.hpp"
 
-Channel::Channel(std::string name, User& moderator): name_(name)
+Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
 {
-	nbMaxUsers_ = -1;
-	inviteRestricted_ = false;
-	topicRestricted_ = false;
 	addNewModerator(moderator);
 	connectUser(moderator);
 }

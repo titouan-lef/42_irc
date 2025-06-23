@@ -19,7 +19,8 @@
 #include "UserCmd.hpp"
 #include "UnknowCmdException.hpp"
 
-CommandManager::CommandManager() {
+CommandManager::CommandManager()
+{
 	commands_["INVITE"] = new InviteCmd();
 	commands_["JOIN"] = new JoinCmd();
 	commands_["KICK"] = new KickCmd();
@@ -34,19 +35,10 @@ CommandManager::CommandManager() {
 	commands_["USER"] = new UserCmd();
 }
 
-CommandManager::~CommandManager() {
-	delete commands_["INVITE"];
-	delete commands_["JOIN"];
-	delete commands_["KICK"];
-	delete commands_["MODE"];
-	delete commands_["NICK"];
-	delete commands_["PART"];
-	delete commands_["PING"];
-	delete commands_["PONG"];
-	delete commands_["PRIVMSG"];
-	delete commands_["QUIT"];
-	delete commands_["TOPIC"];
-	delete commands_["USER"];
+CommandManager::~CommandManager()
+{
+	for (std::map<std::string, ACommand*>::iterator it = commands_.begin(); it != commands_.end(); ++it)
+		delete it->second;
 }
 
 CommandManager& CommandManager::getInstance()
@@ -55,13 +47,15 @@ CommandManager& CommandManager::getInstance()
 	return instance;
 }
 
-void CommandManager::interpretData(std::string recv, const User & user)
+void CommandManager::interpretData(std::string recv, const User& user)
 {
 	std::string key, token, trailing;
 	std::istringstream iss(recv);
 	std::vector<std::string> args;
 
 	iss >> key;
+	if (commands_.find(key) == commands_.end())
+		throw UnknowCmdException(key);
 	while (iss >> token)
 	{
 		if (token[0] == ':')
@@ -72,12 +66,7 @@ void CommandManager::interpretData(std::string recv, const User & user)
 			trailing += rest;
 			break;
 		}
-		else
-			args.push_back(token);
+		args.push_back(token);
 	}
-	std::map<std::string, ACommand*>::iterator it = commands_.find(key);
-	if (it != commands_.end())
-		commands_[key]->execute(args, trailing, user);
-	else
-		throw UnknowCmdException(key);
+	commands_[key]->execute(args, trailing, user);
 }

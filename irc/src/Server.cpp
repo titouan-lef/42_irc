@@ -11,11 +11,9 @@
 #include "UserManager.hpp"
 #include "IrcException.hpp"
 
-Server::Server()
+Server::Server(): serverSocket_(-1), running_(false)
 {
-	running_ = false;
 	// Initialize pollfd for listening socket
-	serverSocket_ = -1;
 }
 
 void Server::closeServerConnection()
@@ -60,11 +58,10 @@ void Server::initPassword(std::string password)
 		throw std::runtime_error("Error: Password is empty");
 	for (size_t i = 0; i < password.length(); ++i)
 	{
-        unsigned char c = password[i];
-        if (c <= 32 || c > 126) {
-            throw std::runtime_error("Error: Use just ascii value 33 at 126");
-        }
-    }
+		unsigned char c = password[i];
+		if (c <= 32 || c > 126)
+			throw std::runtime_error("Error: Use just ascii value 33 at 126");
+	}
 	password_ =  password;
 }
 
@@ -108,17 +105,16 @@ void Server::stop()
 
 void Server::checkNewConnections()
 {
-	if (UserManager::getInstance().serverReiceveData())
-	{
-		struct sockaddr_in clientAddr;
-		socklen_t clientLen = sizeof(clientAddr);
-		int clientSocket = accept(serverSocket_, (struct sockaddr*)&clientAddr, &clientLen);
-		if (clientSocket < 0)
-			throw std::runtime_error("Error: accept failed");
-		if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
-			throw std::runtime_error("Error: fcntl failed, cannot connect client");
-		addNewUser(clientSocket, clientAddr);
-	}
+	if (!UserManager::getInstance().serverReiceveData())
+		return;
+	struct sockaddr_in clientAddr;
+	socklen_t clientLen = sizeof(clientAddr);
+	int clientSocket = accept(serverSocket_, (struct sockaddr*)&clientAddr, &clientLen);
+	if (clientSocket < 0)
+		throw std::runtime_error("Error: accept failed");
+	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+		throw std::runtime_error("Error: fcntl failed, cannot connect client");
+	addNewUser(clientSocket, clientAddr);
 }
 
 void Server::addNewUser(int clientSocket, struct sockaddr_in clientAddr)

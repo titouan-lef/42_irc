@@ -13,7 +13,7 @@ public:
 	
 private:
 	CommandManager();
-	~CommandManager();
+	virtual ~CommandManager();
 	CommandManager(const CommandManager& other);
 	CommandManager& operator=(const CommandManager& other);
 

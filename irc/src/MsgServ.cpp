@@ -22,7 +22,7 @@ void MsgServ::sendMsg(int socket, std::string& msg)
 	ssize_t sent = send(socket, msg.c_str(), msg.size(), 0);
 	if (sent == -1 && errno != EAGAIN)
 		throw SendException(nickname);
-	else if (sent > 0)
+	if (sent > 0)
 		msg.erase(0, sent);
 }
 
@@ -45,7 +45,7 @@ std::string MsgServ::recvMsg(int socket)
 	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
 		throw ReiceveException(nickname);
-	else if (bytes_received == 0) // Connection closed by client
+	if (bytes_received == 0) // Connection closed by client
 		throw ClientDisconnectedException(nickname);
 	buffer[bytes_received] = '\0';
 	return buffer;

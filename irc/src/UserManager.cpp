@@ -84,7 +84,7 @@ void UserManager::listenClients()
 		}
 		catch(const ClientDisconnectedException& e)
 		{
-			getInstance().closeConnection(i);
+			closeConnection(i);
 		}
 		catch(const ReiceveException& e)
 		{
