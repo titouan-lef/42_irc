@@ -16,6 +16,12 @@ Server::Server(): serverSocket_(-1), running_(false)
 	// Initialize pollfd for listening socket
 }
 
+Server& Server::getInstance()
+{
+    static Server instance;
+    return instance;
+}
+
 void Server::closeServerConnection()
 {
 	UserManager::getInstance().closeAllConnection();

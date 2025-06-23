@@ -8,8 +8,7 @@ class Server
 {
 public:
 
-	Server();
-	// ~Server();
+	static Server& getInstance();
 
 	void initServerConnection(int port);
 	void initPassword(std::string password);
@@ -19,6 +18,11 @@ public:
 	void stop();
 
 private:
+
+	Server();
+	~Server(){}
+	Server(const Server& other);
+    Server& operator=(const Server& other);
 
 	void checkNewConnections();
 	void addNewUser(int clientSocket, struct sockaddr_in clientAddr);

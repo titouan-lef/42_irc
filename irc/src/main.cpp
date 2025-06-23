@@ -4,19 +4,15 @@
 
 #include "Server.hpp"
 
-Server* globalServerPtr = NULL;
-
 void signalHandler(int sig)
 {
 	if (sig == SIGINT)
-		globalServerPtr->stop();
+		Server::getInstance().stop();
 	std::cerr << std::endl;
 }
 
 int main(int argc, char** argv)
 {
-	Server server;
-	globalServerPtr = &server;
 	if (argc != 3)
 	{
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
@@ -26,7 +22,7 @@ int main(int argc, char** argv)
 	std::signal(SIGINT, signalHandler);
 	try 
 	{
-		server.initPassword(argv[2]);
+		Server::getInstance().initPassword(argv[2]);
 	}
 	catch (const std::exception& e)
 	{
@@ -37,17 +33,16 @@ int main(int argc, char** argv)
 	int	port = std::atoi(argv[1]);
 	try
 	{
-		server.initServerConnection(port);
+		Server::getInstance().initServerConnection(port);
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		server.closeServerConnection();
+		Server::getInstance().closeServerConnection();
 		return 1;
 	}
 
-	server.run();
-
-	server.closeServerConnection();
+	Server::getInstance().run();
+	Server::getInstance().closeServerConnection();
 	return 0;
 }
