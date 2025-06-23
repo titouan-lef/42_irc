@@ -3,7 +3,7 @@
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
 
-void PrivmsgCmd::execute(std::vector<std::string> args, std::string trailing, const User & user) const
+void PrivmsgCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
 {
 	(void)user;
 	int socket = UserManager::getInstance().findUserSocket(args[0]);

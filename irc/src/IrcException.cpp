@@ -36,7 +36,9 @@ ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname
 
 NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "*" , nickname + " :Nickname is already in use"){}
 
-NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", "PASS :Not enough parameters"){}
+NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", "PASS :Not enough parameters"){
+	(void)nickname;
+}
 
 PasswordMismatchException::PasswordMismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
 

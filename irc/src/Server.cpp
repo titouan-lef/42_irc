@@ -100,7 +100,15 @@ void Server::run()
 			std::cerr << e.what() << std::endl;
 			continue;
 		}
-		UserManager::getInstance().listenClients();
+		try
+		{
+			UserManager::getInstance().listenClients();
+		}
+		catch(const IrcException& e)
+		{
+			std::cerr << e.what() << std::endl;
+			continue;
+		}
 	}
 }
 

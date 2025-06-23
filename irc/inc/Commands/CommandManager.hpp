@@ -8,9 +8,9 @@
 class CommandManager
 {
 public:
-	static CommandManager& getInstance();
-	void interpretData(std::string recv, const User & user);
-	
+    static CommandManager& getInstance();
+    void interpretData(std::string recv, User & user);
+    
 private:
 	CommandManager();
 	virtual ~CommandManager();

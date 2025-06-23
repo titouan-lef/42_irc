@@ -47,7 +47,8 @@ CommandManager& CommandManager::getInstance()
 	return instance;
 }
 
-void CommandManager::interpretData(std::string recv, const User& user)
+
+void CommandManager::interpretData(std::string recv, User& user)
 {
 	std::string key, token, trailing;
 	std::istringstream iss(recv);

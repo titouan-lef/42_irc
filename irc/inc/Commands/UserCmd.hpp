@@ -8,5 +8,5 @@ public:
 	UserCmd(){}
 	~UserCmd(){}
 
-	void execute(std::vector<std::string>args, std::string trailing, const User & user) const;
+    void execute(std::vector<std::string>args, std::string trailing, User & user) const;
 };

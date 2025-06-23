@@ -1,6 +1,6 @@
 #include "InviteCmd.hpp"
 
-void InviteCmd::execute(std::vector<std::string> args, std::string trailing, const User & user) const
+void InviteCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
 {
 	(void)args;
 	(void)trailing;

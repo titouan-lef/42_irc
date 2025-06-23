@@ -11,6 +11,7 @@ public:
 	// ~User();
 
 	bool is(std::string nickname);
+	void validConnection();
 
 	void setNickname(const std::string& nickname);
 	const std::string& getNickname() const;
@@ -24,6 +25,7 @@ private:
 	std::string nickname_;
 	std::string username_;
 	std::string realName_;
+	bool isConnected_;
 
 	int clientSocket_; // manage link with pollfds
 	struct sockaddr_in clientAddr_;

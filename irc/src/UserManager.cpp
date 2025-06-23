@@ -86,15 +86,7 @@ void UserManager::listenClients()
 		{
 			closeConnection(i);
 		}
-		catch(const ReiceveException& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
-		catch(const NoSuchNickException& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
-		catch(const UnknowCmdException& e)
+		catch(const std::exception& e)
 		{
 			std::cerr << e.what() << std::endl;
 		}

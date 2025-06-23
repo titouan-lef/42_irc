@@ -1,6 +1,8 @@
 #include "User.hpp"
 
-User::User(int clientSocket, struct sockaddr_in clientAddr): clientSocket_(clientSocket), clientAddr_(clientAddr) {}
+User::User(int clientSocket, struct sockaddr_in clientAddr): clientSocket_(clientSocket), clientAddr_(clientAddr){
+	isConnected_ = false;
+}
 
 /**
  * @brief Checks if the user's nickname matches the given nickname.
@@ -81,4 +83,9 @@ int User::getSocket()
 struct sockaddr_in User::getAddress()
 {
 	return (clientAddr_);
+}
+
+void User::validConnection()
+{
+	isConnected_ = true;
 }
