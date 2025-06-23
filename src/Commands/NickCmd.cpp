@@ -1,9 +1,30 @@
 
 #include "NickCmd.hpp"
+#include "UnknowCmd.hpp"
+#include "UserManager.hpp"
 
+/**
+ * std::string::npos est egale "Pas trouvé" / "valeur invalide" dans une recherche
+ */
 void NickCmd::execute(std::vector<std::string> args, std::string trailing, const User & user) const
 {
-    (void)args;
-    (void)trailing;
-    (void)user;
+    if (!trailing.empty() || args.size() != 1)
+        throw UnknowCmd("");
+    if (args[0].length() > 9 || args[0].empty())
+        throw UnknowCmd("");
+    if (!isalpha(args[0][0]) && std::string("_[]\\`^{}|").find(args[0][0]) == std::string::npos)
+        throw UnknowCmd("");
+    for (size_t i = 0; i < args[0].length(); ++i)
+	{
+        unsigned char c = args[0][i];
+        if (!isalnum(args[0][0]) && std::string("_[]\\`^{}|").find(args[0][0]) == std::string::npos)
+        {
+            throw std::runtime_error("Error: Use just ascii value 33 at 126");
+        }
+    }
+    if (UserManager::getInstance().findUserSocket(args[0]) == -1)
+        throw UnknowCmd("");
+    //add user nick attribute
+    
 }
+

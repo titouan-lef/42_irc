@@ -68,6 +68,11 @@ void Server::initPassword(std::string password)
 	password_ =  password;
 }
 
+const std::string & Server::getPassword()
+{
+	return password_;
+}
+
 void Server::run()
 {
 	running_ = true;
