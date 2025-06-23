@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <iostream>
@@ -9,14 +8,14 @@
 class CommandManager
 {
 public:
-    static CommandManager& getInstance();
-    void interpretData(std::string recv, const User & user);
-    
+	static CommandManager& getInstance();
+	void interpretData(std::string recv, const User & user);
+	
 private:
-    CommandManager();
-    ~CommandManager();
-    CommandManager(const CommandManager& other);
-    CommandManager& operator=(const CommandManager& other);
+	CommandManager();
+	~CommandManager();
+	CommandManager(const CommandManager& other);
+	CommandManager& operator=(const CommandManager& other);
 
-    std::map<std::string, ACommand*> commands_;
+	std::map<std::string, ACommand*> commands_;
 };

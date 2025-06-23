@@ -1,6 +1,4 @@
-
 #pragma once
-
 
 #include <iostream>
 #include <vector>
@@ -9,8 +7,8 @@
 class ACommand
 {
 public:
-    ACommand(){}
-    virtual ~ACommand(){}
+	ACommand(){}
+	virtual ~ACommand(){}
 
-    virtual void execute(std::vector<std::string>args, std::string trailing, const User & user) const = 0;
+	virtual void execute(std::vector<std::string>args, std::string trailing, const User & user) const = 0;
 };

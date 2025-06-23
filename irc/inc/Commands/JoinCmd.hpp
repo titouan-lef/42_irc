@@ -5,8 +5,8 @@
 class JoinCmd : public ACommand
 {
 public:
-    JoinCmd(){}
-    ~JoinCmd(){}
+	JoinCmd(){}
+	~JoinCmd(){}
 
-    void execute(std::vector<std::string>args, std::string trailing, const User & user) const;
+	void execute(std::vector<std::string>args, std::string trailing, const User & user) const;
 };
