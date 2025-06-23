@@ -30,11 +30,6 @@ ClientDisconnectedException::ClientDisconnectedException(const std::string& nick
 
 ReiceveException::ReiceveException(const std::string& nickname): IrcException(1, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
 
-SendException::SendException(const std::string& nickname): IrcException(1, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
-
-PasswordDismatchException::PasswordDismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
-
-ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}
 
 UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
 
