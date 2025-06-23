@@ -129,7 +129,7 @@ void Channel::setTopic(const std::string& newTopic)
  */
 bool Channel::isPasswordProtected() const
 {
-	return password_.empty();
+	return !password_.empty();
 }
 
 /**
