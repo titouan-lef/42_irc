@@ -20,7 +20,7 @@ const char* IrcException::what() const throw()
 #include "SendException.hpp"
 #include "PasswordDismatchException.hpp"
 #include "ChannelIsFullException.hpp"
-#include "UnknowCmd.hpp"
+#include "UnknowCmdException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
@@ -34,6 +34,6 @@ PasswordDismatchException::PasswordDismatchException(): IrcException(464, "ERR_P
 
 ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}
 
-UnknowCmd::UnknowCmd(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
+UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
 
 
