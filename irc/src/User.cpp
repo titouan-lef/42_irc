@@ -15,6 +15,14 @@ bool User::is(std::string nickname)
 }
 
 /**
+ * @brief Set the user's nickname.
+ */
+void User::setNickname(const std::string& nickname)
+{
+	nickname_ = nickname;
+}
+
+/**
  * @brief Returns the user's nickname.
  *
  * @return Constant reference to the nickname string.
