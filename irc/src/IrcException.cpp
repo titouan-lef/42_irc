@@ -18,10 +18,10 @@ const char* IrcException::what() const throw()
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
-#include "PasswordDismatchException.hpp"
+#include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "UnknowCmdException.hpp"
-#include "PasswordDismatchException.hpp"
+#include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NicknameInUseException.hpp"
@@ -35,7 +35,7 @@ ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname
 
 NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "  " , nickname + " :Nickname is already in use"){}
 
-PasswordDismatchException::PasswordDismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
+PasswordMismatchException::PasswordMismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
 
 ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}
 

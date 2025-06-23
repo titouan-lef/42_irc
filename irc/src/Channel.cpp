@@ -1,6 +1,6 @@
 #include "Channel.hpp"
 #include "NoSuchNickException.hpp"
-#include "PasswordDismatchException.hpp"
+#include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "MsgServ.hpp"
@@ -56,13 +56,13 @@ bool Channel::isTopicRestricted() const
  *
  * @param newUser Reference to the user being connected.
  * 
- * @throws PasswordDismatchException if the given password is incorect.
+ * @throws PasswordMismatchException if the given password is incorect.
  * @throws ChannelIsFullException if the maximum number of users is reached.
  */
 void Channel::connectUser(User& newUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
-		throw PasswordDismatchException();
+		throw PasswordMismatchException();
 	if (isLimitNbUserReached())
 		throw ChannelIsFullException(name_);
 	connectedUser_.push_back(newUser);

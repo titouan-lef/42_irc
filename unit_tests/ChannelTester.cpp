@@ -1,7 +1,7 @@
 #include "Tester.hpp"
 #include "User.hpp"
 #include "Channel.hpp"
-#include "PasswordDismatchException.hpp"
+#include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "NoSuchNickException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
@@ -74,8 +74,8 @@ static void testPassword()
 
 	chan.setPassword("secret");
 
-	Tester::assertThrows<PasswordDismatchException>([&]() {chan.connectUser(bob);});
-	Tester::assertThrows<PasswordDismatchException>([&]() {chan.connectUser(bob, "wrongpass");});
+	Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(bob);});
+	Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(bob, "wrongpass");});
 
 	chan.disablePassword();
 
