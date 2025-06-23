@@ -16,7 +16,7 @@
 #include "QuitCmd.hpp"
 #include "TopicCmd.hpp"
 #include "UserCmd.hpp"
-#include "UnknowCmd.hpp"
+#include "UnknowCmdException.hpp"
 
 CommandManager::CommandManager() {
     commands_["INVITE"] = new InviteCmd();
@@ -78,5 +78,5 @@ void CommandManager::interpretData(std::string recv, const User & user)
     if (it != commands_.end())
         commands_[key]->execute(args, trailing, user);
     else
-        throw UnknowCmd(key);
+        throw UnknowCmdException(key);
 }
