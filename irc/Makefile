@@ -49,6 +49,9 @@ $(BUILD_DIR)%.o:	$(SRC_DIR)%.cpp | $(OBJ_DIR)
 $(OBJ_DIR):
 	@mkdir -p $@
 
+tester:	$(OBJ)
+	@ar rcs $(NAME).a $(OBJ)
+
 clean:
 	@echo "$(BLUE)Cleanning $(NAME) ✨🧹$(INIT)"
 	@if [ -d $(BUILD_DIR) ]; then\
