@@ -6,7 +6,7 @@
 class ReiceveException: public IrcException
 {
 public:
-	virtual ~ReiceveException() {}
+	virtual ~ReiceveException() throw() {}
 
 	ReiceveException(const std::string& nickname);
 };

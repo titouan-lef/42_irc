@@ -6,7 +6,7 @@
 class ChannelIsFullException: public IrcException
 {
 public:
-	virtual ~ChannelIsFullException() {}
+	virtual ~ChannelIsFullException() throw() {}
 
 	ChannelIsFullException(const std::string& name);
 };

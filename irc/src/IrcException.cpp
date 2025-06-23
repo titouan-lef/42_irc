@@ -6,7 +6,7 @@
 IrcException::IrcException(const int code, const std::string& name, const std::string& message):
 	message_(CommandResponse(code, name, message).getCommandResponse()) {}
 
-IrcException::~IrcException() {}
+IrcException::~IrcException() throw() {}
 
 const char* IrcException::what() const throw()
 {
@@ -30,9 +30,7 @@ ClientDisconnectedException::ClientDisconnectedException(const std::string& nick
 
 ReiceveException::ReiceveException(const std::string& nickname): IrcException(1, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
 
-
 UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
-
 
 SendException::SendException(const std::string& nickname): IrcException(1, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
 

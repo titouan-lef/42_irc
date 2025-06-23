@@ -6,7 +6,7 @@
 class UnknowCmdException: public IrcException
 {
 public:
-	virtual ~UnknowCmdException() {}
+	virtual ~UnknowCmdException() throw() {}
 
 	UnknowCmdException(const std::string& nickname);
 };

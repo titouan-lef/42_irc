@@ -6,7 +6,7 @@
 class ClientDisconnectedException: public IrcException
 {
 public:
-	virtual ~ClientDisconnectedException() {}
+	virtual ~ClientDisconnectedException() throw() {}
 
 	ClientDisconnectedException(const std::string& nickname);
 };

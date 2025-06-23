@@ -6,7 +6,7 @@
 class PasswordDismatchException: public IrcException
 {
 public:
-	virtual ~PasswordDismatchException() {}
+	virtual ~PasswordDismatchException() throw() {}
 
 	PasswordDismatchException();
 };

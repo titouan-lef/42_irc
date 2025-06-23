@@ -6,7 +6,7 @@
 class SendException: public IrcException
 {
 public:
-	virtual ~SendException() {}
+	virtual ~SendException() throw() {}
 
 	SendException(const std::string& nickname);
 };

@@ -6,7 +6,7 @@
 class NoSuchNickException: public IrcException
 {
 public:
-	virtual ~NoSuchNickException() {}
+	virtual ~NoSuchNickException() throw() {}
 
 	NoSuchNickException(const std::string& nickname);
 };
