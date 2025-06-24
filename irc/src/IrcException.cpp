@@ -27,10 +27,13 @@ const char* IrcException::what() const throw()
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "NeedMoreParamsException.hpp"
+#include "NoNicknameGivenException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
 UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
+
+NoNicknameGivenException::NoNicknameGivenException(): IrcException (431, "*", " :No nickname given");
 
 ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname): IrcException(432, "*" , nickname + " :Erroneous nickname"){}
 
