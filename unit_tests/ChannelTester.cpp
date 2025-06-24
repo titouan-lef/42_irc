@@ -171,7 +171,7 @@ static void testUserLimit()
 /**
  * @brief Function which execute all tests.
  */
-int main()
+void testerChannel()
 {
 	testInstance();
 	testConnection();

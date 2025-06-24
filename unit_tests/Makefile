@@ -13,7 +13,7 @@ NAME			:= tester
 #==================== SOURCE ====================#
 
 SRC_DIR			:=
-SRC				:= Tester ChannelTester
+SRC				:= Tester runTest ChannelTester MsgServTester
 SRC				:= $(addsuffix .cpp, $(SRC))
 
 #==================== OBJECT ====================#
