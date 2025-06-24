@@ -2,6 +2,7 @@
 #include "NoSuchNickException.hpp"
 #include "PasswordDismatchException.hpp"
 #include "ChannelIsFullException.hpp"
+#include "ChannelPrivilegesNeeded.hpp"
 #include "MsgServ.hpp"
 
 Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
@@ -18,6 +19,16 @@ Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1
 const std::string& Channel::getName() const
 {
 	return name_;
+}
+
+/**
+ * @brief Get the topic of the channel.
+ *
+ * @return A constant reference to the channel's topic.
+ */
+const std::string& Channel::getTopic() const
+{
+	return topic_;
 }
 
 /**
@@ -113,12 +124,40 @@ bool Channel::isModerator(const std::string& nickname) const
 }
 
 /**
+ * @brief Restrict topic changes to channel moderators only.
+ *
+ * @note This function should be called by the MODE command.
+ *       Ensure the user has moderator privileges before applying this mode.
+ */
+void Channel::enableTopicRestriction()
+{
+	topicRestricted_ = true;
+}
+
+/**
+ * @brief Allow all users to change the channel topic.
+ *
+ * @note This function should be called by the MODE command.
+ *       Ensure the user has moderator privileges before applying this mode.
+ */
+void Channel::disableTopicRestriction()
+{
+	topicRestricted_ = false;
+}
+
+/**
  * @brief Sets the channel's topic to a new value.
  *
  * @param newTopic The new topic string to assign to the channel.
+ * @param user The user trying to change the topic.
+ * 
+ * @throws ChannelPrivilegesNeeded is the topic is restricted to moderators
+ *         and that the given user is not moderateur.
  */
-void Channel::setTopic(const std::string& newTopic)
+void Channel::setTopic(const std::string& newTopic, const User& user)
 {
+	if (isTopicRestricted() && !isModerator(user.getNickname()))
+		throw ChannelPrivilegesNeeded();
 	topic_ = newTopic;
 }
 

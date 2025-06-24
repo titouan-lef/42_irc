@@ -4,6 +4,7 @@
 #include "PasswordDismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "NoSuchNickException.hpp"
+#include "ChannelPrivilegesNeeded.hpp"
 
 #include <netinet/in.h>	// struct sockaddr_in
 #include <cstring>		// memset()
@@ -38,12 +39,30 @@ static void testInstance()
 }
 
 /**
+ * @brief Create de Channel check default attributs
+ */
+static void testConnection()
+{
+	Tester::startTest("Channel connection");
+
+	User moderator(1, dummyAddr(1234));
+	moderator.setNickname("Alice");
+	User user(1, dummyAddr(1234));
+	user.setNickname("Rabbit");
+	Channel chan("mychannel", moderator);
+
+	Tester::assertDoNotThrows([&]() {chan.connectUser(user);});
+	Tester::assertTrue(chan.isConnected("Rabbit"));
+
+}
+
+/**
  * @brief Connection with password
  */
 static void testPassword()
 {
 
-	Tester::startTest("Password protection");
+	Tester::startTest("Channel Password protection");
 
 	User bob(2, dummyAddr(5678));
 	bob.setNickname("bob");
@@ -65,12 +84,32 @@ static void testPassword()
 }
 
 /**
+ * @brief Changing topic
+ */
+static void testTopic()
+{
+
+	Tester::startTest("Channel Topic restriction");
+	User mod(2, dummyAddr(5678));
+	mod.setNickname("mod");
+	User user(2, dummyAddr(5678));
+	user.setNickname("user");
+	Channel chan("secure", mod);
+
+	Tester::assertDoNotThrows([&]() {chan.setTopic("This is a test!", mod);});
+	Tester::assertExpectedEqualsActual(std::string("This is a test!"), chan.getTopic());
+	chan.enableTopicRestriction();
+	Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {chan.setTopic("Changing topic error", user);});
+
+}
+
+/**
  * @brief User limit
  */
 static void testUserLimit()
 {
 
-	Tester::startTest("User limit");
+	Tester::startTest("Channel User limit");
 
 	User mod(1, dummyAddr(1001));
 	mod.setNickname("mod");
@@ -91,7 +130,7 @@ static void testUserLimit()
  */
 static void testUserDisconnection()
 {
-	Tester::startTest("User disconnection");
+	Tester::startTest("Channel disconnection");
 
 	User mod(5, dummyAddr(9999));
 	mod.setNickname("mod");
@@ -109,9 +148,10 @@ static void testUserDisconnection()
  */
 int main()
 {
-
 	testInstance();
+	testConnection();
 	testPassword();
+	testTopic();
 	testUserLimit();
 	testUserDisconnection();
 

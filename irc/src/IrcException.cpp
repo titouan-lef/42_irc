@@ -23,6 +23,7 @@ const char* IrcException::what() const throw()
 #include "UnknowCmdException.hpp"
 #include "PasswordDismatchException.hpp"
 #include "ChannelIsFullException.hpp"
+#include "ChannelPrivilegesNeeded.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
@@ -37,3 +38,5 @@ SendException::SendException(const std::string& nickname): IrcException(1, "ERR_
 PasswordDismatchException::PasswordDismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
 
 ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}
+
+ChannelPrivilegesNeeded::ChannelPrivilegesNeeded(): IrcException(482, "ERR_CHANOPRIVSNEEDED", "You're not channel operator") {}

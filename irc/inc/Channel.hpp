@@ -12,6 +12,7 @@ public:
 	// ~Channel();
 
 	const std::string& getName() const;
+	const std::string& getTopic() const;
 	bool isPasswordProtected() const;
 	bool isInviteRestricted() const;
 	bool isTopicRestricted() const;
@@ -21,9 +22,11 @@ public:
 
 	void connectUser(User& newUser, const std::string& password = "");
 	void disconnectUser(const std::string& nickname);
-	void setTopic(const std::string& newTopic);
+	void enableTopicRestriction();
+	void disableTopicRestriction();
+	void setTopic(const std::string& newTopic, const User& user);
 	void setPassword(const std::string& newPassword);
-	void disablePassword();
+	void disablePassword(); 
 	void addNewModerator(User& newOperator);
 	void removeModerator(const std::string& nickname);
 	void setLimitNbUsers(int nbUserMax);
