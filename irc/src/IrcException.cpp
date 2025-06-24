@@ -33,7 +33,7 @@ NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcExcept
 
 UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
 
-NoNicknameGivenException::NoNicknameGivenException(): IrcException (431, "*", " :No nickname given");
+NoNicknameGivenException::NoNicknameGivenException(): IrcException (431, "*", " :No nickname given"){}
 
 ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname): IrcException(432, "*" , nickname + " :Erroneous nickname"){}
 
