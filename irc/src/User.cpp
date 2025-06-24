@@ -89,3 +89,8 @@ void User::validConnection()
 {
 	isConnected_ = true;
 }
+
+void User::setNickname(std::string nickname)
+{
+	nickname_ = nickname;
+}

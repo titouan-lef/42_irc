@@ -2,6 +2,8 @@
 #include "UnknowCmdException.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
+#include "NeedMoreParamsException.hpp"
+#include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
 
 /**
@@ -9,11 +11,16 @@
  */
 void NickCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
 {
+    const int sizeMax = 9;
+    const int argsMax = 1;
+
     if (!user.getNickname().empty())
         return ;
-    if (!trailing.empty() || args.size() != 1)
-        throw UnknowCmdException("");
-    if (args[0].length() > 9 || args[0].empty())
+    if (!trailing.empty() || args.size() != argsMax)
+        throw NeedMoreParamsException(user.getNickname());
+    if (args[0].empty())
+        throw NoNicknameGivenException();
+    if (args[0].length() > sizeMax)
         throw ErroneUsNicknameException(args[0]);
     unsigned char c = args[0][0];
     if (!isalpha(c) && std::string("_[]\\`^{}|").find(c) == std::string::npos)
@@ -26,4 +33,5 @@ void NickCmd::execute(std::vector<std::string> args, std::string trailing, User 
     }
     if (UserManager::getInstance().findUserSocket(args[0]) != -1)
         throw NicknameInUseException(args[0]);
+    user.setNickname(args[0]);
 }

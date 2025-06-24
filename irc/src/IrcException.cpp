@@ -40,8 +40,7 @@ ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname
 
 NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "*" , nickname + " :Nickname is already in use"){}
 
-NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", "PASS :Not enough parameters"){
-	(void)nickname;
+NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){
 }
 
 AlreadyRegistredException::AlreadyRegistredException(const std::string & nickname): IrcException(462, "", nickname + " :You may not reregister"){}

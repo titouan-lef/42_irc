@@ -4,7 +4,7 @@ CXX				:= c++
 CXXFLAGS		+= -Wall -Wextra -Werror -MP -MMD -std=c++98 -g
 MAKEFLAGS		+= --no-print-directory
 BUILD_DIR		:= .build/
-HEADERS			:= inc/ inc/IrcException/ inc/IrcException/ConcreteIrcException/ inc/struct/ inc/Commands/
+HEADERS			:= inc/ inc/IrcException/ inc/IrcException/ConcreteIrcException/ inc/struct/ inc/Commands/ inc/IrcException/ConcreteIrcException/NickException
 NAME			:= ircserv
 DISPLAY_TRACKER	:= .display_done
 
