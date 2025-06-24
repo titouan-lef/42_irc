@@ -29,6 +29,7 @@ const char* IrcException::what() const throw()
 #include "NeedMoreParamsException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "AlreadyRegistredException.hpp"
+#include "InviteOnlyException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
@@ -40,8 +41,9 @@ ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname
 
 NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "*" , nickname + " :Nickname is already in use"){}
 
-NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){
-}
+NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){}
+
+InviteOnlyException::InviteOnlyException(): IrcException(473, "ERR_INVITEONLYCHAN", "You're not invited to join this channel") {}
 
 AlreadyRegistredException::AlreadyRegistredException(const std::string & nickname): IrcException(462, "", nickname + " :You may not reregister"){}
 

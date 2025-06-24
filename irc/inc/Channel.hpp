@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include <User.hpp>
 
 class Channel
@@ -26,7 +27,10 @@ public:
 	void disableTopicRestriction();
 	void setTopic(const std::string& newTopic, const User& user);
 	void setPassword(const std::string& newPassword);
-	void disablePassword(); 
+	void disablePassword();
+	void enableInviteRestriction();
+	void disableInviteRestriction();
+	void inviteUser(const std::string& nickname);
 	void addNewModerator(User& newOperator);
 	void removeModerator(const std::string& nickname);
 	void setLimitNbUsers(int nbUserMax);
@@ -42,6 +46,7 @@ private:
 	int nbMaxUsers_;
 	bool inviteRestricted_;
 	bool topicRestricted_;
+	std::set<std::string> invitedUsers_;
 	std::vector<User> connectedUser_;
 	std::vector<User> moderators_; // maybe just a vector of nicknames ??
 

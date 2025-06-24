@@ -5,6 +5,7 @@
 #include "ChannelIsFullException.hpp"
 #include "NoSuchNickException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
+#include "InviteOnlyException.hpp"
 
 #include <netinet/in.h>	// struct sockaddr_in
 #include <cstring>		// memset()
@@ -39,7 +40,7 @@ static void testInstance()
 }
 
 /**
- * @brief Create de Channel check default attributs
+ * @brief Test connecting users
  */
 static void testConnection()
 {
@@ -57,12 +58,34 @@ static void testConnection()
 }
 
 /**
+ * @brief Check invite only restrictions
+ */
+static void testInvite()
+{
+	Tester::startTest("Channel invitation");
+
+	User moderator(1, dummyAddr(1234));
+	moderator.setNickname("Alice");
+	User user(1, dummyAddr(1234));
+	user.setNickname("Rabbit");
+	Channel chan("mychannel", moderator);
+
+	chan.enableInviteRestriction();
+	Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(user);});
+	Tester::assertFalse(chan.isConnected("Rabbit"));
+	Tester::assertDoNotThrows([&]() {chan.inviteUser("Rabbit");});
+	Tester::assertDoNotThrows([&]() {chan.connectUser(user);});
+	Tester::assertTrue(chan.isConnected("Rabbit"));
+
+}
+
+/**
  * @brief Connection with password
  */
 static void testPassword()
 {
 
-	Tester::startTest("Channel Password protection");
+	Tester::startTest("Channel password protection");
 
 	User bob(2, dummyAddr(5678));
 	bob.setNickname("bob");
@@ -150,6 +173,7 @@ int main()
 {
 	testInstance();
 	testConnection();
+	testInvite();
 	testPassword();
 	testTopic();
 	testUserLimit();

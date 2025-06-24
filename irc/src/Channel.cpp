@@ -3,6 +3,7 @@
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
+#include "InviteOnlyException.hpp"
 #include "MsgServ.hpp"
 
 Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
@@ -63,6 +64,8 @@ void Channel::connectUser(User& newUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
 		throw PasswordMismatchException();
+	if (inviteRestricted_ && invitedUsers_.find(newUser.getNickname()) == invitedUsers_.end())
+		throw InviteOnlyException();
 	if (isLimitNbUserReached())
 		throw ChannelIsFullException(name_);
 	connectedUser_.push_back(newUser);
@@ -188,6 +191,34 @@ void Channel::disablePassword()
 {
 	password_.clear();
 }
+
+/**
+ * @brief Restrict connection to invited users only.
+ *
+ * @note This function should be called by the MODE command.
+ *       Ensure the user has moderator privileges before applying this mode.
+ */
+void Channel::enableInviteRestriction()
+{
+	inviteRestricted_ = true;
+}
+
+/**
+ * @brief Allow all users to join the channel.
+ *
+ * @note This function should be called by the MODE command.
+ *       Ensure the user has moderator privileges before applying this mode.
+ */
+void Channel::disableInviteRestriction()
+{
+	inviteRestricted_ = false;
+}
+
+void Channel::inviteUser(const std::string& nickname)
+{
+	invitedUsers_.insert(nickname); //ERR_USERONCHANNEL
+}
+
 
 /**
  * @brief Adds a new moderator to the channel.
