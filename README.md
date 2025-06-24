@@ -223,6 +223,10 @@ git pull
 ```bash
 git rebase <branch_name>
 ```
+If main contains a merge commit that's not present on your current branch, use the --rebase-merges option to preserve the branch structure during rebase:
+```bash
+git rebase <branch_name> --rebase-merges
+```
 4. Fix conflicts
 
 5. Add modifications
