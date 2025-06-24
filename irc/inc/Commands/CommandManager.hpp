@@ -10,6 +10,7 @@ class CommandManager
 public:
     static CommandManager& getInstance();
     void interpretData(std::string recv, User & user);
+	void registerClient(std::string key, std::vector<std::string> args, std::string trailing, User & user);
     
 private:
 	CommandManager();

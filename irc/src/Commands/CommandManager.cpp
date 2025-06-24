@@ -11,6 +11,7 @@
 #include "ModeCmd.hpp"
 #include "NickCmd.hpp"
 #include "PartCmd.hpp"
+#include "PassCmd.hpp"
 #include "PingCmd.hpp"
 #include "PongCmd.hpp"
 #include "PrivmsgCmd.hpp"
@@ -18,6 +19,8 @@
 #include "TopicCmd.hpp"
 #include "UserCmd.hpp"
 #include "UnknowCmdException.hpp"
+#include "NotRegisteredException.hpp"
+#include "PasswordMismatchException.hpp"
 
 CommandManager::CommandManager()
 {
@@ -27,6 +30,7 @@ CommandManager::CommandManager()
 	commands_["MODE"] = new ModeCmd();
 	commands_["NICK"] = new NickCmd();
 	commands_["PART"] = new PartCmd();
+	commands_["PASS"] = new PassCmd();
 	commands_["PING"] = new PingCmd();
 	commands_["PONG"] = new PongCmd();
 	commands_["PRIVMSG"] = new PrivmsgCmd();
@@ -69,5 +73,29 @@ void CommandManager::interpretData(std::string recv, User& user)
 		}
 		args.push_back(token);
 	}
+	if (!user.isUsernameRegister())
+		registerClient(key, args, trailing, user);
+	else
+		commands_[key]->execute(args, trailing, user);
+}
+
+void CommandManager::registerClient(std::string key, std::vector<std::string> args, std::string trailing, User & user)
+{
+	if (!user.isNickRegister())
+	{
+		if (!user.isConnected())
+		{
+			if (key != "PASS")
+				throw PasswordMismatchException();
+			commands_[key]->execute(args, trailing, user);
+		}
+		else if (key != "NICK")
+			throw NotRegisteredException();
+		commands_[key]->execute(args, trailing, user);
+	}
+	else if (key != "USER")
+		throw NotRegisteredException();
 	commands_[key]->execute(args, trailing, user);
 }
+
+

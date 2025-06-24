@@ -12,6 +12,10 @@ public:
 
 	bool is(std::string nickname);
 	void validConnection();
+	bool isConnected();
+	bool isNickRegister();
+	bool isUsernameRegister();
+
 	void setNickname(const std::string& nickname);
 	const std::string& getNickname() const;
 	const std::string& getUsername() const;

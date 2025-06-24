@@ -1,10 +1,21 @@
 #include "UserManager.hpp"
 #include "MsgServ.hpp"
 #include "ClientDisconnectedException.hpp"
-#include "ReiceveException.hpp"
 #include "CommandManager.hpp"
 #include "NoSuchNickException.hpp"
+#include "ClientDisconnectedException.hpp"
+#include "ReiceveException.hpp"
+#include "SendException.hpp"
+#include "PasswordMismatchException.hpp"
+#include "ChannelIsFullException.hpp"
 #include "UnknowCmdException.hpp"
+#include "PasswordMismatchException.hpp"
+#include "ChannelIsFullException.hpp"
+#include "NicknameInUseException.hpp"
+#include "ErroneUsNicknameException.hpp"
+#include "NeedMoreParamsException.hpp"
+#include "NoNicknameGivenException.hpp"
+#include "AlreadyRegistredException.hpp"
 
 #include <unistd.h>
 

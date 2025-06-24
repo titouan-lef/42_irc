@@ -89,3 +89,18 @@ void User::validConnection()
 {
 	isConnected_ = true;
 }
+
+bool User::isConnected()
+{
+	return (isConnected_);
+}
+
+bool User::isNickRegister()
+{
+	return (!nickname_.empty());
+}
+
+bool User::isUsernameRegister()
+{
+	return (!username_.empty());
+}
