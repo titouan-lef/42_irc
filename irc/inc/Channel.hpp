@@ -22,17 +22,22 @@ public:
 	bool isModerator(const std::string& nickname) const;
 
 	void connectUser(User& newUser, const std::string& password = "");
-	void disconnectUser(const std::string& nickname);
+
 	void enableTopicRestriction();
 	void disableTopicRestriction();
+	void disconnectUser(const std::string& nickname);
 	void setTopic(const std::string& newTopic, const User& user);
+
 	void setPassword(const std::string& newPassword);
 	void disablePassword();
+
 	void enableInviteRestriction();
 	void disableInviteRestriction();
 	void inviteUser(const std::string& nickname);
+
 	void addNewModerator(User& newOperator);
 	void removeModerator(const std::string& nickname);
+
 	void setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
 	
@@ -48,6 +53,6 @@ private:
 	bool topicRestricted_;
 	std::set<std::string> invitedUsers_;
 	std::vector<User> connectedUser_;
-	std::vector<User> moderators_; // maybe just a vector of nicknames ??
+	std::vector<User> moderators_;
 
 };

@@ -58,6 +58,24 @@ static void testConnection()
 }
 
 /**
+ * @brief Disconnection
+ */
+static void testUserDisconnection()
+{
+	Tester::startTest("Channel disconnection");
+
+	User mod(5, dummyAddr(9999));
+	mod.setNickname("mod");
+	Channel chan("disc", mod);
+
+	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("someone");});
+	Tester::assertDoNotThrows([&]() {chan.disconnectUser("mod");});
+	Tester::assertFalse(chan.isConnected("mod"));
+	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("mod");});
+
+}
+
+/**
  * @brief Check invite only restrictions
  */
 static void testInvite()
@@ -76,6 +94,8 @@ static void testInvite()
 	Tester::assertDoNotThrows([&]() {chan.inviteUser("Rabbit");});
 	Tester::assertDoNotThrows([&]() {chan.connectUser(user);});
 	Tester::assertTrue(chan.isConnected("Rabbit"));
+	Tester::assertDoNotThrows([&]() {chan.disconnectUser("Rabbit");});
+	Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(user);});
 
 }
 
@@ -149,35 +169,17 @@ static void testUserLimit()
 }
 
 /**
- * @brief Disconnection
- */
-static void testUserDisconnection()
-{
-	Tester::startTest("Channel disconnection");
-
-	User mod(5, dummyAddr(9999));
-	mod.setNickname("mod");
-	Channel chan("disc", mod);
-
-	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("someone");});
-	Tester::assertDoNotThrows([&]() {chan.disconnectUser("mod");});
-	Tester::assertFalse(chan.isConnected("mod"));
-	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("mod");});
-
-}
-
-/**
  * @brief Function which execute all tests.
  */
 int main()
 {
 	testInstance();
 	testConnection();
+	testUserDisconnection();
 	testInvite();
 	testPassword();
 	testTopic();
 	testUserLimit();
-	testUserDisconnection();
 
 	/** @todo defines other tests */
 }

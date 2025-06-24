@@ -68,6 +68,8 @@ void Channel::connectUser(User& newUser, const std::string& password)
 		throw InviteOnlyException();
 	if (isLimitNbUserReached())
 		throw ChannelIsFullException(name_);
+	if (inviteRestricted_)
+		invitedUsers_.erase(newUser.getNickname());
 	connectedUser_.push_back(newUser);
 }
 
