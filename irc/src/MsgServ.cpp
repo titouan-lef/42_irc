@@ -1,5 +1,9 @@
-#include <cerrno>
 #include "MsgServ.hpp"
+
+#include <cerrno>
+#include <iomanip>
+#include <sstream>
+
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
@@ -61,5 +65,31 @@ std::string MsgServ::recvMsg(int socket)
 bool MsgServ::isMsgComplete(std::string& msg)
 {
 	return (msg.find("\r\n") != std::string::npos);
+}
+
+const std::string MsgServ::getNumericReply(MsgServ::Command& cmd, const int code, const std::string& clientTargetNickname)
+{
+	std::stringstream codeName;
+	codeName << std::setw(3) << std::setfill('0') << code;
+	cmd.name = codeName.str();
+	return getReply(cmd, "ircServer", clientTargetNickname);
+}
+
+const std::string MsgServ::getMessageReply(const MsgServ::Command& cmd, const std::string& clientNickname)
+{
+	return getReply(cmd, clientNickname, "");
+}
+
+const std::string MsgServ::getReply(const MsgServ::Command& cmd, const std::string& source, const std::string& target)
+{
+	std::string reply = ":" + source + " " + cmd.name;
+	if (target != "")
+		reply += " " + target;
+	for (std::size_t i = 0; i < cmd.arg.size(); ++i)
+		reply += " " + cmd.arg[i];
+	if (cmd.trailing != "")
+		reply += " :" + cmd.trailing;
+	reply += "\r\n";
+	return reply;
 }
 
