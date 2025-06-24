@@ -6,7 +6,7 @@
 class AlreadyRegistredException: public IrcException
 {
 public:
-	virtual ~AlreadyRegistredException() {}
+	virtual ~AlreadyRegistredException() throw() {}
 
 	AlreadyRegistredException(const std::string& name);
 };
