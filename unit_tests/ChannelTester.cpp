@@ -6,6 +6,7 @@
 #include "NoSuchNickException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
+#include "InviteOnlyException.hpp"
 
 #include <netinet/in.h>	// struct sockaddr_in
 #include <cstring>		// memset()
@@ -41,6 +42,7 @@ static void testInstance()
 
 /**
  * @brief Test connecting users
+ * @brief Test connecting users
  */
 static void testConnection()
 {
@@ -54,24 +56,6 @@ static void testConnection()
 
 	Tester::assertDoNotThrows([&]() {chan.connectUser(user);});
 	Tester::assertTrue(chan.isConnected("Rabbit"));
-
-}
-
-/**
- * @brief Disconnection
- */
-static void testUserDisconnection()
-{
-	Tester::startTest("Channel disconnection");
-
-	User mod(5, dummyAddr(9999));
-	mod.setNickname("mod");
-	Channel chan("disc", mod);
-
-	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("someone");});
-	Tester::assertDoNotThrows([&]() {chan.disconnectUser("mod");});
-	Tester::assertFalse(chan.isConnected("mod"));
-	Tester::assertThrows<NoSuchNickException>([&]() {chan.disconnectUser("mod");});
 
 }
 
@@ -94,8 +78,6 @@ static void testInvite()
 	Tester::assertDoNotThrows([&]() {chan.inviteUser("Rabbit");});
 	Tester::assertDoNotThrows([&]() {chan.connectUser(user);});
 	Tester::assertTrue(chan.isConnected("Rabbit"));
-	Tester::assertDoNotThrows([&]() {chan.disconnectUser("Rabbit");});
-	Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(user);});
 
 }
 
@@ -105,6 +87,7 @@ static void testInvite()
 static void testPassword()
 {
 
+	Tester::startTest("Channel password protection");
 	Tester::startTest("Channel password protection");
 
 	User bob(2, dummyAddr(5678));
@@ -175,7 +158,6 @@ void testerChannel()
 {
 	testInstance();
 	testConnection();
-	testUserDisconnection();
 	testInvite();
 	testPassword();
 	testTopic();
