@@ -3,7 +3,7 @@
 unsigned int Tester::num = 1;
 unsigned int Tester::subNum = 1;
 
-void Tester::startTest(const char *testName)
+void Tester::startTest(const char* testName)
 {
 	setColorText(colorTest);
 	std::cout << std::endl << std::endl

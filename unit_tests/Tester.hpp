@@ -17,7 +17,7 @@ private:
 	static const Color colorDiff = MAGENTA;
 
 public:
-	static void startTest(const char *testName = NULL);
+	static void startTest(const char* testName = NULL);
 	static void assertTrue(const bool& condition);
 	static void assertFalse(const bool& condition);
 
@@ -36,13 +36,13 @@ public:
 	template<typename T>
 	static void assertNull(const T* ptr)
 	{
-		assertExpectedEqualsActual((const T *)NULL, ptr);
+		assertExpectedEqualsActual((const T*)NULL, ptr);
 	}
 
 	template<typename T>
 	static void assertNotNull(const T* ptr)
 	{
-		assertExpectedNotEqualsActual((const T *)NULL, ptr);
+		assertExpectedNotEqualsActual((const T*)NULL, ptr);
 	}
 
 	template<typename ExceptionType, typename Func>

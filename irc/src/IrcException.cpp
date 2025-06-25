@@ -44,9 +44,9 @@ NicknameInUseException::NicknameInUseException(const std::string& nickname): Irc
 
 NotRegisteredException::NotRegisteredException(): IrcException(451, "*", " :You have not registered"){}
 
-NeedMoreParamsException::NeedMoreParamsException(const std::string & nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){}
+NeedMoreParamsException::NeedMoreParamsException(const std::string& nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){}
 
-AlreadyRegistredException::AlreadyRegistredException(const std::string & nickname): IrcException(462, "", nickname + " :You may not reregister"){}
+AlreadyRegistredException::AlreadyRegistredException(const std::string& nickname): IrcException(462, "", nickname + " :You may not reregister"){}
 
 PasswordMismatchException::PasswordMismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
 

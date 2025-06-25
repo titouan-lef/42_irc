@@ -12,7 +12,7 @@ public:
 
 	void initServerConnection(int port);
 	void initPassword(std::string password);
-	const std::string & getPassword();
+	const std::string& getPassword();
 	void closeServerConnection();
 	void run();
 	void stop();

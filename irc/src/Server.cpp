@@ -33,7 +33,7 @@ void Server::closeServerConnection()
 void Server::initServerConnection(int port)
 {
 	// Get protocol number for TCP
-	struct protoent *proto = getprotobyname("tcp");
+	struct protoent* proto = getprotobyname("tcp");
 	if (!proto)
 		throw std::runtime_error("Error: getprotobyname failed");
 	// Creating the Server Socket
@@ -49,7 +49,7 @@ void Server::initServerConnection(int port)
 	serverAddr_.sin_family = AF_INET;
 	serverAddr_.sin_port = htons(port);
 	serverAddr_.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(serverSocket_, (struct sockaddr *) &serverAddr_, sizeof(serverAddr_)) < 0)
+	if (bind(serverSocket_, (struct sockaddr*) &serverAddr_, sizeof(serverAddr_)) < 0)
 		throw std::runtime_error("Error: bind failed");
 	// Listen
 	if (listen(serverSocket_, SOMAXCONN) < 0) 
@@ -71,7 +71,7 @@ void Server::initPassword(std::string password)
 	password_ =  password;
 }
 
-const std::string & Server::getPassword()
+const std::string& Server::getPassword()
 {
 	return password_;
 }
