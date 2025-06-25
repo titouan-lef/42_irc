@@ -11,15 +11,32 @@
 #include "UserManager.hpp"
 #include "IrcException.hpp"
 
-Server::Server(): serverSocket_(-1), running_(false)
-{
-	// Initialize pollfd for listening socket
-}
-
 Server& Server::getInstance()
 {
 	static Server instance;
 	return instance;
+}
+
+void Server::initServerConnection(int port)
+{
+	createSocket();
+	defineSocketOption();
+	struct sockaddr_in serverAddr = createAddress(port);
+	bindSocketOnAdress((sockaddr*)&serverAddr);
+	defineSocketOnlistening();
+	UserManager::getInstance().initUserManager(serverSocket_, serverAddr);
+	std::cout << "Server listening on port " << port << " ..." << std::endl;
+}
+
+void Server::definePassword(std::string password)
+{
+	parsePassword(password);
+	password_ = password;
+}
+
+bool Server::isCorrectPassword(std::string password)
+{
+	return (password_ == password);
 }
 
 void Server::closeServerConnection()
@@ -30,91 +47,106 @@ void Server::closeServerConnection()
 	std::cout << "Shutting down server..." << std::endl;
 }
 
-void Server::initServerConnection(int port)
-{
-	// Get protocol number for TCP
-	struct protoent* proto = getprotobyname("tcp");
-	if (!proto)
-		throw std::runtime_error("Error: getprotobyname failed");
-	// Creating the Server Socket
-	serverSocket_ = socket(AF_INET, SOCK_STREAM, 0);
-	if (serverSocket_ < 0)
-		throw std::runtime_error("Error: cannot open socket");
-	// Set SO_REUSEADDR to avoid "address already in use" error on restart
-	int opt = 1;
-	if (setsockopt(serverSocket_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)) < 0)
-		throw std::runtime_error("Error: setsockopt failed");
-	// Bind to all interfaces
-	std::memset(&serverAddr_, 0, sizeof(serverAddr_));
-	serverAddr_.sin_family = AF_INET;
-	serverAddr_.sin_port = htons(port);
-	serverAddr_.sin_addr.s_addr = htonl(INADDR_ANY);
-	if (bind(serverSocket_, (struct sockaddr*) &serverAddr_, sizeof(serverAddr_)) < 0)
-		throw std::runtime_error("Error: bind failed");
-	// Listen
-	if (listen(serverSocket_, SOMAXCONN) < 0) 
-		throw std::runtime_error("Error: listen failed");
-	UserManager::getInstance().initUserManager(serverSocket_, serverAddr_);
-	std::cout << "Server listening on port " << port << " ..." << std::endl;
-}
-
-void Server::initPassword(std::string password)
-{
-	if (password.empty())
-		throw std::runtime_error("Error: Password is empty");
-	for (size_t i = 0; i < password.length(); ++i)
-	{
-		unsigned char c = password[i];
-		if (c <= 32 || c > 126)
-			throw std::runtime_error("Error: Use just ascii value 33 at 126");
-	}
-	password_ =  password;
-}
-
-const std::string& Server::getPassword()
-{
-	return password_;
-}
-
 void Server::run()
 {
 	running_ = true;
 	while (running_)
-	{
-		int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
-		if (poll_count == 0)
-			continue; // Timeout, no events, loop again
-		if (poll_count < 0)
-		{
-			if (errno == EINTR)
-				continue; // Interrupted by signal, just continue
-			std::cerr << "Error: poll" << std::endl;
-			break;
-		}
-		try
-		{
-			checkNewConnections(); // Check if listening socket is readable => new connection
-		}
-		catch(const IrcException& e)
-		{
-			std::cerr << e.what() << std::endl;
-			continue;
-		}
-		try
-		{
-			UserManager::getInstance().listenClients();
-		}
-		catch(const IrcException& e)
-		{
-			std::cerr << e.what() << std::endl;
-			continue;
-		}
-	}
+		onEvent();
 }
 
 void Server::stop()
 {
 	running_ = false;
+}
+
+Server::Server(): serverSocket_(-1), running_(false)
+{
+	// Initialize pollfd for listening socket
+}
+
+void Server::createSocket()
+{
+	serverSocket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (serverSocket_ < 0)
+		throw std::runtime_error("Error: cannot open socket");
+}
+
+void Server::defineSocketOption()
+{
+	// Set SO_REUSEADDR to avoid "address already in use" error on restart
+	int opt = 1;
+	int result = setsockopt(serverSocket_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+	if (result < 0)
+		throw std::runtime_error("Error: setsockopt failed");
+}
+
+struct sockaddr_in Server::createAddress(int port)
+{
+	struct sockaddr_in serverAddr;
+	std::memset(&serverAddr, 0, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(port);
+	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	return serverAddr;
+}
+
+/**
+ * @brief Associates the socket with the local address.
+ */
+void Server::bindSocketOnAdress(struct sockaddr* serverAddr)
+{
+	if (bind(serverSocket_, serverAddr, sizeof(*serverAddr)) < 0)
+		throw std::runtime_error("Error: bind failed");
+}
+
+void Server::defineSocketOnlistening()
+{
+	if (listen(serverSocket_, SOMAXCONN) < 0) 
+		throw std::runtime_error("Error: listen failed");
+}
+
+void Server::parsePassword(const std::string& password)
+{
+	if (password.empty())
+		throw std::runtime_error("Error: Password is empty");
+	for (size_t i = 0; i < password.length(); ++i)
+		parsePasswordChar(password[i]);
+}
+
+void Server::parsePasswordChar(const unsigned char c)
+{
+	if (c <= 32 || c > 126)
+		throw std::runtime_error("Error: Use just ascii value 33 at 126");
+}
+
+void Server::onEvent()
+{
+	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
+	if (poll_count == 0)
+		return; // Timeout, no events, loop again
+	if (poll_count > 0)
+	{
+		manageEvent();
+		return;
+	}
+	if (errno != EINTR)// Interrupted by something else that a signal
+	{
+		running_ = false;
+		std::cerr << "Error: poll" << std::endl;
+	}
+}
+
+void Server::manageEvent()
+{
+	try
+	{
+		checkNewConnections(); // Check if listening socket is readable => new connection
+		UserManager::getInstance().listenClients();
+	}
+	catch(const IrcException& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }
 
 void Server::checkNewConnections()
@@ -134,7 +166,5 @@ void Server::checkNewConnections()
 void Server::addNewUser(int clientSocket, struct sockaddr_in clientAddr)
 {
 	UserManager::getInstance().addNewUser(clientSocket, clientAddr);
-	std::cout << "Accepted connection from "
-		<< inet_ntoa(clientAddr.sin_addr) << ":"
-		<< ntohs(clientAddr.sin_port) << std::endl;
+	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
 }

@@ -8,7 +8,7 @@ void PassCmd::execute(MsgServ::Command cmd, User& user) const
 
 	if (!cmd.trailing.empty() || cmd.arg.size() != argsMax || cmd.arg[0].empty())
 		throw PasswordMismatchException();
-	if (cmd.arg[0] != Server::getInstance().getPassword()) 
+	if (!Server::getInstance().isCorrectPassword(cmd.arg[0])) 
 		throw PasswordMismatchException();
 	user.validConnection();
 }

@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	std::signal(SIGINT, signalHandler);
 	try 
 	{
-		Server::getInstance().initPassword(argv[2]);
+		Server::getInstance().definePassword(argv[2]);
 	}
 	catch (const std::exception& e)
 	{
