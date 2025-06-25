@@ -12,7 +12,7 @@ public:
 	void interpretData(std::string recv, User& user);
 	MsgServ::Command parserCmd(std::string recv);
 	void registerClient(MsgServ::Command cmd, User& user);
-	
+
 private:
 	CommandManager();
 	virtual ~CommandManager();
