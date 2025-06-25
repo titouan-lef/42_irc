@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include "User.hpp"
+#include "MsgServ.hpp"
 
 class ACommand
 {
@@ -10,5 +11,5 @@ public:
 	ACommand(){}
 	virtual ~ACommand(){}
 
-    virtual void execute(std::vector<std::string>args, std::string trailing, User & user) const = 0;
+    virtual void execute(MsgServ::Command cmd, User & user) const = 0;
 };

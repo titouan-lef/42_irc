@@ -1,8 +1,7 @@
 #include "PartCmd.hpp"
 
-void PartCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
+void PartCmd::execute(MsgServ::Command cmd, User & user) const
 {
-	(void)args;
-	(void)trailing;
+	(void)cmd;
 	(void)user;
 }

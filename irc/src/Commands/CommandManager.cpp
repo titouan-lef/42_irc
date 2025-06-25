@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 
+#include "MsgServ.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -22,6 +23,11 @@
 #include "NotRegisteredException.hpp"
 #include "PasswordMismatchException.hpp"
 
+/**
+ * @details * This constructor initializes the `commands_` map by inserting the various IRC commands
+* supported by the server. Each command (such as INVITE, JOIN, KICK, etc.)
+* is associated with an instance of an object derived from the base command class.
+ */
 CommandManager::CommandManager()
 {
 	commands_["INVITE"] = new InviteCmd();
@@ -51,51 +57,96 @@ CommandManager& CommandManager::getInstance()
 	return instance;
 }
 
-
+/*
+* @brief Interprets and processes data received from a user.
+*
+* This method parses the raw command received (as a string),
+* then performs the appropriate action based on the user's state.
+*/
 void CommandManager::interpretData(std::string recv, User& user)
 {
-	std::string key, token, trailing;
-	std::istringstream iss(recv);
-	std::vector<std::string> args;
+	MsgServ::Command cmd = parserCmd(recv);
+	if (!user.isUsernameRegister())
+		registerClient(cmd, user);
+	else
+		commands_[cmd.name]->execute(cmd, user);
+}
 
-	iss >> key;
-	if (commands_.find(key) == commands_.end())
-		throw UnknowCmdException(key);
+/**
+* @brief Parses a raw command string and extracts its components.
+*
+* This function takes a command line received from a client (as a string),
+* and breaks it into several parts:
+* - `cmd.name`: the main command ("JOIN", "NICK", etc.)
+* - `cmd.arg`: a space-separated list of arguments
+* - `cmd.trailing`: the "free" data at the end of the command, preceded by a `:`,
+* often used for messages with spaces (e.g., a message in PRIVMSG)
+*
+* If the command is not recognized (i.e., not present in `commands_`),
+* an `UnknowCmdException` exception is thrown.
+*
+* @param recv The raw command sent by the client (e.g., "PRIVMSG #channel :Hello all").
+*
+* @return An `MsgServ::Command` structure containing the parsed command.
+*
+* @throws UnknowCmdException if the command is not registered in `commands_`.
+*/
+MsgServ::Command CommandManager::parserCmd(std::string recv)
+{
+	MsgServ::Command cmd;
+	std::string token;
+	std::istringstream iss(recv);
+
+	iss >> cmd.name;
+	if (commands_.find(cmd.name) == commands_.end())
+		throw UnknowCmdException(cmd.name);
 	while (iss >> token)
 	{
 		if (token[0] == ':')
 		{
-			trailing = token.substr(1);
+			cmd.trailing = token.substr(1);
 			std::string rest;
 			std::getline(iss, rest);
-			trailing += rest;
+			cmd.trailing += rest;
 			break;
 		}
-		args.push_back(token);
+		cmd.arg.push_back(token);
 	}
-	if (!user.isUsernameRegister())
-		registerClient(key, args, trailing, user);
-	else
-		commands_[key]->execute(args, trailing, user);
+	return (cmd);
 }
 
-void CommandManager::registerClient(std::string key, std::vector<std::string> args, std::string trailing, User & user)
+/**
+ * @brief Handles the progressive registration of an IRC client.
+ *
+ * This function is called when the user is not yet fully registered.
+ * It determines, based on the user's state (connection, nickname, etc.),
+ * whether the received command is valid in the context of registration, and executes it.
+ *
+ * The registration typically follows three steps: PASS → NICK → USER.
+ *
+ * @param cmd The command to process, in structured form.
+ * @param user Reference to the user concerned by the registration process.
+ *
+ * @throws PasswordMismatchException If a command other than PASS is sent before authentication.
+ * @throws NotRegisteredException If a disallowed command is sent during the registration phase.
+ */
+void CommandManager::registerClient(MsgServ::Command cmd, User & user)
 {
 	if (!user.isNickRegister())
 	{
 		if (!user.isConnected())
 		{
-			if (key != "PASS")
+			if (cmd.name != "PASS")
 				throw PasswordMismatchException();
-			commands_[key]->execute(args, trailing, user);
+			commands_[cmd.name]->execute(cmd, user);
 		}
-		else if (key != "NICK")
+		else if (cmd.name != "NICK")
 			throw NotRegisteredException();
-		commands_[key]->execute(args, trailing, user);
+		commands_[cmd.name]->execute(cmd, user);
 	}
-	else if (key != "USER")
+	else if (cmd.name != "USER")
 		throw NotRegisteredException();
-	commands_[key]->execute(args, trailing, user);
+	commands_[cmd.name]->execute(cmd, user);
 }
 
 

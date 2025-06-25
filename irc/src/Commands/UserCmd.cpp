@@ -1,8 +1,7 @@
 #include "UserCmd.hpp"
 
-void UserCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
+void UserCmd::execute(MsgServ::Command cmd, User & user) const
 {
-	(void)args;
-	(void)trailing;
+	(void)cmd;
 	(void)user;
 }

@@ -8,5 +8,5 @@ public:
     PongCmd(){}
     ~PongCmd(){}
     
-    void execute(std::vector<std::string>args, std::string trailing, User & user) const;
+    void execute(MsgServ::Command cmd, User & user) const;
 };

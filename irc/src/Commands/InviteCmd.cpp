@@ -1,8 +1,7 @@
 #include "InviteCmd.hpp"
 
-void InviteCmd::execute(std::vector<std::string> args, std::string trailing, User & user) const
+void InviteCmd::execute(MsgServ::Command cmd, User & user) const
 {
-	(void)args;
-	(void)trailing;
+	(void)cmd;
 	(void)user;
 }
