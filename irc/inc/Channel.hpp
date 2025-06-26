@@ -16,10 +16,6 @@ public:
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	const std::string& getTopic() const;
-	bool isPasswordProtected() const;
-	bool isInviteRestricted() const;
-	bool isTopicRestricted() const;
-	bool isLimitNbUserReached() const;
 	bool isConnected(const std::string& nickname) const;
 	bool isModerator(const std::string& nickname) const;
 
@@ -46,6 +42,11 @@ public:
 private:
 
 	void sendMsgToAllUsers(std::string& msg);
+
+	bool isPasswordProtected() const;
+	bool isInviteRestricted() const;
+	bool isTopicRestricted() const;
+	bool isLimitNbUserReached() const;
 
 	const std::string name_;
 	std::string topic_;
