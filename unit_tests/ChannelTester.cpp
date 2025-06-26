@@ -100,10 +100,11 @@ static void testPassword()
 
 	Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(bob);});
 	Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(bob, "wrongpass");});
+	Tester::assertDoNotThrows([&]() {chan.connectUser(bob, "secret");});
 
 	chan.disablePassword();
 
-	Tester::assertDoNotThrows([&]() {chan.connectUser(bob, "wrongpass");});
+	Tester::assertDoNotThrows([&]() {chan.connectUser(bob, "secret");});
 
 }
 
@@ -161,5 +162,4 @@ void testerChannel()
 	testTopic();
 	testUserLimit();
 
-	/** @todo defines other tests */
 }
