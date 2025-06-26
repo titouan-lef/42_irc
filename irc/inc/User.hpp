@@ -17,6 +17,8 @@ public:
 	bool isUsernameRegister();
 
 	void setNickname(const std::string& nickname);
+	void setUsername(const std::string& username);
+	void setRealName(const std::string& realname);
 	const std::string& getNickname() const;
 	const std::string& getUsername() const;
 	const std::string getPrefix() const;

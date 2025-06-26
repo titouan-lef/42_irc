@@ -11,5 +11,5 @@ public:
 	ACommand(){}
 	virtual ~ACommand(){}
 
-    virtual void execute(MsgServ::Command cmd, User & user) const = 0;
+	virtual void execute(MsgServ::Command cmd, User& user) const = 0;
 };

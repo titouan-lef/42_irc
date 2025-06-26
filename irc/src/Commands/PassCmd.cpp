@@ -2,13 +2,13 @@
 #include "PasswordMismatchException.hpp"
 #include "Server.hpp"
 
-void PassCmd::execute(MsgServ::Command cmd, User & user) const
+void PassCmd::execute(MsgServ::Command cmd, User& user) const
 {
-    const int argsMax = 1;
+	const int argsMax = 1;
 
-    if (!cmd.trailing.empty() || cmd.arg.size() != argsMax || cmd.arg[0].empty())
-        throw PasswordMismatchException();
-    if (cmd.arg[0] != Server::getInstance().getPassword()) 
-        throw PasswordMismatchException();
-    user.validConnection();
+	if (!cmd.trailing.empty() || cmd.arg.size() != argsMax || cmd.arg[0].empty())
+		throw PasswordMismatchException();
+	if (cmd.arg[0] != Server::getInstance().getPassword()) 
+		throw PasswordMismatchException();
+	user.validConnection();
 }

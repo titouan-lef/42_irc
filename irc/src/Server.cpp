@@ -18,8 +18,8 @@ Server::Server(): serverSocket_(-1), running_(false)
 
 Server& Server::getInstance()
 {
-    static Server instance;
-    return instance;
+	static Server instance;
+	return instance;
 }
 
 void Server::closeServerConnection()

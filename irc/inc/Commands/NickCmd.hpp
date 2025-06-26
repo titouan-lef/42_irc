@@ -8,5 +8,5 @@ public:
 	NickCmd(){}
 	~NickCmd(){}
 
-    void execute(MsgServ::Command cmd, User & user) const;
+	void execute(MsgServ::Command cmd, User& user) const;
 };

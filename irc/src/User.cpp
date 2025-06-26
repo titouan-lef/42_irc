@@ -25,6 +25,22 @@ void User::setNickname(const std::string& nickname)
 }
 
 /**
+ * @brief Set the user's username.
+ */
+void User::setUsername(const std::string& username)
+{
+	username_ = username;
+}
+
+/**
+ * @brief Set the user's realname.
+ */
+void User::setRealName(const std::string& realname)
+{
+	realName_ = realname;
+}
+
+/**
  * @brief Returns the user's nickname.
  *
  * @return Constant reference to the nickname string.

@@ -8,5 +8,6 @@ public:
 	UserCmd(){}
 	~UserCmd(){}
 
-    void execute(MsgServ::Command cmd, User & user) const;
+	void execute(MsgServ::Command cmd, User& user) const;
+	bool validUsername(std::string username) const;
 };

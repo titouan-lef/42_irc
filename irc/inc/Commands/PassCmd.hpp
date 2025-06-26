@@ -5,8 +5,8 @@
 class PassCmd : public ACommand
 {
 public:
-    PassCmd() {}
-    ~PassCmd() {}
-    
-    void execute(MsgServ::Command cmd, User & user) const;
+	PassCmd() {}
+	~PassCmd() {}
+
+	void execute(MsgServ::Command cmd, User& user) const;
 };

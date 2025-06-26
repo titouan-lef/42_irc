@@ -130,7 +130,7 @@ MsgServ::Command CommandManager::parserCmd(std::string recv)
  * @throws PasswordMismatchException If a command other than PASS is sent before authentication.
  * @throws NotRegisteredException If a disallowed command is sent during the registration phase.
  */
-void CommandManager::registerClient(MsgServ::Command cmd, User & user)
+void CommandManager::registerClient(MsgServ::Command cmd, User& user)
 {
 	if (!user.isNickRegister())
 	{

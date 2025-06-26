@@ -8,11 +8,11 @@
 class CommandManager
 {
 public:
-    static CommandManager& getInstance();
-    void interpretData(std::string recv, User & user);
+	static CommandManager& getInstance();
+	void interpretData(std::string recv, User& user);
 	MsgServ::Command parserCmd(std::string recv);
-	void registerClient(MsgServ::Command cmd, User & user);
-    
+	void registerClient(MsgServ::Command cmd, User& user);
+	
 private:
 	CommandManager();
 	virtual ~CommandManager();

@@ -3,7 +3,7 @@
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
 
-void PrivmsgCmd::execute(MsgServ::Command cmd, User & user) const
+void PrivmsgCmd::execute(MsgServ::Command cmd, User& user) const
 {
 	(void)user;
 	int socket = UserManager::getInstance().findUserSocket(cmd.arg[0]);

@@ -8,5 +8,5 @@ public:
 	PrivmsgCmd(){}
 	~PrivmsgCmd(){}
 
-    void execute(MsgServ::Command cmd, User & user) const;
+	void execute(MsgServ::Command cmd, User& user) const;
 };

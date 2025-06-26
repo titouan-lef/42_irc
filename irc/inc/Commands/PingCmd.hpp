@@ -8,5 +8,5 @@ public:
 	PingCmd(){}
 	~PingCmd(){}
 
-    void execute(MsgServ::Command cmd, User & user) const;
+	void execute(MsgServ::Command cmd, User& user) const;
 };

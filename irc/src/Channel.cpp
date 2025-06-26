@@ -132,7 +132,7 @@ bool Channel::isModerator(const std::string& nickname) const
  * @brief Restrict topic changes to channel moderators only.
  *
  * @note This function should be called by the MODE command.
- *       Ensure the user has moderator privileges before applying this mode.
+ *	   Ensure the user has moderator privileges before applying this mode.
  */
 void Channel::enableTopicRestriction()
 {
@@ -143,7 +143,7 @@ void Channel::enableTopicRestriction()
  * @brief Allow all users to change the channel topic.
  *
  * @note This function should be called by the MODE command.
- *       Ensure the user has moderator privileges before applying this mode.
+ *	   Ensure the user has moderator privileges before applying this mode.
  */
 void Channel::disableTopicRestriction()
 {
@@ -157,7 +157,7 @@ void Channel::disableTopicRestriction()
  * @param user The user trying to change the topic.
  * 
  * @throws ChannelPrivilegesNeeded is the topic is restricted to moderators
- *         and that the given user is not moderateur.
+ *		 and that the given user is not moderateur.
  */
 void Channel::setTopic(const std::string& newTopic, const User& user)
 {
@@ -198,7 +198,7 @@ void Channel::disablePassword()
  * @brief Restrict connection to invited users only.
  *
  * @note This function should be called by the MODE command.
- *       Ensure the user has moderator privileges before applying this mode.
+ *	   Ensure the user has moderator privileges before applying this mode.
  */
 void Channel::enableInviteRestriction()
 {
@@ -209,7 +209,7 @@ void Channel::enableInviteRestriction()
  * @brief Allow all users to join the channel.
  *
  * @note This function should be called by the MODE command.
- *       Ensure the user has moderator privileges before applying this mode.
+ *	   Ensure the user has moderator privileges before applying this mode.
  */
 void Channel::disableInviteRestriction()
 {

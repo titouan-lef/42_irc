@@ -71,7 +71,7 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
  * Handles client disconnection and receive errors gracefully.
  *
  * @note Maybe it would be better to return found message and handle it somewhere else??
- *       It currently sendback a test message to the client.
+ *	   It currently sendback a test message to the client.
  */
 void UserManager::listenClients()
 {
