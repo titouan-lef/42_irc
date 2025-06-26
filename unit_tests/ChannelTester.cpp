@@ -86,8 +86,6 @@ static void testInvite()
  */
 static void testPassword()
 {
-
-	Tester::startTest("Channel password protection");
 	Tester::startTest("Channel password protection");
 
 	User bob(2, dummyAddr(5678));
