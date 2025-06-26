@@ -31,6 +31,7 @@ const char* IrcException::what() const throw()
 #include "AlreadyRegistredException.hpp"
 #include "InviteOnlyException.hpp"
 #include "NotRegisteredException.hpp"
+#include "InvalidModeParamException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
 
@@ -61,3 +62,5 @@ ClientDisconnectedException::ClientDisconnectedException(const std::string& nick
 ReiceveException::ReiceveException(const std::string& nickname): IrcException(1, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
 
 SendException::SendException(const std::string& nickname): IrcException(1, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
+
+InvalidModeParamException::InvalidModeParamException(const std::string& msg): IrcException(696, "ERR_INVALIDMODEPARAM", msg) {}
