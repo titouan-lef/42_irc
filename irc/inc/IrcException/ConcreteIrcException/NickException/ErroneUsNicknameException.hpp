@@ -8,5 +8,5 @@ class ErroneUsNicknameException: public IrcException
 public:
 	virtual ~ErroneUsNicknameException() throw() {}
 
-	ErroneUsNicknameException(const std::string& nickname);
+	ErroneUsNicknameException(int socket, const std::vector<std::string>& arg, const std::string& nickname);
 };

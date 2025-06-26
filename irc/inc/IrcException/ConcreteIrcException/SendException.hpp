@@ -8,5 +8,5 @@ class SendException: public IrcException
 public:
 	virtual ~SendException() throw() {}
 
-	SendException(const std::string& nickname);
+	SendException(int socket, const std::vector<std::string>& arg, const std::string& nickname);
 };

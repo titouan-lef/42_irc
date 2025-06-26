@@ -5,12 +5,12 @@
 
 void UserCmd::execute(MsgServ::Command cmd, User& user) const
 {
-	if (!user.isUsernameRegister())
-		throw AlreadyRegistredException(user.getNickname());
 	if (cmd.arg.size() != 3 || cmd.trailing.empty())
-		throw NeedMoreParamsException("");
+		throw NeedMoreParamsException(user.getSocket(), cmd.name, user.getNickname());
 	if (!validUsername(cmd.arg[0]))
-		throw NeedMoreParamsException("");
+		throw NeedMoreParamsException(user.getSocket(), cmd.name, user.getNickname());
+	if (!user.isUsernameRegister())
+		throw AlreadyRegistredException(user.getSocket(), user.getNickname());
 	user.setUsername(cmd.arg[0]);
 	user.setRealName(cmd.trailing);
 }

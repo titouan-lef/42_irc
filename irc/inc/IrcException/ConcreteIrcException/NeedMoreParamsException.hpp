@@ -8,5 +8,5 @@ class NeedMoreParamsException: public IrcException
 public:
 	virtual ~NeedMoreParamsException() throw() {}
 
-	NeedMoreParamsException(const std::string& nickname);
+	NeedMoreParamsException(int socket, const std::string& commandName, const std::string& nickname);
 };

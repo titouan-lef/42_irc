@@ -3,14 +3,18 @@
 #include <iostream>
 #include <exception>
 
+#include "MsgServ.hpp"
+
 class IrcException : public std::exception
 {
 public:
-	IrcException(const int code, const std::string& name, const std::string& message);
+	IrcException(int socket, int code, const std::string& trailing, const std::vector<std::string>& arg, const std::string& clientNickname);
 	virtual ~IrcException() throw() = 0;
 
-	virtual const char* what() const throw();
+	void sendError() const;
 
 private:
-	const std::string message_;
+	int socket_;
+	MsgServ::Command cmd_;
+	std::string clientNickname_;
 };

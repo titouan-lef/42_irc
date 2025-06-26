@@ -8,5 +8,5 @@ class AlreadyRegistredException: public IrcException
 public:
 	virtual ~AlreadyRegistredException() throw() {}
 
-	AlreadyRegistredException(const std::string& name);
+	AlreadyRegistredException(int socket, const std::string& nickname);
 };

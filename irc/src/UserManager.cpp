@@ -79,12 +79,10 @@ void UserManager::listenClients()
 			continue;
 		try
 		{
-			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd);
+			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd, userList_[i].getNickname());
 			std::cout << msg;
 
 			CommandManager::getInstance().interpretData(msg, userList_[i]);
-			std::string test = "testmsg";
-			MsgServ::sendMsg(pollfdList_[i].fd, test);
 			/**
 			 * @todo
 			 * receive message
@@ -95,9 +93,9 @@ void UserManager::listenClients()
 		{
 			closeConnection(i);
 		}
-		catch(const std::exception& e)
+		catch(const IrcException& e)
 		{
-			std::cerr << e.what() << std::endl;
+			e.sendError();
 		}
 	}
 }

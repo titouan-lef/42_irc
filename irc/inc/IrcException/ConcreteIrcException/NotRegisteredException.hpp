@@ -8,6 +8,6 @@ class NotRegisteredException: public IrcException
 public:
 	virtual ~NotRegisteredException() throw() {}
 
-	NotRegisteredException();
+	NotRegisteredException(int socket, const std::string& nickname);
 
 };

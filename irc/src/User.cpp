@@ -71,7 +71,6 @@ const std::string User::getPrefix() const
 {
 	std::string prefix;
 
-	prefix.append(":");
 	prefix.append(nickname_);
 	prefix.append("!");
 	prefix.append(username_);
@@ -84,7 +83,7 @@ const std::string User::getPrefix() const
  *
  * @return The client's socket descriptor.
  */
-int User::getSocket()
+int User::getSocket() const
 {
 	return (clientSocket_);
 }

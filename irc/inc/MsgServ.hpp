@@ -14,19 +14,18 @@ public:
 		std::string trailing;
 		std::vector<std::string> arg;
 	};
-
-	static void sendMsg(int socket, std::string& msg);
-	static std::string recvMsg(int socket);
+	static std::string recvMsg(int socket, const std::string& nickname);
 	static bool isMsgComplete(std::string& msg);
-	static const std::string getNumericReply(MsgServ::Command& cmd, const int code, const std::string& clientTargetNickname);
-	static const std::string getMessageReply(const MsgServ::Command& cmd, const std::string& clientNickname);
+	static void sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname);
+	static void sendMessageReply(int socket, const MsgServ::Command& cmd, const std::string& prefix);
 
 private:
 
 	MsgServ();
 	// ~MsgServ();
 
-	static const std::string getReply(const MsgServ::Command& cmd, const std::string& source, const std::string& target);
+	static void sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
+	static void sendMsg(int socket, std::string& msg);
 
 	friend class MsgServTesterl;
 };

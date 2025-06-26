@@ -65,7 +65,7 @@ CommandManager& CommandManager::getInstance()
 */
 void CommandManager::interpretData(std::string recv, User& user)
 {
-	MsgServ::Command cmd = parserCmd(recv);
+	MsgServ::Command cmd = parserCmd(recv, user);
 	if (!user.isUsernameRegister())
 		registerClient(cmd, user);
 	else
@@ -91,7 +91,7 @@ void CommandManager::interpretData(std::string recv, User& user)
 *
 * @throws UnknowCmdException if the command is not registered in `commands_`.
 */
-MsgServ::Command CommandManager::parserCmd(std::string recv)
+MsgServ::Command CommandManager::parserCmd(const std::string& recv, const User& user)
 {
 	MsgServ::Command cmd;
 	std::string token;
@@ -99,7 +99,7 @@ MsgServ::Command CommandManager::parserCmd(std::string recv)
 
 	iss >> cmd.name;
 	if (commands_.find(cmd.name) == commands_.end())
-		throw UnknowCmdException(cmd.name);
+		throw UnknowCmdException(user.getSocket(), cmd.name, user.getNickname());
 	while (iss >> token)
 	{
 		if (token[0] == ':')
@@ -137,14 +137,14 @@ void CommandManager::registerClient(MsgServ::Command cmd, User& user)
 		if (!user.isConnected())
 		{
 			if (cmd.name != "PASS")
-				throw PasswordMismatchException();
+				throw PasswordMismatchException(user.getSocket(), user.getNickname());
 			commands_[cmd.name]->execute(cmd, user);
 		}
 		else if (cmd.name != "NICK")
-			throw NotRegisteredException();
+			throw NotRegisteredException(user.getSocket(), user.getNickname());
 		commands_[cmd.name]->execute(cmd, user);
 	}
 	else if (cmd.name != "USER")
-		throw NotRegisteredException();
+		throw NotRegisteredException(user.getSocket(), user.getNickname());
 	commands_[cmd.name]->execute(cmd, user);
 }

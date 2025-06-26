@@ -1,34 +1,10 @@
 #include "MsgServ.hpp"
 
 #include <cerrno>
-#include <iomanip>
-#include <sstream>
 
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
-
-/**
- * @brief Sends a message over the given socket.
- *
- * @param socket The socket file descriptor to send the message through.
- * @param msg The message to send; the sent part will be erased from this string.
- *
- * @throws SendException if sending fails for reasons other than EAGAIN.
- *
- * @note Currently uses a temporary nickname placeholder for error reporting.
- */
-void MsgServ::sendMsg(int socket, std::string& msg)
-{
-	std::string nickname = "tmpNickname"; /** @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
-	if (msg.empty())
-		return;
-	ssize_t sent = send(socket, msg.c_str(), msg.size(), 0);
-	if (sent == -1 && errno != EAGAIN)
-		throw SendException(nickname);
-	if (sent > 0)
-		msg.erase(0, sent);
-}
 
 /**
  * @brief Receives a message from the specified socket.
@@ -42,15 +18,14 @@ void MsgServ::sendMsg(int socket, std::string& msg)
  *
  * @note Currently uses a temporary nickname placeholder for exception reporting.
  */
-std::string MsgServ::recvMsg(int socket)
+std::string MsgServ::recvMsg(int socket, const std::string& nickname)
 {
-	std::string nickname = "tmpNickname"; /** @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	char buffer[1024];
 	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
-		throw ReiceveException(nickname);
+		throw ReiceveException(socket, nickname);
 	if (bytes_received == 0) // Connection closed by client
-		throw ClientDisconnectedException(nickname);
+		throw ClientDisconnectedException(socket, nickname);
 	buffer[bytes_received] = '\0';
 	return buffer;
 }
@@ -67,22 +42,19 @@ bool MsgServ::isMsgComplete(std::string& msg)
 	return (msg.find("\r\n") != std::string::npos);
 }
 
-const std::string MsgServ::getNumericReply(MsgServ::Command& cmd, const int code, const std::string& clientTargetNickname)
+void MsgServ::sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname)
 {
-	std::stringstream codeName;
-	codeName << std::setw(3) << std::setfill('0') << code;
-	cmd.name = codeName.str();
-	return getReply(cmd, "ircServer", clientTargetNickname);
+	sendReply(socket, cmd, "ircServer", clientTargetNickname);/** @todo ircServer ? server? other? */
 }
 
-const std::string MsgServ::getMessageReply(const MsgServ::Command& cmd, const std::string& clientNickname)
+void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd, const std::string& prefix)
 {
-	return getReply(cmd, clientNickname, "");
+	sendReply(socket, cmd, prefix, "");
 }
 
-const std::string MsgServ::getReply(const MsgServ::Command& cmd, const std::string& source, const std::string& target)
+void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
 {
-	std::string reply = ":" + source + " " + cmd.name;
+	std::string reply = ":" + prefix + " " + cmd.name;
 	if (target != "")
 		reply += " " + target;
 	for (std::size_t i = 0; i < cmd.arg.size(); ++i)
@@ -90,5 +62,27 @@ const std::string MsgServ::getReply(const MsgServ::Command& cmd, const std::stri
 	if (cmd.trailing != "")
 		reply += " :" + cmd.trailing; 
 	reply += "\r\n";
-	return reply;
+	sendMsg(socket, reply);/** @todo manage exception */
+}
+
+/**
+ * @brief Sends a message over the given socket.
+ *
+ * @param socket The socket file descriptor to send the message through.
+ * @param msg The message to send; the sent part will be erased from this string.
+ *
+ * @throws SendException if sending fails for reasons other than EAGAIN.
+ *
+ * @note Currently uses a temporary nickname placeholder for error reporting.
+ */
+void MsgServ::sendMsg(int socket, std::string& msg)
+{
+	/** std::string nickname = "tmpNickname"; @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
+	if (msg.empty())
+		return;
+	ssize_t sent = send(socket, msg.c_str(), msg.size(), 0);
+	if (sent == -1 && errno != EAGAIN)
+		throw std::runtime_error("Error: cannot send message");
+	if (sent > 0)
+		msg.erase(0, sent);
 }

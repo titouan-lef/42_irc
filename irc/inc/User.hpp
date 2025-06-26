@@ -24,7 +24,7 @@ public:
 	const std::string& getNickname() const;
 	const std::string& getUsername() const;
 	const std::string getPrefix() const;
-	int getSocket();
+	int getSocket() const;
 	struct sockaddr_in getAddress();
 
 private:

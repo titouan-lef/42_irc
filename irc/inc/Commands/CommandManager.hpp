@@ -10,7 +10,7 @@ class CommandManager
 public:
 	static CommandManager& getInstance();
 	void interpretData(std::string recv, User& user);
-	MsgServ::Command parserCmd(std::string recv);
+	MsgServ::Command parserCmd(const std::string& recv, const User& user);
 	void registerClient(MsgServ::Command cmd, User& user);
 
 private:

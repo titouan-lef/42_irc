@@ -65,11 +65,11 @@ bool Channel::isTopicRestricted() const
 void Channel::connectUser(const User& newUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
-		throw PasswordMismatchException();
+		throw PasswordMismatchException(newUser.getSocket(), newUser.getNickname());
 	if (inviteRestricted_ && invitedUsers_.find(newUser.getNickname()) == invitedUsers_.end())
-		throw InviteOnlyException();
+		throw InviteOnlyException(newUser.getSocket(), name_, newUser.getNickname());
 	if (isLimitNbUserReached())
-		throw ChannelIsFullException(name_);
+		throw ChannelIsFullException(newUser.getSocket(), name_, newUser.getNickname(), name_);
 	if (inviteRestricted_)
 		invitedUsers_.erase(newUser.getNickname());
 	connectedUser_.push_back(newUser);
@@ -92,7 +92,7 @@ void Channel::disconnectUser(const std::string& nickname)
 			return;
 		}
 	}
-	throw NoSuchNickException(nickname);
+	/** @todo throw NoSuchNickException(nickname); --> define exception in command and call a function to do test in command */
 }
 
 
@@ -164,7 +164,7 @@ void Channel::disableTopicRestriction()
 void Channel::setTopic(const std::string& newTopic, const User& user)
 {
 	if (isTopicRestricted() && !isModerator(user.getNickname()))
-		throw ChannelPrivilegesNeeded();
+		throw ChannelPrivilegesNeeded(user.getSocket(), name_, user.getNickname());
 	topic_ = newTopic;
 }
 
@@ -253,7 +253,7 @@ void Channel::removeModerator(const std::string& nickname)
 			return;
 		}
 	}
-	throw NoSuchNickException(nickname);
+	/** @todo throw NoSuchNickException(nickname);--> define exception in command and call a function to do test in command */
 }
 
 /**
@@ -275,8 +275,8 @@ bool Channel::isLimitNbUserReached() const
  */
 void Channel::setLimitNbUsers(int nbUserMax)
 {
-	if (nbUserMax <= 0)
-		throw InvalidModeParamException("Invalid limit parameter");
+	/** @todo if (nbUserMax <= 0)
+		throw InvalidModeParamException("Invalid limit parameter");*/
 	nbMaxUsers_ = nbUserMax;
 }
 
@@ -297,8 +297,12 @@ void Channel::disableLimitNbUsers()
  */
 void Channel::sendMsgToAllUsers(std::string& msg)
 {
+	(void) msg;
+	/**
+	 * @todo
 	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
 	{
 		MsgServ::sendMsg(it->getSocket(), msg);
 	}
+	*/
 }

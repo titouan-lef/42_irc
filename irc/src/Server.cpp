@@ -126,7 +126,7 @@ void Server::defineSocketOnlistening(int serverSocket)
 int Server::parsePort(const std::string& port)
 {
 	if (port.empty())
-		throw PasswordMismatchException();
+		throw std::runtime_error("Error: invalid port");
 	int portNumber = std::atoi(port.c_str());
 	return portNumber;
 } 
@@ -171,6 +171,6 @@ void Server::manageEvent()
 	}
 	catch(const IrcException& e)
 	{
-		std::cerr << e.what() << std::endl;
+		e.sendError();
 	}
 }

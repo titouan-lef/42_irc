@@ -8,5 +8,5 @@ class InvalidModeParamException: public IrcException
 public:
 	virtual ~InvalidModeParamException() throw() {}
 
-	InvalidModeParamException(const std::string& nickname);
+	InvalidModeParamException(int socket, const std::string& msg, const std::string& nickname);
 };

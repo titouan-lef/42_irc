@@ -1,16 +1,27 @@
 #include "IrcException.hpp"
 
 /***************************************************************************************************************************************************/
+#include <iomanip>
+#include <sstream>
+
 #include "CommandResponse.hpp"
 
-IrcException::IrcException(const int code, const std::string& name, const std::string& message):
-	message_(CommandResponse(code, name, message).getCommandResponse()) {}
+IrcException::IrcException(int socket, int code, const std::string& trailing, const std::vector<std::string>& arg, const std::string& clientNickname):
+	socket_(socket), clientNickname_(clientNickname)
+{
+	std::stringstream codeName;
+	codeName << std::setw(3) << std::setfill('0') << code;
+	cmd_.name = codeName.str();
+	cmd_.trailing = trailing;
+	cmd_.arg = arg;
+}
 
 IrcException::~IrcException() throw() {}
 
-const char* IrcException::what() const throw()
+void IrcException::sendError() const
 {
-	return message_.c_str();
+	MsgServ::sendNumericReply(socket_, cmd_, clientNickname_);
+	/** @todo display message server (create virtual function that print nothing by defaut and which can be overitting in child class) */
 }
 
 /***************************************************************************************************************************************************/
@@ -33,34 +44,50 @@ const char* IrcException::what() const throw()
 #include "NotRegisteredException.hpp"
 #include "InvalidModeParamException.hpp"
 
-NoSuchNickException::NoSuchNickException(const std::string& nickname): IrcException(401, "ERR_NOSUCHNICK", nickname + " :No such nick/channel") {}
+NoSuchNickException::NoSuchNickException(int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	IrcException(socket, 401, "No such nick/channel", arg, nickname) {}
 
-UnknowCmdException::UnknowCmdException(const std::string& nickname): IrcException(407, "ERR_UNKNOWCOMMAND", nickname + " :Unknow command") {}
+UnknowCmdException::UnknowCmdException(int socket, const std::string& commandName, const std::string& nickname): 
+	IrcException(socket, 421, "Unknow command", std::vector<std::string>(1, commandName), nickname) {}
 
-NoNicknameGivenException::NoNicknameGivenException(): IrcException (431, "*", " :No nickname given"){}
+NoNicknameGivenException::NoNicknameGivenException(int socket, const std::string& nickname):
+	IrcException(socket, 431, "No nickname given", std::vector<std::string>(), nickname) {}
 
-ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname): IrcException(432, "*" , nickname + " :Erroneous nickname"){}
+ErroneUsNicknameException::ErroneUsNicknameException(int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	IrcException(socket, 432, "Erroneous nickname", arg, nickname) {}
 
-NicknameInUseException::NicknameInUseException(const std::string& nickname): IrcException(433, "*" , nickname + " :Nickname is already in use"){}
+NicknameInUseException::NicknameInUseException(int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	IrcException(socket, 433, "Nickname is already in use", arg, nickname) {}
 
-NotRegisteredException::NotRegisteredException(): IrcException(451, "*", " :You have not registered"){}
+NotRegisteredException::NotRegisteredException(int socket, const std::string& nickname):
+	IrcException(socket, 451, "You have not registered", std::vector<std::string>(), nickname) {}
 
-NeedMoreParamsException::NeedMoreParamsException(const std::string& nickname): IrcException(461, "*", nickname + "PASS :Not enough parameters"){}
+NeedMoreParamsException::NeedMoreParamsException(int socket, const std::string& commandName, const std::string& nickname):
+	IrcException(socket, 461, "Not enough parameters", std::vector<std::string>(1, commandName), nickname) {}
 
-AlreadyRegistredException::AlreadyRegistredException(const std::string& nickname): IrcException(462, "", nickname + " :You may not reregister"){}
+AlreadyRegistredException::AlreadyRegistredException(int socket, const std::string& nickname):
+	IrcException(socket, 462, "Unauthorized command (already registered)", std::vector<std::string>(), nickname) {}
 
-PasswordMismatchException::PasswordMismatchException(): IrcException(464, "ERR_PASSWDMISMATCH", "Password not given or incorrect") {}
+PasswordMismatchException::PasswordMismatchException(int socket, const std::string& nickname):
+	IrcException(socket, 464, "Password not given or incorrect", std::vector<std::string>(), nickname) {}
 
-ChannelIsFullException::ChannelIsFullException(const std::string& name): IrcException(471, "ERR_CHANNELISFULL", "The channel " + name + " is full") {}
+ChannelIsFullException::ChannelIsFullException(int socket, const std::string& channelName, const std::string& nickname, const std::string& name):
+	IrcException(socket, 471, "The channel " + name + " is full (+l)", std::vector<std::string>(1, channelName), nickname) {}
 
-InviteOnlyException::InviteOnlyException(): IrcException(473, "ERR_INVITEONLYCHAN", "You're not invited to join this channel") {}
+InviteOnlyException::InviteOnlyException(int socket, const std::string& channelName, const std::string& nickname):
+	IrcException(socket, 473, "You're not invited to join this channel", std::vector<std::string>(1, channelName), nickname) {}
 
-ChannelPrivilegesNeeded::ChannelPrivilegesNeeded(): IrcException(482, "ERR_CHANOPRIVSNEEDED", "You're not channel operator") {}
+ChannelPrivilegesNeeded::ChannelPrivilegesNeeded(int socket, const std::string& channelName, const std::string& nickname):
+	IrcException(socket, 482, "You're not channel operator", std::vector<std::string>(1, channelName), nickname) {}
 
-ClientDisconnectedException::ClientDisconnectedException(const std::string& nickname): IrcException(504, "ERR_USERNOTONSERV", nickname + " disconnected") {}
+ClientDisconnectedException::ClientDisconnectedException(int socket, const std::string& nickname):
+	IrcException(socket, 504, "disconnected", std::vector<std::string>(), nickname) {}
 
-ReiceveException::ReiceveException(const std::string& nickname): IrcException(1, "ERR_RECVFAILED", "Impossible to receive data from " + nickname) {}
+ReiceveException::ReiceveException(int socket, const std::string& nickname):
+	IrcException(socket, 1, "Impossible to receive data", std::vector<std::string>(), nickname) {}
 
-SendException::SendException(const std::string& nickname): IrcException(1, "ERR_SENDFAILED", "Impossible to send data from " + nickname) {}
+SendException::SendException(int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	IrcException(socket, 1, "Impossible to send data from " + nickname, arg, nickname) {}
 
-InvalidModeParamException::InvalidModeParamException(const std::string& msg): IrcException(696, "ERR_INVALIDMODEPARAM", msg) {}
+InvalidModeParamException::InvalidModeParamException(int socket, const std::string& msg, const std::string& nickname):
+	/** @todo check this*/ IrcException(socket, 696, msg ,std::vector<std::string>(), nickname) {}
