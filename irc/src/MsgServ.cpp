@@ -88,8 +88,7 @@ const std::string MsgServ::getReply(const MsgServ::Command& cmd, const std::stri
 	for (std::size_t i = 0; i < cmd.arg.size(); ++i)
 		reply += " " + cmd.arg[i];
 	if (cmd.trailing != "")
-		reply += " :" + cmd.trailing;
+		reply += " :" + cmd.trailing; 
 	reply += "\r\n";
 	return reply;
 }
-

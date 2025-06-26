@@ -19,6 +19,7 @@ public:
 	void closeAllConnection();
 
 	bool serverReiceveData() const;
+	void checkNewConnections();
 	int getNbUserEvent() const;
 
 private:

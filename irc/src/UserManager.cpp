@@ -18,6 +18,7 @@
 #include "AlreadyRegistredException.hpp"
 
 #include <unistd.h>
+#include <fcntl.h>
 
 UserManager::UserManager() {}
 
@@ -31,10 +32,7 @@ UserManager::UserManager() {}
  */
 void UserManager::initUserManager(const int serverSocket, const struct sockaddr_in& serverAddr)
 {
-	User newUser(serverSocket, serverAddr);
-	struct pollfd newPollfd = {serverSocket, POLLIN, 0};
-	userList_.push_back(newUser);
-	pollfdList_.push_back(newPollfd);
+	addNewUser(serverSocket, serverAddr);
 }
 
 /**
@@ -128,7 +126,7 @@ int UserManager::findUserSocket(std::string nickname)
  */
 void UserManager::closeAllConnection()
 {
-	for (std::size_t i = 1; i < userList_.size(); ++i)
+	for (std::size_t i = userList_.size() - 1; i >= 0; --i)
 		closeConnection(i);
 }
 
@@ -152,6 +150,21 @@ int UserManager::getNbUserEvent() const
 bool UserManager::serverReiceveData() const
 {
 	return (getInstance().hasDataToRead(0));
+}
+
+void UserManager::checkNewConnections()
+{
+	if (!UserManager::getInstance().serverReiceveData())
+		return;
+	struct sockaddr_in clientAddr;
+	socklen_t clientLen = sizeof(clientAddr);
+	int clientSocket = accept(userList_[0].getSocket(), (struct sockaddr*)&clientAddr, &clientLen);
+	if (clientSocket < 0)
+		throw std::runtime_error("Error: accept failed");
+	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+		throw std::runtime_error("Error: fcntl failed, cannot connect client");
+	addNewUser(clientSocket, clientAddr);
+	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
 }
 
 /**

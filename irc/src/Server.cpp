@@ -4,12 +4,13 @@
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>				// memset
-#include <fcntl.h>
 #include <netdb.h>				// gethostbyname, getprotobyname, htons, htonl
 #include <sys/socket.h>			// socket, bind, accept, listen
+#include <cstdlib>
 
 #include "UserManager.hpp"
 #include "IrcException.hpp"
+#include "PasswordMismatchException.hpp"
 
 Server& Server::getInstance()
 {
@@ -17,16 +18,18 @@ Server& Server::getInstance()
 	return instance;
 }
 
-void Server::initServerConnection(int port)
+void Server::initServerConnection(std::string port,std::string password)
 {
-	createSocket();
-	defineSocketOption();
-	struct sockaddr_in serverAddr = createAddress(port);
-	bindSocketOnAdress((sockaddr*)&serverAddr);
-	defineSocketOnlistening();
-	UserManager::getInstance().initUserManager(serverSocket_, serverAddr);
+	int portNumber = parsePort(port);
+	definePassword(password);
+	int serverSocket = createSocket();
+	defineSocketOption(serverSocket);
+	struct sockaddr_in serverAddr = createAddress(portNumber);
+	bindSocketOnAdress(serverSocket, (sockaddr*)&serverAddr);
+	defineSocketOnlistening(serverSocket);
+	UserManager::getInstance().initUserManager(serverSocket, serverAddr);
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
-}
+} 
 
 void Server::definePassword(std::string password)
 {
@@ -42,9 +45,22 @@ bool Server::isCorrectPassword(std::string password)
 void Server::closeServerConnection()
 {
 	UserManager::getInstance().closeAllConnection();
-	if (serverSocket_ != -1)
-		close (serverSocket_);
 	std::cout << "Shutting down server..." << std::endl;
+}
+
+int Server::up(std::string port,std::string password)
+{
+	try
+	{
+		Server::getInstance().initServerConnection(port, password);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return 1;
+	}
+	getInstance().run();
+	return (0);
 }
 
 void Server::run()
@@ -57,25 +73,27 @@ void Server::run()
 void Server::stop()
 {
 	running_ = false;
+	closeServerConnection(); // isn't this can cause a pb if the server do thing beffore ending the while loop ?
 }
 
-Server::Server(): serverSocket_(-1), running_(false)
+Server::Server(): running_(false)
 {
 	// Initialize pollfd for listening socket
 }
 
-void Server::createSocket()
+int Server::createSocket()
 {
-	serverSocket_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (serverSocket_ < 0)
+	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if (serverSocket < 0)
 		throw std::runtime_error("Error: cannot open socket");
+	return serverSocket;
 }
 
-void Server::defineSocketOption()
+void Server::defineSocketOption(int serverSocket)
 {
 	// Set SO_REUSEADDR to avoid "address already in use" error on restart
 	int opt = 1;
-	int result = setsockopt(serverSocket_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+	int result = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
 	if (result < 0)
 		throw std::runtime_error("Error: setsockopt failed");
 }
@@ -93,17 +111,25 @@ struct sockaddr_in Server::createAddress(int port)
 /**
  * @brief Associates the socket with the local address.
  */
-void Server::bindSocketOnAdress(struct sockaddr* serverAddr)
+void Server::bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr)
 {
-	if (bind(serverSocket_, serverAddr, sizeof(*serverAddr)) < 0)
+	if (bind(serverSocket, serverAddr, sizeof(*serverAddr)) < 0)
 		throw std::runtime_error("Error: bind failed");
 }
 
-void Server::defineSocketOnlistening()
+void Server::defineSocketOnlistening(int serverSocket)
 {
-	if (listen(serverSocket_, SOMAXCONN) < 0) 
+	if (listen(serverSocket, SOMAXCONN) < 0) 
 		throw std::runtime_error("Error: listen failed");
 }
+
+int Server::parsePort(const std::string& port)
+{
+	if (port.empty())
+		throw PasswordMismatchException();
+	int portNumber = std::atoi(port.c_str());
+	return portNumber;
+} 
 
 void Server::parsePassword(const std::string& password)
 {
@@ -119,7 +145,7 @@ void Server::parsePasswordChar(const unsigned char c)
 		throw std::runtime_error("Error: Use just ascii value 33 at 126");
 }
 
-void Server::onEvent()
+void Server::onEvent() /** @todo check the errno*/
 {
 	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
 	if (poll_count == 0)
@@ -140,31 +166,11 @@ void Server::manageEvent()
 {
 	try
 	{
-		checkNewConnections(); // Check if listening socket is readable => new connection
+		UserManager::getInstance().checkNewConnections();
 		UserManager::getInstance().listenClients();
 	}
 	catch(const IrcException& e)
 	{
 		std::cerr << e.what() << std::endl;
 	}
-}
-
-void Server::checkNewConnections()
-{
-	if (!UserManager::getInstance().serverReiceveData())
-		return;
-	struct sockaddr_in clientAddr;
-	socklen_t clientLen = sizeof(clientAddr);
-	int clientSocket = accept(serverSocket_, (struct sockaddr*)&clientAddr, &clientLen);
-	if (clientSocket < 0)
-		throw std::runtime_error("Error: accept failed");
-	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
-		throw std::runtime_error("Error: fcntl failed, cannot connect client");
-	addNewUser(clientSocket, clientAddr);
-}
-
-void Server::addNewUser(int clientSocket, struct sockaddr_in clientAddr)
-{
-	UserManager::getInstance().addNewUser(clientSocket, clientAddr);
-	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
 }

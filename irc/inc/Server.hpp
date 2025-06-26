@@ -9,11 +9,8 @@ public:
 
 	static Server& getInstance();
 
-	void initServerConnection(int port);
-	void definePassword(std::string password);
 	bool isCorrectPassword(std::string password);
-	void closeServerConnection();
-	void run();
+	int up(std::string port,std::string password);
 	void stop();
 
 private:
@@ -23,19 +20,21 @@ private:
 	Server(const Server& other);
 	Server& operator=(const Server& other);
 
-	void createSocket();
-	void defineSocketOption();
+	void run();
+	void initServerConnection(std::string port,std::string password);
+	int createSocket();
+	void defineSocketOption(int serverSocket);
 	struct sockaddr_in createAddress(int port);
-	void bindSocketOnAdress(struct sockaddr* serverAddr);
-	void defineSocketOnlistening();
+	void bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr);
+	void defineSocketOnlistening(int serverSocket);
+	int parsePort(const std::string& port);
+	void definePassword(std::string password);
 	void parsePassword(const std::string& password);
 	void parsePasswordChar(const unsigned char c);
 	void onEvent();
 	void manageEvent();
-	void checkNewConnections();
-	void addNewUser(int clientSocket, struct sockaddr_in clientAddr);
+	void closeServerConnection();
 
-	int serverSocket_; // manage link with pollfds
 	std::string	password_;
 	bool running_;
 };
