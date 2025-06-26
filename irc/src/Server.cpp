@@ -145,7 +145,7 @@ void Server::parsePasswordChar(const unsigned char c)
 		throw std::runtime_error("Error: Use just ascii value 33 at 126");
 }
 
-void Server::onEvent() /** @todo check the errno*/
+void Server::onEvent()
 {
 	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
 	if (poll_count == 0)
