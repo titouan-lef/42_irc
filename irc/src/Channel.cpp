@@ -4,6 +4,7 @@
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
+#include "InvalidModeParamException.hpp"
 #include "MsgServ.hpp"
 
 Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
@@ -60,7 +61,7 @@ bool Channel::isTopicRestricted() const
  * @throws PasswordMismatchException if the given password is incorect.
  * @throws ChannelIsFullException if the maximum number of users is reached.
  */
-void Channel::connectUser(User& newUser, const std::string& password)
+void Channel::connectUser(const User& newUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
 		throw PasswordMismatchException();
@@ -229,7 +230,7 @@ void Channel::inviteUser(const std::string& nickname)
  *
  * @note Currently does not check if the user is already a moderator.
  */
-void Channel::addNewModerator(User& newModerator)
+void Channel::addNewModerator(const User& newModerator)
 {
 	moderators_.push_back(newModerator);
 }
@@ -268,9 +269,13 @@ bool Channel::isLimitNbUserReached() const
  * @brief Sets the maximum number of users allowed in the channel.
  *
  * @param nbUserMax The maximum user count to set.
+ * 
+ * @throws InvalidModeParamException if nbUserMax < 1.
  */
 void Channel::setLimitNbUsers(int nbUserMax)
 {
+	if (nbUserMax <= 0)
+		throw InvalidModeParamException("Invalid limit parameter");
 	nbMaxUsers_ = nbUserMax;
 }
 
