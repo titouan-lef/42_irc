@@ -10,18 +10,10 @@
 #include "InviteOnlyException.hpp"
 #include "InviteOnlyException.hpp"
 
-#include <netinet/in.h>	// struct sockaddr_in
-#include <cstring>		// memset()
+#include <netinet/in.h>		// struct sockaddr_in
+#include <cstring>			// memset()
 
-static struct sockaddr_in dummyAddr(int port = 0)
-{
-	struct sockaddr_in addr;
-	std::memset(&addr, 0, sizeof(addr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	return addr;
-}
+#include "UserTester.hpp"	// dummyAddr()
 
 class ChannelTester
 {

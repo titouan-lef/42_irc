@@ -3,6 +3,8 @@
 #include "Client.hpp"
 #include "sys/socket.h"
 
+class UserTester;
+
 class User: public Client
 {
 public:
@@ -37,4 +39,6 @@ private:
 	// Role role_;
 
 	std::string buffer_;
+
+	friend class UserTester;
 };
