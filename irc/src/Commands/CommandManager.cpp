@@ -148,5 +148,3 @@ void CommandManager::registerClient(MsgServ::Command cmd, User& user)
 		throw NotRegisteredException();
 	commands_[cmd.name]->execute(cmd, user);
 }
-
-
