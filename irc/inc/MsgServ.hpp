@@ -4,6 +4,8 @@
 
 #include "Service.hpp"
 
+class MsgServTester;
+
 class MsgServ: public Service
 {
 public:
@@ -25,4 +27,6 @@ private:
 	// ~MsgServ();
 
 	static const std::string getReply(const MsgServ::Command& cmd, const std::string& source, const std::string& target);
+
+	friend class MsgServTesterl;
 };
