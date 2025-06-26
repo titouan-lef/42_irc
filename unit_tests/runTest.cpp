@@ -1,12 +1,13 @@
 #include "Tester.hpp"
+#include "ChannelTester.hpp"
 
 void testerUser();
-void testerChannel();
 void testerMsgServ();
 
 int main()
 {
 	testerUser();
-	testerChannel();
+	ChannelTester test;
+	test.testerChannel();
 	testerMsgServ();
 }

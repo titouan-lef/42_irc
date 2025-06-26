@@ -3,7 +3,9 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <User.hpp>
+#include <User.hpp> 
+
+class ChannelTester; /** @todo remove before push */
 
 class Channel
 {
@@ -42,7 +44,7 @@ public:
 	void disableLimitNbUsers();
 
 private:
-	
+
 	void sendMsgToAllUsers(std::string& msg);
 
 	const std::string name_;
@@ -55,4 +57,5 @@ private:
 	std::vector<User> connectedUser_;
 	std::vector<User> moderators_;
 
+	friend class ChannelTester ;	/** @todo remove before push */
 };
