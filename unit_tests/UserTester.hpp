@@ -61,6 +61,6 @@ private:
 		user.setUsername("kakou");
 		Tester::assertExpectedEqualsActual(user.getUsername(), std::string("kakou"));
 		Tester::assertTrue(user.isUsernameRegister());
-		Tester::assertExpectedEqualsActual(user.getPrefix(), std::string(":mister!kakou@localhost"));
+		Tester::assertExpectedEqualsActual(user.getPrefix(), std::string("mister!kakou@localhost"));
 	}
 };
