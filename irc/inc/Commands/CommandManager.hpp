@@ -5,6 +5,8 @@
 #include "ACommand.hpp"
 #include "User.hpp"
 
+class CommandTester; /** @todo remove before push */
+
 class CommandManager
 {
 public:
@@ -20,4 +22,6 @@ private:
 	CommandManager& operator=(const CommandManager& other);
 
 	std::map<std::string, ACommand*> commands_;
+
+	friend class CommandTester ;	/** @todo remove before push */
 };

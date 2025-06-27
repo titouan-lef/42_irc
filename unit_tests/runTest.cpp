@@ -1,8 +1,9 @@
 #include "Tester.hpp"
 #include "ChannelTester.hpp"
-#include "MsgServTester.hpp"
+// #include "MsgServTester.hpp"
 #include "UserTester.hpp"
 #include "ExceptionTester.hpp"
+#include "CommandTester.hpp"
 
 void testerUser();
 
@@ -17,8 +18,12 @@ int main()
 		test.testerChannel();
 	}
 	{
-		MsgServTester test;
-		test.testerMsgServ();
+		// MsgServTester test;
+		// test.testerMsgServ();
+	}
+	{
+		CommandTester test;
+		test.testerCommand();
 	}
 	{
 		Tester::startTest("Init client");

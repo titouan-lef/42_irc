@@ -27,8 +27,7 @@ public:
 		testTopic();
 		testUserLimit();
 	};
-
-private:
+ 
 	void testInstance()
 	{
 		Tester::startTest("Channel creation");
