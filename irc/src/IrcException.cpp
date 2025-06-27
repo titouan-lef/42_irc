@@ -21,7 +21,27 @@ IrcException::~IrcException() throw() {}
 void IrcException::sendError() const
 {
 	MsgServ::sendNumericReply(socket_, cmd_, clientNickname_);
-	/** @todo display message server (create virtual function that print nothing by defaut and which can be overitting in child class) */
+	displayError();
+}
+
+void IrcException::displayError() const
+{
+	const char* WHITE = "\033[0m";
+	const char* RED = "\033[31m";
+	const char* GREEN = "\033[32m";
+	const char* BLUE = "\033[34m";
+	const char* MAGENTA = "\033[35m";
+
+	std::cerr << RED << "Exception " << cmd_.name
+		<< WHITE << " throws by "
+		<< MAGENTA << clientNickname_
+		<< WHITE << " :"
+		<< BLUE;
+	for (std::size_t i = 0; i < cmd_.arg.size(); ++i)
+		std::cerr << " " << cmd_.arg[i];
+	if (cmd_.trailing != "")
+		std::cerr << GREEN << " " << cmd_.trailing;
+	std::cerr << WHITE << "\r\n";
 }
 
 /***************************************************************************************************************************************************/

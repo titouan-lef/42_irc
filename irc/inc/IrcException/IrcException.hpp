@@ -14,6 +14,8 @@ public:
 	void sendError() const;
 
 private:
+	void displayError() const;
+
 	int socket_;
 	MsgServ::Command cmd_;
 	std::string clientNickname_;
