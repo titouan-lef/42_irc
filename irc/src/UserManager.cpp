@@ -126,8 +126,9 @@ int UserManager::findUserSocket(std::string nickname)
  */
 void UserManager::closeAllConnection()
 {
-	for (std::size_t i = userList_.size() - 1; i >= 0; --i)
+	for (std::size_t i = userList_.size() - 1; i > 0; --i)
 		closeConnection(i);
+	closeConnection(0);
 }
 
 /**
@@ -193,7 +194,7 @@ void UserManager::closeConnection(const int index)
 	std::string nickname = user.getNickname();
 	if (!nickname.empty())
 		std::cout << nickname + " disconnected" << std::endl;
-	else
+	else if (index != 0)
 		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	close(pollfdList_[index].fd);
 	pollfdList_.erase(pollfdList_.begin() + index); //maybe not the best way

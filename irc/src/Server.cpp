@@ -45,7 +45,7 @@ bool Server::isCorrectPassword(std::string password)
 void Server::closeServerConnection()
 {
 	UserManager::getInstance().closeAllConnection();
-	std::cout << "Shutting down server..." << std::endl;
+	std::cout << std::endl << "Shutting down server..." << std::endl;
 }
 
 int Server::up(std::string port,std::string password)
@@ -103,8 +103,8 @@ struct sockaddr_in Server::createAddress(int port)
 	struct sockaddr_in serverAddr;
 	std::memset(&serverAddr, 0, sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(port);
-	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	serverAddr.sin_port = htons(port); // h stant for host
+	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); // inet_pton("127.0.0.1")
 	return serverAddr;
 }
 
