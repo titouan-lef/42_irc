@@ -80,13 +80,13 @@ public:
 				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("PASS/Password :", user);});
 			}
 			{
-				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Password :", user);});
+				Tester::assertThrows<NeedMoreParamsException>([&]() {CommandManager::getInstance().interpretData("PASS Password :", user);});
 			}
 			{
 				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Passsword	", user);});
 			}
 			{
-				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("PASS Password", user);});
+				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("	PASS Password", user);});
 			}
 		}
 	};
