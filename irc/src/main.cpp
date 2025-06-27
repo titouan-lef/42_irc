@@ -18,6 +18,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	std::signal(SIGINT, signalHandler); // Setup signal handler
-	Server::getInstance().up(argv[1], argv[2]);
-	return 0;
+	int status = Server::getInstance().up(argv[1], argv[2]);
+	return status;
 }
