@@ -5,7 +5,6 @@
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
 #include "InvalidModeParamException.hpp"
-#include "MsgServ.hpp"
 
 Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
 {
@@ -271,13 +270,16 @@ bool Channel::isLimitNbUserReached() const
  *
  * @param nbUserMax The maximum user count to set.
  * 
- * @throws InvalidModeParamException if nbUserMax < 1.
+ * @return 1 if the given nbUserMax is below 1, 0 otherwise.
+ * 
+ * @warning you need to throw InvalidModeParamException if it returns 1.
  */
-void Channel::setLimitNbUsers(int nbUserMax)
+int Channel::setLimitNbUsers(int nbUserMax)
 {
-	/** @todo if (nbUserMax <= 0)
-		throw InvalidModeParamException("Invalid limit parameter");*/
+	if (nbUserMax <= 0)
+		return 1;
 	nbMaxUsers_ = nbUserMax;
+	return 0;
 }
 
 /**
@@ -293,16 +295,25 @@ void Channel::disableLimitNbUsers()
 /**
  * @brief Sends a message to all users connected to the channel.
  *
- * @param msg The message string to send.
+ * @param cmg The command structure with name, trailing and agrs.
  */
-void Channel::sendMsgToAllUsers(std::string& msg)
+void Channel::sendMessageToAllUsers(const MsgServ::Command& cmd)
 {
-	(void) msg;
-	/**
-	 * @todo
 	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
 	{
-		MsgServ::sendMsg(it->getSocket(), msg);
+		MsgServ::sendMessageReply(it->getSocket(), cmd, it->getPrefix());
 	}
-	*/
+}
+
+/**
+ * @brief Sends a numeric to all users connected to the channel.
+ *
+ * @param cmg The command structure with name, trailing and agrs.
+ */
+void Channel::sendNumericToAllUsers(const MsgServ::Command& cmd)
+{
+	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	{
+		MsgServ::sendNumericReply(it->getSocket(), cmd, it->getNickname());
+	}
 }

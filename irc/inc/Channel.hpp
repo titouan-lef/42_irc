@@ -4,6 +4,7 @@
 #include <vector>
 #include <set>
 #include <User.hpp> 
+#include "MsgServ.hpp"
 
 class ChannelTester; /** @todo remove before push */
 
@@ -36,12 +37,13 @@ public:
 	void addNewModerator(const User& newOperator);
 	void removeModerator(const std::string& nickname);
 
-	void setLimitNbUsers(int nbUserMax);
+	int setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
 
 private:
 
-	void sendMsgToAllUsers(std::string& msg);
+	void sendMessageToAllUsers(const MsgServ::Command& cmd); 
+	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
 
 	bool isPasswordProtected() const;
 	bool isInviteRestricted() const;
