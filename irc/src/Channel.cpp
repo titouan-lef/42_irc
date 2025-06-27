@@ -57,6 +57,7 @@ bool Channel::isTopicRestricted() const
  * @brief Adds a user to the list of connected users in the channel.
  *
  * @param newUser Reference to the user being connected.
+ * @param password Reference to the password the user is trying to connect with.
  * 
  * @throws PasswordMismatchException if the given password is incorect.
  * @throws ChannelIsFullException if the maximum number of users is reached.
