@@ -44,7 +44,7 @@ bool MsgServ::isMsgComplete(std::string& msg)
 
 void MsgServ::sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname)
 {
-	sendReply(socket, cmd, "ircServer", clientTargetNickname);/** @todo ircServer ? server? other? */
+	sendReply(socket, cmd, "ircserv", clientTargetNickname);/** @todo ircServer ? server? other? */
 }
 
 void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd, const std::string& prefix)
@@ -55,7 +55,17 @@ void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd, const st
 void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
 {
 	std::string reply = formatMsg(cmd, prefix, target);
-	sendMsg(socket, reply);/** @todo manage exception */
+	try
+	{
+		sendMsg(socket, reply);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what();
+		if (!target.empty())
+			std::cerr << " to: " << target;
+		std::cerr << std::endl;
+	}
 }
 
 std::string MsgServ::formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
