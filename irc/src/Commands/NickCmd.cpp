@@ -14,8 +14,6 @@ void NickCmd::execute(MsgServ::Command cmd, User& user) const
 	const int sizeMax = 9;
 	const int argsMax = 1;
 
-	if (!user.getNickname().empty())
-		return ;
 	if (!cmd.trailing.empty() || cmd.arg.size() != argsMax)
 		throw NeedMoreParamsException(user.getSocket(), cmd.name, user.getNickname());
 	if (cmd.arg[0].empty())
