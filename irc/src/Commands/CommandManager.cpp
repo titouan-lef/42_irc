@@ -95,16 +95,20 @@ MsgServ::Command CommandManager::parserCmd(const std::string& recv, const User& 
 {
 	MsgServ::Command cmd;
 	std::string token;
-	std::istringstream iss(recv);
+	std::istringstream iss;
+	iss.str(recv);
 
-	iss >> cmd.name;
+	while (std::getline(iss, cmd.name, ' ') && cmd.name.empty())
+		continue ;
 	if (commands_.find(cmd.name) == commands_.end())
 		throw UnknowCmdException(user.getSocket(), cmd.name, user.getNickname());
-	while (iss >> token)
+	while (std::getline(iss, token, ' '))
 	{
+		if (token.empty())
+			continue ;
 		if (token[0] == ':')
 		{
-			cmd.trailing = token.substr(1);
+			cmd.trailing = token;
 			std::string rest;
 			std::getline(iss, rest);
 			cmd.trailing += rest;
