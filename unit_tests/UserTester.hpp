@@ -39,7 +39,7 @@ private:
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_addr.s_addr, addr.sin_addr.s_addr);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_family, addr.sin_family);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_port, addr.sin_port);
-		Tester::assertTrue(user.getNickname().empty());
+		Tester::assertExpectedEqualsActual(user.getNickname(), std::string("*"));
 		Tester::assertTrue(user.getUsername().empty());
 		Tester::assertFalse(user.isConnected());
 		Tester::assertFalse(user.isNickRegister());
