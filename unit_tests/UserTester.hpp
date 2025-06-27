@@ -23,6 +23,7 @@ public:
 	void testerUser()
 	{
 		testInstance();
+		testConnection();
 	}
 
 private:
@@ -38,10 +39,28 @@ private:
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_addr.s_addr, addr.sin_addr.s_addr);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_family, addr.sin_family);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_port, addr.sin_port);
-		Tester::assertExpectedEqualsActual(user.getNickname(), std::string(""));
-		Tester::assertExpectedEqualsActual(user.getUsername(), std::string(""));
+		Tester::assertTrue(user.getNickname().empty());
+		Tester::assertTrue(user.getUsername().empty());
 		Tester::assertFalse(user.isConnected());
 		Tester::assertFalse(user.isNickRegister());
 		Tester::assertFalse(user.isUsernameRegister());
+	}
+
+	void testConnection()
+	{
+		Tester::startTest("User connection");
+
+		struct sockaddr_in addr = dummyAddr(1234);
+		User user(1, addr);
+
+		user.validConnection();
+		Tester::assertTrue(user.isConnected());
+		user.setNickname("mister");
+		Tester::assertExpectedEqualsActual(user.getNickname(), std::string("mister"));
+		Tester::assertTrue(user.isNickRegister());
+		user.setUsername("kakou");
+		Tester::assertExpectedEqualsActual(user.getUsername(), std::string("kakou"));
+		Tester::assertTrue(user.isUsernameRegister());
+		Tester::assertExpectedEqualsActual(user.getPrefix(), std::string(":mister!kakou@localhost"));
 	}
 };
