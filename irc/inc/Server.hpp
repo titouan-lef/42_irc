@@ -3,6 +3,8 @@
 #include <netinet/in.h>
 #include <iostream>
 
+class CommandTester ;	/** @todo remove before push */
+
 class Server
 {
 public:
@@ -37,4 +39,6 @@ private:
 
 	std::string	password_;
 	bool running_;
+
+	friend class CommandTester ;	/** @todo remove before push */
 };

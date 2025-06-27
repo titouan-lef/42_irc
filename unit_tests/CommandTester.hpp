@@ -6,6 +6,12 @@
 #include "CommandManager.hpp"
 #include "ACommand.hpp"
 #include "User.hpp"
+#include "UnknowCmdException.hpp"
+#include "NotRegisteredException.hpp"
+#include "PasswordMismatchException.hpp"
+#include "NeedMoreParamsException.hpp"
+#include "PasswordMismatchException.hpp"
+#include "Server.hpp"
 //for user
 #include <netinet/in.h>		// struct sockaddr_in
 #include <cstring>			// memset()
@@ -17,20 +23,71 @@ class CommandTester
 public:
 	void testerCommand()
 	{
-		testcmd();
+		testPass();
 	};
 
-	void testcmd()
+	void testPass()
 	{
-		Tester::startTest("Parser");
+		
+		Tester::startTest("Parser Valid PASS");
 		User user(1, dummyAddr(1234));
-		MsgServ::Command cmdtester;
-		cmdtester.name = "PASS";
-		cmdtester.arg = {"Password"};
-		MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS                             Password                       ", user);
-		Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
-		Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
-		Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
-		Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		const MsgServ::Command cmdtester = {"PASS", "", {"Password"}};
+		{
+			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password", user);
+			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		}
+		{
+			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", user);
+			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		}
+		{
+			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password", user);
+			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		}
+		{
+			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", user);
+			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		}
+		{
+			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ", user);
+			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+		}
+		{
+			Server::getInstance().definePassword("Password");
+			Tester::startTest("Parser Unvalid PASS");
+			{
+				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("PASS	Password  :   ", user);});
+			}
+			{
+				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("         	            ", user);});
+			}
+			{
+				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("PASS/Password :", user);});
+			}
+			{
+				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Password :", user);});
+			}
+			{
+				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Passsword	", user);});
+			}
+			{
+				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("PASS Password", user);});
+			}
+		}
 	};
 };
