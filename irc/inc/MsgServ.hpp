@@ -25,6 +25,7 @@ private:
 	// ~MsgServ();
 
 	static void sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
+	static std::string formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
 	static void sendMsg(int socket, std::string& msg);
 
 	friend class MsgServTesterl;

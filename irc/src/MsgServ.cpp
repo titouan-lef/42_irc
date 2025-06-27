@@ -54,6 +54,12 @@ void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd, const st
 
 void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
 {
+	std::string reply = formatMsg(cmd, prefix, target);
+	sendMsg(socket, reply);/** @todo manage exception */
+}
+
+std::string MsgServ::formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
+{
 	std::string reply = ":" + prefix + " " + cmd.name;
 	if (target != "")
 		reply += " " + target;
@@ -62,7 +68,7 @@ void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::stri
 	if (cmd.trailing != "")
 		reply += " :" + cmd.trailing; 
 	reply += "\r\n";
-	sendMsg(socket, reply);/** @todo manage exception */
+	return reply;
 }
 
 /**
