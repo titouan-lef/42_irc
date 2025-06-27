@@ -12,6 +12,9 @@
 #include "IrcException.hpp"
 #include "PasswordMismatchException.hpp"
 
+#define MIN_PORT_VALUE 1023
+#define MAX_PORT_VALUE 65535
+
 Server& Server::getInstance()
 {
 	static Server instance;
@@ -59,7 +62,7 @@ int Server::up(std::string port,std::string password)
 		std::cerr << e.what() << std::endl;
 		return 1;
 	}
-	getInstance().run();
+	run();
 	return (0);
 }
 
@@ -126,10 +129,14 @@ void Server::defineSocketOnlistening(int serverSocket)
 int Server::parsePort(const std::string& port)
 {
 	if (port.empty())
-		throw std::runtime_error("Error: invalid port");
+		throw std::runtime_error("Error: Invalid port");
 	int portNumber = std::atoi(port.c_str());
+	if (portNumber <= MIN_PORT_VALUE)
+		throw std::runtime_error("Error: Invalid port");
+	if (portNumber > MAX_PORT_VALUE)
+		throw std::runtime_error("Error: Invalid port");
 	return portNumber;
-} 
+}
 
 void Server::parsePassword(const std::string& password)
 {
