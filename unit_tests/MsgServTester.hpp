@@ -8,27 +8,27 @@
 class MsgServTester
 {
 public:
-
 	void testerMsgServ()
 	{
-		getMessageReplyTest();
-		getNumericReplyTest();
+		formatMsgReplyTest();
+		formatNumericReplyTest();
 	}
 
 private:
-	void getMessageReplyTest()
+	void formatMsgReplyTest()
 	{
-		Tester::startTest("getMessageReply()");
+		Tester::startTest("formatMsg() for message reply");
 		{
 			MsgServ::Command cmd;
 			cmd.name = "COMMAND";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
-			std::string clientNickname = "clientNickname";
+			std::string prefix = "myPrefix";
+			std::string target = "";
 
 			Tester::assertExpectedEqualsActual(
-				std::string(":clientNickname COMMAND arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::getMessageReply(cmd, clientNickname)
+				std::string(":myPrefix COMMAND arg1 arg2 arg3 :My trailing\r\n"),
+				MsgServ::formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -36,11 +36,12 @@ private:
 			cmd.name = "COMMAND";
 			cmd.arg = {};
 			cmd.trailing = "";
-			std::string clientNickname = "clientNickname";
+			std::string prefix = "myPrefix";
+			std::string target = "";
 
 			Tester::assertExpectedEqualsActual(
-				std::string(":clientNickname COMMAND\r\n"),
-				MsgServ::getMessageReply(cmd, clientNickname)
+				std::string(":myPrefix COMMAND\r\n"),
+				MsgServ::formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -48,11 +49,12 @@ private:
 			cmd.name = "COMMAND";
 			cmd.arg = {};
 			cmd.trailing = "My trailing";
-			std::string clientNickname = "clientNickname";
+			std::string prefix = "myPrefix";
+			std::string target = "";
 
 			Tester::assertExpectedEqualsActual(
-				std::string(":clientNickname COMMAND :My trailing\r\n"),
-				MsgServ::getMessageReply(cmd, clientNickname)
+				std::string(":myPrefix COMMAND :My trailing\r\n"),
+				MsgServ::formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -60,107 +62,108 @@ private:
 			cmd.name = "COMMAND";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "";
-			std::string clientNickname = "clientNickname";
+			std::string prefix = "myPrefix";
+			std::string target = "";
 
 			Tester::assertExpectedEqualsActual(
-				std::string(":clientNickname COMMAND arg1 arg2 arg3\r\n"),
-				MsgServ::getMessageReply(cmd, clientNickname)
+				std::string(":myPrefix COMMAND arg1 arg2 arg3\r\n"),
+				MsgServ::formatMsg(cmd, prefix, target)
 			);
 		}
 	}
 
-	void getNumericReplyTest()
+	void formatNumericReplyTest()
 	{
-		Tester::startTest("getNumericReply()");
+		Tester::startTest("formatMsg() for numeric reply");
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "423";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
-			int code = 423;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "423";
 			cmd.arg = {};
 			cmd.trailing = "";
-			int code = 423;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 			
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "002";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
-			int code = 2;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 002 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "042";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
-			int code = 42;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 042 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "040";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
-			int code = 40;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 040 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "423";
 			cmd.arg = {};
 			cmd.trailing = "My trailing";
-			int code = 423;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient :My trailing\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
 			MsgServ::Command cmd;
-			cmd.name = "COMMAND";
+			cmd.name = "423";
 			cmd.arg = {"arg1"};
 			cmd.trailing = "";
-			int code = 423;
+			std::string prefix = "ircServer";
 			std::string clientTargetNickname = "targetClient";
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient arg1\r\n"),
-				MsgServ::getNumericReply(cmd, code, clientTargetNickname)
+				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 	}
