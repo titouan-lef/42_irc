@@ -41,14 +41,19 @@ CYAN			:= \e[36m
 all:	$(NAME)
 
 ircserv.a:
-	@$(MAKE) tester -C ../irc >/dev/null;
-	@mv ../irc/ircserv.a ircserv.a;
-	@$(MAKE) fclean -C ../irc >/dev/null;
-
+	@$(MAKE) tester -C ../irc >/dev/null
+	@mv ../irc/ircserv.a ircserv.a
+	@$(MAKE) fclean -C ../irc >/dev/null
 
 $(NAME):	ircserv.a $(OBJ)
 	@$(CXX) $(CXXFLAGS) $(OBJ) ircserv.a -o $@
-	@echo "$(GREEN)$(NAME) ready ✅️$(INIT)"
+	@$(MAKE) -C ../irc >/dev/null
+	@mv ../irc/ircserv ircserv
+	@$(MAKE) fclean -C ../irc >/dev/null
+	@./ircserv 4343 password > /dev/null 2>&1 & echo $$! > ircserv.pid
+	@valgrind ./$(NAME) || true
+	@pid=$$(cat ircserv.pid); if kill -0 $$pid 2>/dev/null; then kill $$pid; fi
+	@rm -f ircserv.pid
 
 $(BUILD_DIR)%.o:	$(SRC_DIR)%.cpp | $(OBJ_DIR)
 	@echo "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)"
