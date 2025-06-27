@@ -14,10 +14,18 @@ SRC_DIR			:= ./src/
 include			sources.mk
 SRC				:= $(addsuffix .cpp, $(SRC))
 
+#==================== BONUS =====================#
+
+BOT_NAME		:= escapeBot
+BOT_DIR			:= ./bot/
+SRC_BOT			:= bot_main EscapeBot
+SRC_BOT			:= $(addsuffix .cpp, $(SRC_BOT))
+
 #==================== OBJECT ====================#
 
 OBJ				:= $(SRC:%.cpp=$(BUILD_DIR)%.o)
-OBJ_DIR			:= $(sort $(shell dirname $(OBJ)))
+OBJ_BONUS		:= $(SRC_BOT:%.cpp=$(BUILD_DIR)%.o)
+OBJ_DIR			:= $(sort $(shell dirname $(OBJ)) $(shell dirname $(OBJ_BONUS)))
 
 #================== DEPENDENCY ==================#
 
@@ -52,6 +60,14 @@ $(OBJ_DIR):
 tester:	$(OBJ)
 	@ar rcs $(NAME).a $(OBJ)
 
+bonus: $(NAME) $(OBJ_BONUS)
+	@$(CXX) $(CXXFLAGS) $(OBJ_BONUS) -o $(BOT_NAME)
+	@echo "$(GREEN)$(BOT_NAME) ready ✅️$(INIT)"
+
+$(BUILD_DIR)%.o:	$(BOT_DIR)%.cpp | $(OBJ_DIR)
+	@echo "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)"
+	@$(CXX) $(CXXFLAGS) $(addprefix -I,$(HEADERS)) -c $< -o $@
+
 clean:
 	@echo "$(BLUE)Cleanning $(NAME) ✨🧹$(INIT)"
 	@if [ -d $(BUILD_DIR) ]; then\
@@ -64,6 +80,7 @@ fclean:	clean
 	@if [ -f $(NAME) ]; then\
 		echo "$(RED)Removing : $(MAGENTA)$(NAME)$(INIT)";\
 		rm -f $(NAME);\
+		rm -f $(BOT_NAME);\
 	fi;
 
 re:	fclean $(DISPLAY_TRACKER) all
