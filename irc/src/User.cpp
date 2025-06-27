@@ -1,6 +1,6 @@
 #include "User.hpp"
 
-User::User(int clientSocket, struct sockaddr_in clientAddr): isConnected_(false), clientSocket_(clientSocket), clientAddr_(clientAddr) {}
+User::User(int clientSocket, struct sockaddr_in clientAddr): nickname_("*"), isConnected_(false), clientSocket_(clientSocket), clientAddr_(clientAddr) {}
 
 /**
  * @brief Checks if the user's nickname matches the given nickname.
@@ -110,7 +110,7 @@ bool User::isConnected()
 
 bool User::isNickRegister()
 {
-	return (!nickname_.empty());
+	return (nickname_ != "*");
 }
 
 bool User::isUsernameRegister()
