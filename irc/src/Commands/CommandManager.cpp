@@ -146,9 +146,11 @@ void CommandManager::registerClient(MsgServ::Command cmd, User& user)
 		}
 		else if (cmd.name != "NICK")
 			throw NotRegisteredException(user.getSocket(), user.getNickname());
-		commands_[cmd.name]->execute(cmd, user);
+		else
+			commands_[cmd.name]->execute(cmd, user);
 	}
 	else if (cmd.name != "USER")
 		throw NotRegisteredException(user.getSocket(), user.getNickname());
-	commands_[cmd.name]->execute(cmd, user);
+	else
+		commands_[cmd.name]->execute(cmd, user);
 }
