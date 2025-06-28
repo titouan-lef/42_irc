@@ -75,33 +75,47 @@ void UserManager::listenClients()
 {
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
-		if (!hasDataToRead(i))
-			continue;
-		try
+		if (hasDataToRead(i))
 		{
-			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd, userList_[i].getNickname());
-			std::cout << msg << "	size: " << msg.size() << std::endl;
-			if (!MsgServ::isMsgComplete(msg) && userList_[i].completeMsg(msg))
-				std::cout << "Error: msg too long." << std::endl;// throw MessageToLongException();
-			std::string command = userList_[i].getCommand();
-			if (command.empty())
-				continue;
-			std::cout << "Executing command: " << command << " -> size: " << msg.size() << std::endl;
-			CommandManager::getInstance().interpretData(command, userList_[i]);
-			/**
-			 * @todo
-			 * receive message
-			 * send to command manager
-			 */
+			reiceveFromClient(i);
 		}
-		catch(const ClientDisconnectedException& e)
+		while (userList_[i].isCommandReady())
 		{
-			closeConnection(i);
+			executeCommandsClient(i);
 		}
-		catch(const IrcException& e)
-		{
-			e.sendError();
-		}
+	}
+}
+
+void UserManager::reiceveFromClient(int i)
+{
+	try
+	{
+		std::string msg = MsgServ::recvMsg(pollfdList_[i].fd, userList_[i].getNickname());
+		std::cout << "Received message: " << msg << "	size: " << msg.size() << std::endl;
+		if (userList_[i].completeMsg(msg))
+			std::cout << "Error: msg too long." << std::endl;// throw MessageToLongException();
+	}
+	catch(const ClientDisconnectedException& e)
+	{
+		closeConnection(i);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError();
+	}
+}
+
+void UserManager::executeCommandsClient(int i)
+{
+	try
+	{
+		std::string command = userList_[i].getCommand();
+		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl;
+		CommandManager::getInstance().interpretData(command, userList_[i]);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError();
 	}
 }
 

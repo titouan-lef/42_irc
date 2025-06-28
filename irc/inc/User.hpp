@@ -27,6 +27,7 @@ public:
 	int getSocket() const;
 	struct sockaddr_in getAddress();
 
+	bool isCommandReady() const;
 	int completeMsg(const std::string& msg);
 	std::string getCommand();
 

@@ -15,6 +15,8 @@ public:
 
 	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
 	void listenClients();
+	void reiceveFromClient(int i);
+	void executeCommandsClient(int i);
 	int findUserSocket(std::string nickname);
 	void closeAllConnection();
 

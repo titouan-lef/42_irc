@@ -98,6 +98,14 @@ struct sockaddr_in User::getAddress()
 	return (clientAddr_);
 }
 
+
+bool User::isCommandReady() const
+{
+	std::cout << "Actual buffer_: " << buffer_ << " -> size: " << buffer_.size() << std::endl;
+	
+	return buffer_.find("\r\n") != std::string::npos || buffer_.find("\n") != std::string::npos;
+}
+
 int User::completeMsg(const std::string &msg)
 {
 	buffer_ += msg;
@@ -116,7 +124,7 @@ std::string User::getCommand()
 	{
 		pos = buffer_.find("\n");
 		if (pos == std::string::npos)
-			return ""; // No full command yet
+			return ""; // Should not arrive maybe trhow an exception
 		std::string command = buffer_.substr(0, pos);
 		buffer_ = buffer_.substr(pos + 1);
 		return command;
