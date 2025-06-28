@@ -38,7 +38,7 @@ CYAN			:= \e[36m
 
 #===================== RULE =====================#
 
-all:	$(NAME)
+all:	run
 
 ircserv.a:
 	@$(MAKE) tester -C ../irc >/dev/null
@@ -50,6 +50,8 @@ $(NAME):	ircserv.a $(OBJ)
 	@$(MAKE) -C ../irc >/dev/null
 	@mv ../irc/ircserv ircserv
 	@$(MAKE) fclean -C ../irc >/dev/null
+
+run:	$(NAME)
 	@./ircserv 4343 password > /dev/null 2>&1 & echo $$! > ircserv.pid
 	@valgrind ./$(NAME) || true
 	@pid=$$(cat ircserv.pid); if kill -0 $$pid 2>/dev/null; then kill $$pid; fi
