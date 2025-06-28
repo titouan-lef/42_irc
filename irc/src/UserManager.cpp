@@ -79,7 +79,7 @@ void UserManager::listenClients()
 		{
 			reiceveFromClient(i);
 		}
-		while (userList_[i].isCommandReady())
+		while (userList_.at(i).isCommandReady())
 		{
 			executeCommandsClient(i);
 		}
@@ -90,9 +90,9 @@ void UserManager::reiceveFromClient(int i)
 {
 	try
 	{
-		std::string msg = MsgServ::recvMsg(pollfdList_[i].fd, userList_[i].getNickname());
+		std::string msg = MsgServ::recvMsg(pollfdList_.at(i).fd, userList_.at(i).getNickname());
 		std::cout << "Received message: " << msg << "	size: " << msg.size() << std::endl;
-		if (userList_[i].completeMsg(msg))
+		if (userList_.at(i).completeMsg(msg))
 			std::cout << "Error: msg too long." << std::endl;// throw MessageToLongException();
 	}
 	catch(const ClientDisconnectedException& e)
@@ -109,12 +109,12 @@ void UserManager::executeCommandsClient(int i)
 {
 	try
 	{
-		std::string command = userList_[i].getCommand();
+		std::string command = userList_.at(i).getCommand();
 		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl;
-		if (userList_[i].isUsernameRegister())
-			CommandManager::getInstance().interpretData(command, pollfdList_[i].fd);
+		if (userList_.at(i).isUsernameRegister())
+			CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd);
 		else
-			CommandManager::getInstance().registerClient(command, pollfdList_[i].fd);
+			CommandManager::getInstance().registerClient(command, pollfdList_.at(i).fd);
 	}
 	catch(const IrcException& e)
 	{
@@ -135,8 +135,8 @@ int UserManager::findUserSocket(std::string nickname)
 {
 	for (std::size_t i = 1; i < userList_.size(); ++i)
 	{
-		if (userList_[i].is(nickname))
-			return pollfdList_[i].fd;
+		if (userList_.at(i).is(nickname))
+			return pollfdList_.at(i).fd;
 	}
 	return -1;
 }
@@ -167,18 +167,18 @@ User& UserManager::getUser(const int socket)
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_[i].fd == socket)
-			return userList_[i];
+		if (pollfdList_.at(i).fd == socket)
+			return userList_.at(i);
 	}
-	return userList_[0];/** @todo not better option */
+	return userList_.at(0);/** @todo not better option */
 }
 
 const std::string& UserManager::getUserNickname(const int socket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_[i].fd == socket)
-			return userList_[i].getNickname();
+		if (pollfdList_.at(i).fd == socket)
+			return userList_.at(i).getNickname();
 	}
 	return defaultNickname_; /** @todo not better option */
 }
@@ -187,8 +187,8 @@ const std::string UserManager::getUserPrefix(const int socket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_[i].fd == socket)
-			return userList_[i].getPrefix();
+		if (pollfdList_.at(i).fd == socket)
+			return userList_.at(i).getPrefix();
 	}
 	return defaultPrefix_; /** @todo not better option */
 }
@@ -209,7 +209,7 @@ void UserManager::checkNewConnections()
 		return;
 	struct sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
-	int clientSocket = accept(pollfdList_[0].fd, (struct sockaddr*)&clientAddr, &clientLen);
+	int clientSocket = accept(pollfdList_.at(0).fd, (struct sockaddr*)&clientAddr, &clientLen);
 	if (clientSocket < 0)
 		throw std::runtime_error("Error: accept failed");
 	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
@@ -226,7 +226,7 @@ void UserManager::checkNewConnections()
  */
 bool UserManager::hasDataToRead(const int index) const
 {
-	return (pollfdList_[index].revents & POLLIN);
+	return (pollfdList_.at(index).revents & POLLIN);
 }
 
 /**
@@ -239,7 +239,7 @@ bool UserManager::hasDataToRead(const int index) const
  */
 void UserManager::closeConnection(const int index)
 {
-	User user = userList_[index];
+	User user = userList_.at(index);
 	if (user.isNickRegister())
 		std::cout << user.getNickname() + " disconnected" << std::endl;
 	else if (index != 0)
@@ -247,7 +247,7 @@ void UserManager::closeConnection(const int index)
 		struct sockaddr_in addr = user.getAddress();
 		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	}
-	close(pollfdList_[index].fd);
+	close(pollfdList_.at(index).fd);
 	deleteUser(index);
 }
 
