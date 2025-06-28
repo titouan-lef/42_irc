@@ -33,9 +33,8 @@ private:
 		Tester::startTest("User creation");
 
 		struct sockaddr_in addr = dummyAddr(1234);
-		User user(1, addr);
+		User user(addr);
 
-		Tester::assertExpectedEqualsActual(user.getSocket(), 1);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_addr.s_addr, addr.sin_addr.s_addr);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_family, addr.sin_family);
 		Tester::assertExpectedEqualsActual(user.getAddress().sin_port, addr.sin_port);
@@ -51,7 +50,7 @@ private:
 		Tester::startTest("User connection");
 
 		struct sockaddr_in addr = dummyAddr(1234);
-		User user(1, addr);
+		User user(addr);
 
 		user.validConnection();
 		Tester::assertTrue(user.isConnected());

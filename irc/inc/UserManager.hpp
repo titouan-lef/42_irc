@@ -6,6 +6,8 @@
 
 #include "User.hpp"
 
+class CommandTester; /** @todo remove before push */
+
 class UserManager
 {
 public:
@@ -41,4 +43,5 @@ private:
 	std::string defaultNickname_;
 	std::string defaultPrefix_;
 
+	friend class CommandTester; /** @todo remove before push */
 };
