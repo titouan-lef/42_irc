@@ -45,11 +45,13 @@ ircserv.a:
 	@mv ../irc/ircserv.a ircserv.a
 	@$(MAKE) fclean -C ../irc >/dev/null
 
-$(NAME):	ircserv.a $(OBJ)
-	@$(CXX) $(CXXFLAGS) $(OBJ) ircserv.a -o $@
+ircserv:
 	@$(MAKE) -C ../irc >/dev/null
 	@mv ../irc/ircserv ircserv
 	@$(MAKE) fclean -C ../irc >/dev/null
+
+$(NAME):	ircserv.a ircserv $(OBJ)
+	@$(CXX) $(CXXFLAGS) $(OBJ) ircserv.a -o $@
 
 run:	$(NAME)
 	@./ircserv 4343 password > /dev/null 2>&1 & echo $$! > ircserv.pid
