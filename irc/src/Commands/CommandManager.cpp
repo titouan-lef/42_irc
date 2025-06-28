@@ -141,7 +141,7 @@ void CommandManager::registerClient(MsgServ::Command cmd, User& user)
 		if (!user.isConnected())
 		{
 			if (cmd.name != "PASS")
-				throw PasswordMismatchException(user.getSocket(), user.getNickname());
+				throw PasswordMismatchException(user.getSocket(), user.getNickname()); // realy ??
 			commands_[cmd.name]->execute(cmd, user);
 		}
 		else if (cmd.name != "NICK")

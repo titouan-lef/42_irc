@@ -96,7 +96,7 @@ void MsgServ::sendMsg(int socket, std::string& msg)
 	/** std::string nickname = "tmpNickname"; @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	if (msg.empty())
 		return;
-	ssize_t sent = send(socket, msg.c_str(), msg.size(), 0);
+	ssize_t sent = send(socket, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 	if (sent == -1 && errno != EAGAIN)
 		throw std::runtime_error("Error: cannot send message");
 	if (sent > 0)

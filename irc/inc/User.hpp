@@ -27,6 +27,9 @@ public:
 	int getSocket() const;
 	struct sockaddr_in getAddress();
 
+	int completeMsg(const std::string& msg);
+	std::string getCommand();
+
 private:
 
 	std::string nickname_;

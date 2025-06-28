@@ -39,6 +39,7 @@ void Server::definePassword(std::string password)
 
 bool Server::isCorrectPassword(std::string password)
 {
+	std::cout << password_ << " : " << password_.size() << " vs " << password << " : " << password.size() << std::endl;
 	return (password_ == password);
 }
 

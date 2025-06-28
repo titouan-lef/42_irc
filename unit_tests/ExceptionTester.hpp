@@ -60,7 +60,7 @@ private:
 	void sendCommand(const std::string& cmd)
 	{
 		std::string fullCmd = cmd + "\r\n";
-		/** ssize_t sent = */ send(sockfd, fullCmd.c_str(), fullCmd.length(), 0);
+		/** ssize_t sent = */ send(sockfd, fullCmd.c_str(), fullCmd.length(), MSG_NOSIGNAL);
 		// Tester::assertExpectedEqualsActual(sent, (ssize_t)fullCmd.length());
 	};
 

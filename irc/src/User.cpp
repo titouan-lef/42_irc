@@ -98,6 +98,35 @@ struct sockaddr_in User::getAddress()
 	return (clientAddr_);
 }
 
+int User::completeMsg(const std::string &msg)
+{
+	buffer_ += msg;
+	if (buffer_.size() > 512)
+	{
+		buffer_.clear();
+		return 1;
+	}
+	return 0;
+}
+
+std::string User::getCommand()
+{
+	size_t pos = buffer_.find("\r\n");
+	if (pos == std::string::npos)
+	{
+		pos = buffer_.find("\n");
+		if (pos == std::string::npos)
+			return ""; // No full command yet
+		std::string command = buffer_.substr(0, pos);
+		buffer_ = buffer_.substr(pos + 1);
+		return command;
+	}
+
+	std::string command = buffer_.substr(0, pos);
+	buffer_ = buffer_.substr(pos + 2);
+	return command;
+}
+
 void User::validConnection()
 {
 	isConnected_ = true;
