@@ -10,14 +10,14 @@ public:
 
 	static ChanServ& getInstance();
 
-	Channel& findChannelFor(std::string name, User& user);
+	Channel& findChannelFor(std::string name, const int socketUser);
 
 private:
 
 	ChanServ();
 	// ~ChanServ();
 
-	Channel& builtNewChannel(std::string name, User& moderator);
+	Channel& builtNewChannel(std::string name, const int socketModerator);
 	
 	std::vector<Channel> channels_;
 

@@ -4,10 +4,10 @@
 #include "NoSuchNickException.hpp"
 
 /** @todo penser a parser le nom de user */
-void PrivmsgCmd::execute(MsgServ::Command cmd, User& user) const
+void PrivmsgCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
-	int socket = UserManager::getInstance().findUserSocket(cmd.arg[0]);
-	if (socket == -1)
-		throw NoSuchNickException(user.getSocket(), cmd.arg, user.getNickname());
-	MsgServ::sendMessageReply(socket, cmd, user.getPrefix());
+	int socketReceiver = UserManager::getInstance().findUserSocket(cmd.arg[0]);
+	if (socketReceiver == -1)
+		throw NoSuchNickException(socket, cmd.arg);
+	MsgServ::sendMessageReply(socketReceiver, cmd);
 }

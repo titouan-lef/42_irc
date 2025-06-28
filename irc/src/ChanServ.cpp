@@ -24,14 +24,14 @@ ChanServ& ChanServ::getInstance()
  *
  * @return Reference to the existing or newly created channel.
  */
-Channel& ChanServ::findChannelFor(std::string name, User& user)
+Channel& ChanServ::findChannelFor(std::string name, const int socketUser)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
 	{
 		if (it->getName() == name)
 			return *it;
 	}
-	return builtNewChannel(name, user);
+	return builtNewChannel(name, socketUser);
 }
 
 /**
@@ -42,9 +42,9 @@ Channel& ChanServ::findChannelFor(std::string name, User& user)
  *
  * @return Reference to the newly created channel stored in the channels list.
  */
-Channel& ChanServ::builtNewChannel(std::string name, User& user)
+Channel& ChanServ::builtNewChannel(std::string name, const int socketModerator)
 {
-	Channel newChannel(name, user);
+	Channel newChannel(name, socketModerator);
 	channels_.push_back(newChannel);
 	return channels_.back();
 }

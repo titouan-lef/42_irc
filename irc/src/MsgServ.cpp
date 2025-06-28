@@ -5,6 +5,7 @@
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "SendException.hpp"
+#include "UserManager.hpp"
 
 /**
  * @brief Receives a message from the specified socket.
@@ -47,8 +48,9 @@ void MsgServ::sendNumericReply(int socket, const MsgServ::Command& cmd, const st
 	sendReply(socket, cmd, "ircserv", clientTargetNickname);/** @todo ircServer ? server? other? */
 }
 
-void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd, const std::string& prefix)
+void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd)
 {
+	const std::string prefix = UserManager::getInstance().getUserPrefix(socket);
 	sendReply(socket, cmd, prefix, "");
 }
 

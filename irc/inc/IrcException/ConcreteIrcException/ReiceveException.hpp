@@ -8,5 +8,5 @@ class ReiceveException: public IrcException
 public:
 	virtual ~ReiceveException() throw() {}
 
-	ReiceveException(int socket, const std::string& nickname);
+	ReiceveException(const int socket, const std::string& nickname);
 };

@@ -8,6 +8,6 @@ public:
 	UserCmd(){}
 	~UserCmd(){}
 
-	void execute(MsgServ::Command cmd, User& user) const;
+	void execute(const MsgServ::Command& cmd, const int socket) const;
 	bool validUsername(std::string username) const;
 };

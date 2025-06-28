@@ -6,10 +6,10 @@
 #include "InviteOnlyException.hpp"
 #include "InvalidModeParamException.hpp"
 
-Channel::Channel(std::string name, User& moderator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
+Channel::Channel(std::string name, const int socketModerator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
 {
-	addNewModerator(moderator);
-	connectUser(moderator);
+	addNewModerator(socketModerator);
+	connectUser(socketModerator);
 }
 
 /**
@@ -61,17 +61,17 @@ bool Channel::isTopicRestricted() const
  * @throws PasswordMismatchException if the given password is incorect.
  * @throws ChannelIsFullException if the maximum number of users is reached.
  */
-void Channel::connectUser(const User& newUser, const std::string& password)
+void Channel::connectUser(int socketNewUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
-		throw PasswordMismatchException(newUser.getSocket(), newUser.getNickname());
-	if (inviteRestricted_ && invitedUsers_.find(newUser.getNickname()) == invitedUsers_.end())
-		throw InviteOnlyException(newUser.getSocket(), name_, newUser.getNickname());
+		throw PasswordMismatchException(socketNewUser);
+	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
+		throw InviteOnlyException(socketNewUser, name_);
 	if (isLimitNbUserReached())
-		throw ChannelIsFullException(newUser.getSocket(), name_, newUser.getNickname(), name_);
+		throw ChannelIsFullException(socketNewUser, name_);
 	if (inviteRestricted_)
-		invitedUsers_.erase(newUser.getNickname());
-	connectedUser_.push_back(newUser);
+		socketInvitedUsers_.erase(socketNewUser);
+	socketConnectedUsers_.push_back(socketNewUser);
 }
 
 /**
@@ -81,13 +81,13 @@ void Channel::connectUser(const User& newUser, const std::string& password)
  *
  * @throws NoSuchNickException If no user with the given nickname is found in the channel.
  */
-void Channel::disconnectUser(const std::string& nickname)
+void Channel::disconnectUser(const int socketUser)
 {
-	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	for (std::vector<int>::iterator it = socketConnectedUsers_.begin(); it < socketConnectedUsers_.end(); ++it)
 	{
-		if (it->getNickname() == nickname)
+		if (*it == socketUser)
 		{
-			connectedUser_.erase(it);
+			socketConnectedUsers_.erase(it);
 			return;
 		}
 	}
@@ -102,11 +102,11 @@ void Channel::disconnectUser(const std::string& nickname)
  *
  * @return True if the user is a moderator, false otherwise.
  */
-bool Channel::isConnected(const std::string& nickname) const
+bool Channel::isConnected(const int socketUser) const
 {
-	for (std::vector<User>::const_iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	for (std::vector<int>::const_iterator it = socketConnectedUsers_.begin(); it < socketConnectedUsers_.end(); ++it)
 	{
-		if (it->getNickname() == nickname)
+		if (*it == socketUser)
 			return true;
 	}
 	return false;
@@ -119,11 +119,11 @@ bool Channel::isConnected(const std::string& nickname) const
  *
  * @return True if the user is a moderator, false otherwise.
  */
-bool Channel::isModerator(const std::string& nickname) const
+bool Channel::isModerator(const int socketUser) const
 {
-	for (std::vector<User>::const_iterator it = moderators_.begin(); it < moderators_.end(); ++it)
+	for (std::vector<int>::const_iterator it = socketModerators_.begin(); it < socketModerators_.end(); ++it)
 	{
-		if (it->getNickname() == nickname)
+		if (*it == socketUser)
 			return true;
 	}
 	return false;
@@ -160,10 +160,10 @@ void Channel::disableTopicRestriction()
  * @throws ChannelPrivilegesNeeded is the topic is restricted to moderators
  *		 and that the given user is not moderateur.
  */
-void Channel::setTopic(const std::string& newTopic, const User& user)
+void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
-	if (isTopicRestricted() && !isModerator(user.getNickname()))
-		throw ChannelPrivilegesNeeded(user.getSocket(), name_, user.getNickname());
+	if (isTopicRestricted() && !isModerator(socketUser))
+		throw ChannelPrivilegesNeeded(socketUser, name_);
 	topic_ = newTopic;
 }
 
@@ -217,9 +217,9 @@ void Channel::disableInviteRestriction()
 	inviteRestricted_ = false;
 }
 
-void Channel::inviteUser(const std::string& nickname)
+void Channel::inviteUser(int socketUser)
 {
-	invitedUsers_.insert(nickname); //ERR_USERONCHANNEL
+	socketInvitedUsers_.insert(socketUser); //ERR_USERONCHANNEL
 }
 
 
@@ -230,9 +230,9 @@ void Channel::inviteUser(const std::string& nickname)
  *
  * @note Currently does not check if the user is already a moderator.
  */
-void Channel::addNewModerator(const User& newModerator)
+void Channel::addNewModerator(const int socketNewModerator)
 {
-	moderators_.push_back(newModerator);
+	socketModerators_.push_back(socketNewModerator);
 }
 
 /**
@@ -242,13 +242,13 @@ void Channel::addNewModerator(const User& newModerator)
  *
  * @throws NoSuchNickException if no moderator with the given nickname is found.
  */
-void Channel::removeModerator(const std::string& nickname)
+void Channel::removeModerator(const int socketUser)
 {
-	for (std::vector<User>::iterator it = moderators_.begin(); it < moderators_.end(); ++it)
+	for (std::vector<int>::iterator it = socketModerators_.begin(); it < socketModerators_.end(); ++it)
 	{
-		if (it->getNickname() == nickname)
+		if (*it == socketUser)
 		{
-			moderators_.erase(it);
+			socketModerators_.erase(it);
 			return;
 		}
 	}
@@ -262,7 +262,7 @@ void Channel::removeModerator(const std::string& nickname)
  */
 bool Channel::isLimitNbUserReached() const
 {
-	return static_cast<int>(connectedUser_.size()) == nbMaxUsers_;
+	return static_cast<int>(socketConnectedUsers_.size()) == nbMaxUsers_;
 }
 
 /**
@@ -295,25 +295,27 @@ void Channel::disableLimitNbUsers()
 /**
  * @brief Sends a message to all users connected to the channel.
  *
- * @param cmg The command structure with name, trailing and agrs.
+ * @param cmd The command structure with name, trailing and agrs.
  */
 void Channel::sendMessageToAllUsers(const MsgServ::Command& cmd)
 {
-	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	(void) cmd;
+	/*for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
 	{
 		MsgServ::sendMessageReply(it->getSocket(), cmd, it->getPrefix());
-	}
+	}*/
 }
 
 /**
  * @brief Sends a numeric to all users connected to the channel.
  *
- * @param cmg The command structure with name, trailing and agrs.
+ * @param cmd The command structure with name, trailing and agrs.
  */
 void Channel::sendNumericToAllUsers(const MsgServ::Command& cmd)
 {
-	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	(void) cmd;
+	/*for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
 	{
 		MsgServ::sendNumericReply(it->getSocket(), cmd, it->getNickname());
-	}
+	}*/
 }

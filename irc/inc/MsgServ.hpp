@@ -17,7 +17,7 @@ public:
 	static std::string recvMsg(int socket, const std::string& nickname);
 	static bool isMsgComplete(std::string& msg);
 	static void sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname);
-	static void sendMessageReply(int socket, const MsgServ::Command& cmd, const std::string& prefix);
+	static void sendMessageReply(int socket, const MsgServ::Command& cmd);
 
 private:
 

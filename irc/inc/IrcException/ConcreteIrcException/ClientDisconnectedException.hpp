@@ -8,5 +8,5 @@ class ClientDisconnectedException: public IrcException
 public:
 	virtual ~ClientDisconnectedException() throw() {}
 
-	ClientDisconnectedException(int socket, const std::string& nickname);
+	ClientDisconnectedException(const int socket, const std::string& nickname);
 };

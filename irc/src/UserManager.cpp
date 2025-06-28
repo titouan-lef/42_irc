@@ -20,7 +20,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-UserManager::UserManager() {}
+UserManager::UserManager(): defaultNickname_("*"), defaultPrefix_("*!*@localhost") {}
 
 /**
  * @brief Initializes the user manager by adding the server as the first user.
@@ -57,7 +57,7 @@ UserManager& UserManager::getInstance()
  */
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
-	User newUser(clientSocket, clientAddr);
+	User newUser(clientAddr);
 	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
 	userList_.push_back(newUser);
 	pollfdList_.push_back(newPollfd);
@@ -111,7 +111,10 @@ void UserManager::executeCommandsClient(int i)
 	{
 		std::string command = userList_[i].getCommand();
 		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl;
-		CommandManager::getInstance().interpretData(command, userList_[i]);
+		if (userList_[i].isUsernameRegister())
+			CommandManager::getInstance().interpretData(command, pollfdList_[i].fd);
+		else
+			CommandManager::getInstance().registerClient(command, pollfdList_[i].fd);
 	}
 	catch(const IrcException& e)
 	{
@@ -143,7 +146,7 @@ int UserManager::findUserSocket(std::string nickname)
  */
 void UserManager::closeAllConnection()
 {
-	for (std::size_t i = userList_.size() - 1; i > 0; --i)
+	for (std::size_t i = userList_.size() - 1; i > 0; --i)/** @todo see to one instruction but size_t >= 0 (/!\ --i) */
 		closeConnection(i);
 	closeConnection(0);
 }
@@ -158,6 +161,36 @@ void UserManager::closeAllConnection()
 int UserManager::getNbUserEvent() const
 {
 	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
+}
+
+User& UserManager::getUser(const int socket)
+{
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	{
+		if (pollfdList_[i].fd == socket)
+			return userList_[i];
+	}
+	return userList_[0];/** @todo not better option */
+}
+
+const std::string& UserManager::getUserNickname(const int socket) const
+{
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	{
+		if (pollfdList_[i].fd == socket)
+			return userList_[i].getNickname();
+	}
+	return defaultNickname_; /** @todo not better option */
+}
+
+const std::string UserManager::getUserPrefix(const int socket) const
+{
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	{
+		if (pollfdList_[i].fd == socket)
+			return userList_[i].getPrefix();
+	}
+	return defaultPrefix_; /** @todo not better option */
 }
 
 /**
@@ -176,7 +209,7 @@ void UserManager::checkNewConnections()
 		return;
 	struct sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
-	int clientSocket = accept(userList_[0].getSocket(), (struct sockaddr*)&clientAddr, &clientLen);
+	int clientSocket = accept(pollfdList_[0].fd, (struct sockaddr*)&clientAddr, &clientLen);
 	if (clientSocket < 0)
 		throw std::runtime_error("Error: accept failed");
 	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
@@ -215,11 +248,11 @@ void UserManager::closeConnection(const int index)
 		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	}
 	close(pollfdList_[index].fd);
+	deleteUser(index);
+}
+
+void UserManager::deleteUser(const int index)
+{
 	pollfdList_.erase(pollfdList_.begin() + index); //maybe not the best way
 	userList_.erase(userList_.begin() + index); //maybe not the best way
-	/**
-	 * @todo
-	 * remove pollfd
-	 * remove user
-	 */
 }

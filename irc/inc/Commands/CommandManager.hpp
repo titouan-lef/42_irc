@@ -11,15 +11,16 @@ class CommandManager
 {
 public:
 	static CommandManager& getInstance();
-	void interpretData(std::string recv, User& user);
-	MsgServ::Command parserCmd(const std::string& recv, const User& user);
-	void registerClient(MsgServ::Command cmd, User& user);
+	void interpretData(const std::string& recv, const int socket);
+	void registerClient(const std::string& recv, const int socket);
 
 private:
 	CommandManager();
 	virtual ~CommandManager();
 	CommandManager(const CommandManager& other);
 	CommandManager& operator=(const CommandManager& other);
+
+	MsgServ::Command parserCmd(const std::string& recv, const int socket);
 
 	std::map<std::string, ACommand*> commands_;
 

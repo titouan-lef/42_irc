@@ -8,12 +8,14 @@
 class IrcException : public std::exception
 {
 public:
-	IrcException(int socket, int code, const std::string& trailing, const std::vector<std::string>& arg, const std::string& clientNickname);
+	IrcException(const int socket, const int code, const std::string& trailing, const std::vector<std::string>& arg);
+	IrcException(const int socket, const int code, const std::string& trailing, const std::vector<std::string>& arg, const std::string& clientNickname);
 	virtual ~IrcException() throw() = 0;
 
 	void sendError() const;
 
 private:
+	void initIrcException(const int code, const std::string& trailing, const std::vector<std::string>& arg);
 	void displayError() const;
 
 	int socket_;

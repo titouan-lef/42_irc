@@ -9,14 +9,14 @@ class User: public Client
 {
 public:
 
-	User(int clientSocket, struct sockaddr_in clientAddr);
+	User(struct sockaddr_in clientAddr);
 	// ~User();
 
 	bool is(std::string nickname);
 	void validConnection();
-	bool isConnected();
-	bool isNickRegister();
-	bool isUsernameRegister();
+	bool isConnected() const;
+	bool isNickRegister() const;
+	bool isUsernameRegister() const;
 
 	void setNickname(const std::string& nickname);
 	void setUsername(const std::string& username); // ignore ??
@@ -24,7 +24,6 @@ public:
 	const std::string& getNickname() const;
 	const std::string& getUsername() const;
 	const std::string getPrefix() const;
-	int getSocket() const;
 	struct sockaddr_in getAddress();
 
 	bool isCommandReady() const;
@@ -38,7 +37,6 @@ private:
 	std::string realName_; // ignore ??
 	bool isConnected_;
 
-	int clientSocket_; // manage link with pollfds
 	struct sockaddr_in clientAddr_;
 	// Role role_;
 

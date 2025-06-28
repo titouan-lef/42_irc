@@ -1,16 +1,24 @@
 #include "UserCmd.hpp"
 #include "User.hpp"
+#include "UserManager.hpp"
+#include "PasswordMismatchException.hpp"
+#include "NotRegisteredException.hpp"
 #include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"
 
-void UserCmd::execute(MsgServ::Command cmd, User& user) const
+void UserCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
+	User& user = UserManager::getInstance().getUser(socket);
+	if (!user.isConnected())
+		throw PasswordMismatchException(socket, user.getNickname());
+	if (!user.isNickRegister())
+		throw NotRegisteredException(socket, user.getNickname());
 	if (cmd.arg.size() != 3 || cmd.trailing.empty())
-		throw NeedMoreParamsException(user.getSocket(), cmd.name, user.getNickname());
+		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	if (!validUsername(cmd.arg[0]))
-		throw NeedMoreParamsException(user.getSocket(), cmd.name, user.getNickname());
+		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	if (!user.isUsernameRegister())
-		throw AlreadyRegistredException(user.getSocket(), user.getNickname());
+		throw AlreadyRegistredException(socket, user.getNickname());
 	user.setUsername(cmd.arg[0]);
 	user.setRealName(cmd.trailing);
 }

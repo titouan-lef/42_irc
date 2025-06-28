@@ -1,7 +1,7 @@
 #include "TopicCmd.hpp"
 
-void TopicCmd::execute(MsgServ::Command cmd, User& user) const
+void TopicCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	(void)cmd;
-	(void)user;
+	(void)socket;
 }

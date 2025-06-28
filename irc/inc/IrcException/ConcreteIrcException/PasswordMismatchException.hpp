@@ -8,5 +8,5 @@ class PasswordMismatchException: public IrcException
 public:
 	virtual ~PasswordMismatchException() throw() {}
 
-	PasswordMismatchException(int socket, const std::string& nickname);
+	PasswordMismatchException(const int socket, const std::string& nickname = "*");
 };

@@ -1,7 +1,7 @@
 #include "QuitCmd.hpp"
 
-void QuitCmd::execute(MsgServ::Command cmd, User& user) const
+void QuitCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	(void)cmd;
-	(void)user;
+	(void)socket;
 }

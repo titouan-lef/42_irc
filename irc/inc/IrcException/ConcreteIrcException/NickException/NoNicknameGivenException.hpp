@@ -8,5 +8,5 @@ class NoNicknameGivenException: public IrcException
 public:
 	virtual ~NoNicknameGivenException() throw () {}
 
-	NoNicknameGivenException(int socket, const std::string& nickname);
+	NoNicknameGivenException(const int socket, const std::string& nickname);
 };

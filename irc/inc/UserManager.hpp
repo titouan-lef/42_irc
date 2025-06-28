@@ -23,6 +23,9 @@ public:
 	bool serverReiceveData() const;
 	void checkNewConnections();
 	int getNbUserEvent() const;
+	User& getUser(const int socket);
+	const std::string& getUserNickname(const int socket) const;
+	const std::string getUserPrefix(const int socket) const;
 
 private:
 	UserManager();
@@ -31,7 +34,11 @@ private:
 
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
+	void deleteUser(const int index);
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;
+	std::string defaultNickname_;
+	std::string defaultPrefix_;
+
 };

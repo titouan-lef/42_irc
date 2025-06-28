@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "MsgServ.hpp"
+#include "UserManager.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -63,13 +64,10 @@ CommandManager& CommandManager::getInstance()
 * This method parses the raw command received (as a string),
 * then performs the appropriate action based on the user's state.
 */
-void CommandManager::interpretData(std::string recv, User& user)
+void CommandManager::interpretData(const std::string& recv, const int socket)
 {
-	MsgServ::Command cmd = parserCmd(recv, user);
-	if (!user.isUsernameRegister())
-		registerClient(cmd, user);
-	else
-		commands_[cmd.name]->execute(cmd, user);
+	MsgServ::Command cmd = parserCmd(recv, socket);
+	commands_[cmd.name]->execute(cmd, socket);
 }
 
 /**
@@ -91,7 +89,7 @@ void CommandManager::interpretData(std::string recv, User& user)
 *
 * @throws UnknowCmdException if the command is not registered in `commands_`.
 */
-MsgServ::Command CommandManager::parserCmd(const std::string& recv, const User& user)
+MsgServ::Command CommandManager::parserCmd(const std::string& recv, const int socket)
 {
 	MsgServ::Command cmd;
 	std::string token;
@@ -101,7 +99,7 @@ MsgServ::Command CommandManager::parserCmd(const std::string& recv, const User& 
 	while (std::getline(iss, cmd.name, ' ') && cmd.name.empty())
 		continue ;
 	if (commands_.find(cmd.name) == commands_.end())
-		throw UnknowCmdException(user.getSocket(), cmd.name, user.getNickname());
+		throw UnknowCmdException(socket, cmd.name);
 	while (std::getline(iss, token, ' '))
 	{
 		if (token.empty())
@@ -134,23 +132,10 @@ MsgServ::Command CommandManager::parserCmd(const std::string& recv, const User& 
  * @throws PasswordMismatchException If a command other than PASS is sent before authentication.
  * @throws NotRegisteredException If a disallowed command is sent during the registration phase.
  */
-void CommandManager::registerClient(MsgServ::Command cmd, User& user)
+void CommandManager::registerClient(const std::string& recv, const int socket)
 {
-	if (!user.isNickRegister())
-	{
-		if (!user.isConnected())
-		{
-			if (cmd.name != "PASS")
-				throw PasswordMismatchException(user.getSocket(), user.getNickname()); // realy ??
-			commands_[cmd.name]->execute(cmd, user);
-		}
-		else if (cmd.name != "NICK")
-			throw NotRegisteredException(user.getSocket(), user.getNickname());
-		else
-			commands_[cmd.name]->execute(cmd, user);
-	}
-	else if (cmd.name != "USER")
-		throw NotRegisteredException(user.getSocket(), user.getNickname());
-	else
-		commands_[cmd.name]->execute(cmd, user);
+	MsgServ::Command cmd = parserCmd(recv, socket);
+	if (cmd.name != "USER" && cmd.name != "NICK" && cmd.name != "PASS")
+		throw NotRegisteredException(socket);
+	commands_[cmd.name]->execute(cmd, socket);
 }

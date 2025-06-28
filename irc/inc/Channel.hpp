@@ -12,30 +12,30 @@ class Channel
 {
 public:
 
-	Channel(std::string name, User& moderator);
+	Channel(std::string name, const int socketModerator);
 	// ~Channel();
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	const std::string& getTopic() const;
-	bool isConnected(const std::string& nickname) const;
-	bool isModerator(const std::string& nickname) const;
+	bool isConnected(const int socketUser) const;
+	bool isModerator(const int socketUser) const;
 
-	void connectUser(const User& newUser, const std::string& password = "");
-	void disconnectUser(const std::string& nickname);
+	void connectUser(const int socketNewUser, const std::string& password = "");
+	void disconnectUser(const int socketUser);
 
 	void enableTopicRestriction();
 	void disableTopicRestriction();
-	void setTopic(const std::string& newTopic, const User& user);
+	void setTopic(const std::string& newTopic, const int socketUser);
 
 	void setPassword(const std::string& newPassword);
 	void disablePassword();
 
 	void enableInviteRestriction();
 	void disableInviteRestriction();
-	void inviteUser(const std::string& nickname);
+	void inviteUser(const int socketUser);
 
-	void addNewModerator(const User& newOperator);
-	void removeModerator(const std::string& nickname);
+	void addNewModerator(const int socketNewOperator);
+	void removeModerator(const int socketUser);
 
 	int setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
@@ -56,9 +56,9 @@ private:
 	int nbMaxUsers_;
 	bool inviteRestricted_;
 	bool topicRestricted_;
-	std::set<std::string> invitedUsers_;
-	std::vector<User> connectedUser_;
-	std::vector<User> moderators_;
+	std::set<int> socketInvitedUsers_;
+	std::vector<int> socketConnectedUsers_;
+	std::vector<int> socketModerators_;
 
 	friend class ChannelTester ;	/** @todo remove before push */
 };

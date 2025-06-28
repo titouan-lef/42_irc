@@ -1,7 +1,7 @@
 #include "KickCmd.hpp"
 
-void KickCmd::execute(MsgServ::Command cmd, User& user) const
+void KickCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	(void)cmd;
-	(void)user;
+	(void)socket;
 }

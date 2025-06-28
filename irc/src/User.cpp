@@ -1,6 +1,6 @@
 #include "User.hpp"
 
-User::User(int clientSocket, struct sockaddr_in clientAddr): nickname_("*"), isConnected_(false), clientSocket_(clientSocket), clientAddr_(clientAddr) {}
+User::User(struct sockaddr_in clientAddr): nickname_("*"), isConnected_(false), clientAddr_(clientAddr) {}
 
 /**
  * @brief Checks if the user's nickname matches the given nickname.
@@ -79,16 +79,6 @@ const std::string User::getPrefix() const
 }
 
 /**
- * @brief Returns the socket file descriptor associated with the user.
- *
- * @return The client's socket descriptor.
- */
-int User::getSocket() const
-{
-	return (clientSocket_);
-}
-
-/**
  * @brief Returns the socket address information of the user.
  *
  * @return A copy of the user's sockaddr_in structure.
@@ -139,17 +129,17 @@ void User::validConnection()
 	isConnected_ = true;
 }
 
-bool User::isConnected()
+bool User::isConnected() const
 {
 	return (isConnected_);
 }
 
-bool User::isNickRegister()
+bool User::isNickRegister() const
 {
 	return (nickname_ != "*");
 }
 
-bool User::isUsernameRegister()
+bool User::isUsernameRegister() const
 {
 	return (!username_.empty());
 }

@@ -8,5 +8,5 @@ public:
 	PartCmd() {}
 	~PartCmd() {}
 
-	void execute(MsgServ::Command cmd, User& user) const;
+	void execute(const MsgServ::Command& cmd, const int socket) const;
 };
