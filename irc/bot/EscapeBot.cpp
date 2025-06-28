@@ -77,7 +77,7 @@ void EscapeBot::initServerConnection(std::string port,std::string password)
 
 	sendCommand("PASS " + password);
 	sendCommand("NICK escapeBot");
-	// sendCommand("USER escapeBot 0 * :Master of the universe");
+	sendCommand("USER escapeBot 0 * :Master of the universe");
 	running_ = true;
 }
 
