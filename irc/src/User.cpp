@@ -121,7 +121,6 @@ std::string User::getCommand()
 		buffer_ = buffer_.substr(pos + 1);
 		return command;
 	}
-
 	std::string command = buffer_.substr(0, pos);
 	buffer_ = buffer_.substr(pos + 2);
 	return command;

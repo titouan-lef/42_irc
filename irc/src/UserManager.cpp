@@ -82,12 +82,12 @@ void UserManager::listenClients()
 			std::string msg = MsgServ::recvMsg(pollfdList_[i].fd, userList_[i].getNickname());
 			std::cout << msg << "	size: " << msg.size() << std::endl;
 			if (!MsgServ::isMsgComplete(msg) && userList_[i].completeMsg(msg))
-				;// throw MessageToLongException();
+				std::cout << "Error: msg too long." << std::endl;// throw MessageToLongException();
 			std::string command = userList_[i].getCommand();
 			if (command.empty())
 				continue;
-			std::cout << "Executing command: " << msg << "-> size: " << msg.size() << std::endl;
-			CommandManager::getInstance().interpretData(msg, userList_[i]);
+			std::cout << "Executing command: " << command << " -> size: " << msg.size() << std::endl;
+			CommandManager::getInstance().interpretData(command, userList_[i]);
 			/**
 			 * @todo
 			 * receive message
