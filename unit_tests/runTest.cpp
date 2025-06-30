@@ -4,6 +4,7 @@
 #include "UserTester.hpp"
 #include "ExceptionTester.hpp"
 #include "CommandTester.hpp"
+#include "UserManagerTester.hpp"
 
 void testerUser();
 
@@ -24,6 +25,10 @@ int main()
 	{
 		CommandTester test;
 		test.testerCommand();
+	}
+	{
+		UserManagerTester test;
+		test.testerUserManager();
 	}
 	{
 		Tester::startTest("Init client");
