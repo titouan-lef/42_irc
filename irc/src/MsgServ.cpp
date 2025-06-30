@@ -135,7 +135,6 @@ void MsgServ::addNewBuffer()
 bool MsgServ::isCommandReady(int buffer_index) const
 {
 	std::string buffer = buffers_.at(buffer_index);
-	std::cout << "Actual buffer_: " << buffer << " -> size: " << buffer.size() << std::endl;
 	return buffer.find("\r\n") != std::string::npos || buffer.find("\n") != std::string::npos;
 }
 

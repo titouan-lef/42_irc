@@ -12,6 +12,7 @@ public:
 	{
 		formatMsgReplyTest();
 		formatNumericReplyTest();
+		testCompleteMsgAndCommandExtraction();
 	}
 
 private:
@@ -166,5 +167,38 @@ private:
 				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
+	}
+
+	void testCompleteMsgAndCommandExtraction()
+	{
+		Tester::startTest("UserManager complete message and command extraction");
+
+		MsgServ& manager = MsgServ::getInstance();
+
+		manager.addNewBuffer();
+		Tester::assertTrue(manager.completeMsg(0, "PASS password\r\nNICK nick\r\n") == 0);
+		Tester::assertTrue(manager.isCommandReady(0));
+		std::string cmd = manager.getCommand(0);
+		Tester::assertExpectedEqualsActual(cmd, std::string("PASS password"));
+		Tester::assertTrue(manager.isCommandReady(0));
+		cmd = manager.getCommand(0);
+		Tester::assertExpectedEqualsActual(cmd, std::string("NICK nick"));
+
+		manager.addNewBuffer();
+		Tester::assertTrue(manager.completeMsg(1, "\r\n") == 0);
+		Tester::assertTrue(manager.isCommandReady(1));
+		cmd = manager.getCommand(1);
+		Tester::assertExpectedEqualsActual(cmd, std::string(""));
+
+		Tester::assertTrue(manager.completeMsg(0, "USER ") == 0);
+		Tester::assertFalse(manager.isCommandReady(0));
+		Tester::assertTrue(manager.completeMsg(0, "test ") == 0);
+		Tester::assertFalse(manager.isCommandReady(0));
+		Tester::assertTrue(manager.completeMsg(0, "0 * ") == 0);
+		Tester::assertFalse(manager.isCommandReady(0));
+		Tester::assertTrue(manager.completeMsg(0, ":This is a test\r\n") == 0);
+		Tester::assertTrue(manager.isCommandReady(0));
+		cmd = manager.getCommand(0);
+		Tester::assertExpectedEqualsActual(cmd, std::string("USER test 0 * :This is a test"));
 	}
 };
