@@ -48,18 +48,6 @@ bool User::isUsernameRegister() const
 }
 
 /**
- * @brief Check if the this user has received a complete command ready to execute.
- *
- * @return true if the buffer contain at least one complete command, 0 otherwise.
- */
-bool User::isCommandReady() const
-{
-	std::cout << "Actual buffer_: " << buffer_ << " -> size: " << buffer_.size() << std::endl;
-	
-	return buffer_.find("\r\n") != std::string::npos || buffer_.find("\n") != std::string::npos;
-}
-
-/**
  * @brief Marks the user as connected.
  * 
  * @note The user must give the good server password with the PASS command before excuting this function.
@@ -67,27 +55,6 @@ bool User::isCommandReady() const
 void User::validConnection()
 {
 	isConnected_ = true;
-}
-
-/**
- * @brief Add the reiceved message to the user's buffer.
- * 
- * If the buffer was containing the beggin of a command, if will complete the command.
- * If the buffer was empty, it will simply sto the received message in the buffer.
- *
- * @return 1 if the total length of the current command is longer that 512, 0 otherwize.
- * 
- * @note You must the return value of this funciton and throw MessageToLongException() if true.
- */
-int User::completeMsg(const std::string &msg)
-{
-	buffer_ += msg;
-	if (buffer_.size() > 512)
-	{
-		buffer_.clear();
-		return 1;
-	}
-	return 0;
 }
 
 const std::string User::getDefaultNickname() { return "*"; }
@@ -142,33 +109,6 @@ const std::string User::getPrefix() const
  * @return A copy of the user's sockaddr_in structure.
  */
 struct sockaddr_in User::getAddress() const { return clientAddr_; }
-
-/**
- * @brief Extracts and returns the next complete command from the buffer.
- * 
- * The function removes the command from the internal buffer after extraction.
- * 
- * @return The next command if available, or an empty string if no complete command is found.
- * 
- * @note According to the IRC protocol, "\r\n" is the standard line ending.
- *       If only "\n" is found (non-standard), it is still accepted for flexibility (netcat).
- */
-std::string User::getCommand()
-{
-	size_t pos = buffer_.find("\r\n");
-	if (pos == std::string::npos)
-	{
-		pos = buffer_.find("\n");
-		if (pos == std::string::npos)
-			return "";
-		std::string command = buffer_.substr(0, pos);
-		buffer_ = buffer_.substr(pos + 1);
-		return command;
-	}
-	std::string command = buffer_.substr(0, pos);
-	buffer_ = buffer_.substr(pos + 2);
-	return command;
-}
 
 const std::string User::getDefaultUsername() const { return ""; }
 

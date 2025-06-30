@@ -37,10 +37,13 @@ private:
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
 	void deleteUser(const int index);
+	bool isCommandReady(int i) const;
+	int completeMsg(int i, const std::string &msg);
+	std::string getCommand(int i);
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;
-	std::string defaultPrefix_;
+	std::vector<std::string> buffers_;
 
 	friend class CommandTester; /** @todo remove before push */
 };

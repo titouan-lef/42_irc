@@ -16,9 +16,7 @@ public:
 	bool isConnected() const;
 	bool isNickRegister() const;
 	bool isUsernameRegister() const;
-	bool isCommandReady() const;
 	void validConnection();
-	int completeMsg(const std::string& msg);
 	
 	static const std::string getDefaultNickname();
 	static const std::string getDefaultPrefix();
@@ -28,7 +26,6 @@ public:
 	void setRealName(const std::string& realname);
 	const std::string getPrefix() const;
 	struct sockaddr_in getAddress() const;
-	std::string getCommand();
 
 private:
 	const std::string getDefaultUsername() const;
@@ -39,7 +36,6 @@ private:
 	std::string realName_; /** @todo ignore ?? */
 	bool isConnected_;
 	struct sockaddr_in clientAddr_;
-	std::string buffer_;
 
 	friend class UserTester;
 };
