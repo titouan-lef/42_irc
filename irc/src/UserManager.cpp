@@ -149,6 +149,7 @@ void UserManager::closeAllConnection()
 		closeConnection(i);
 	closeConnection(0);
 }
+
 /**
  * @brief Closes the user connection at the given socket.
  *
@@ -320,5 +321,5 @@ int UserManager::getIndex(const int socket)
 		if (pollfdList_[index].fd == socket) 
 			return static_cast<int>(index);
 	}
-	return (-1);
+	return -1;
 }
