@@ -17,7 +17,7 @@ void UserCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	if (!validUsername(cmd.arg[0]))
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
-	if (!user.isUsernameRegister())
+	if (user.isUsernameRegister())
 		throw AlreadyRegistredException(socket, user.getNickname());
 	user.setUsername(cmd.arg[0]);
 	user.setRealName(cmd.trailing);
