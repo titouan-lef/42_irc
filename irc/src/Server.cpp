@@ -1,7 +1,5 @@
 #include "Server.hpp"
 
-#include <iostream>
-#include <unistd.h>
 #include <cerrno>
 #include <cstring>				// memset
 #include <netdb.h>				// gethostbyname, getprotobyname, htons, htonl
@@ -10,7 +8,6 @@
 
 #include "UserManager.hpp"
 #include "IrcException.hpp"
-#include "PasswordMismatchException.hpp"
 
 #define MIN_PORT_VALUE 1023
 #define MAX_PORT_VALUE 65535

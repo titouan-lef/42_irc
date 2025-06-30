@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Client.hpp"
-#include "sys/socket.h"
+#include "iostream"
+#include <netinet/in.h>
 
 class UserTester;
 

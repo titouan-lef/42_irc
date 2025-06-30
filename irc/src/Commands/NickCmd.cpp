@@ -1,5 +1,4 @@
 #include "NickCmd.hpp"
-#include "UnknowCmdException.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"

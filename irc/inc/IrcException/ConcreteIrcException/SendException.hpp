@@ -2,6 +2,7 @@
 
 #include "IrcException.hpp"
 #include <iostream>
+#include <vector>
 
 class SendException: public IrcException
 {

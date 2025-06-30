@@ -2,6 +2,7 @@
 
 #include "IrcException.hpp"
 #include <iostream>
+#include "User.hpp"
 
 class PasswordMismatchException: public IrcException
 {

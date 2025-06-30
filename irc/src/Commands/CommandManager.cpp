@@ -1,12 +1,8 @@
 #include "CommandManager.hpp"
 
-#include <map>
-#include <iostream>
-#include <string>
 #include <sstream>
 
 #include "MsgServ.hpp"
-#include "UserManager.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"

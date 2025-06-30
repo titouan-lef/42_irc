@@ -1,8 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 #include "Service.hpp"
+#include "MsgServ.hpp"
 
 class MsgServTester;/** @todo remove before push */
 

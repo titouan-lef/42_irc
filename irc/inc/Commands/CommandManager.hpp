@@ -3,7 +3,6 @@
 #include <iostream>
 #include <map>
 #include "ACommand.hpp"
-#include "User.hpp"
 
 class CommandTester; /** @todo remove before push */
 

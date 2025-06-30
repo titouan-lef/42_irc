@@ -5,7 +5,6 @@
 #include <sstream>
 
 #include "UserManager.hpp"
-#include "CommandResponse.hpp"
 
 IrcException::IrcException(const int socket, const int code, const std::string& trailing, const std::vector<std::string>& arg): socket_(socket)
 {
@@ -64,8 +63,6 @@ void IrcException::displayError() const
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "UnknowCmdException.hpp"
-#include "PasswordMismatchException.hpp"
-#include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"

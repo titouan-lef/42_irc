@@ -4,7 +4,6 @@
 
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
-#include "SendException.hpp"
 #include "UserManager.hpp"
 
 /**

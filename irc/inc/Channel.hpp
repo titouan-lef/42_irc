@@ -1,9 +1,7 @@
 #pragma once
 
-#include <string>
 #include <vector>
 #include <set>
-#include <User.hpp> 
 #include "MsgServ.hpp"
 
 class ChannelTester; /** @todo remove before push */
