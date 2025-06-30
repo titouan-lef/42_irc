@@ -28,7 +28,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":myPrefix COMMAND arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, target)
+				MsgServ::getInstance().formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -41,7 +41,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":myPrefix COMMAND\r\n"),
-				MsgServ::formatMsg(cmd, prefix, target)
+				MsgServ::getInstance().formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -54,7 +54,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":myPrefix COMMAND :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, target)
+				MsgServ::getInstance().formatMsg(cmd, prefix, target)
 			);
 		}
 		{
@@ -67,7 +67,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":myPrefix COMMAND arg1 arg2 arg3\r\n"),
-				MsgServ::formatMsg(cmd, prefix, target)
+				MsgServ::getInstance().formatMsg(cmd, prefix, target)
 			);
 		}
 	}
@@ -85,7 +85,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -98,7 +98,7 @@ private:
 			
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -111,7 +111,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 002 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -124,7 +124,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 042 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -137,7 +137,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 040 targetClient arg1 arg2 arg3 :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -150,7 +150,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient :My trailing\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 		{
@@ -163,7 +163,7 @@ private:
 
 			Tester::assertExpectedEqualsActual(
 				std::string(":ircServer 423 targetClient arg1\r\n"),
-				MsgServ::formatMsg(cmd, prefix, clientTargetNickname)
+				MsgServ::getInstance().formatMsg(cmd, prefix, clientTargetNickname)
 			);
 		}
 	}
