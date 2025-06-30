@@ -277,6 +277,21 @@ void UserManager::closeConnection(const int index)
 	deleteUser(index);
 }
 
+
+/**
+ * @brief Closes the user connection at the given socket.
+ *
+ * Logs the disconnection event using the user's nickname if available,
+ * otherwise logs the client IP and port.
+ *
+ * @param socket The Socket of the connection/user to close.
+ */
+void UserManager::closeConnectionBySocket(const int socket)
+{
+	int index = getIndex(socket);
+	closeConnection(index);
+}
+
 /**
  * @brief Removes a user from the server's tracking lists by index.
  *
@@ -353,4 +368,11 @@ std::string UserManager::getCommand(int i)
 	std::string command = buffer.substr(0, pos);
 	buffer = buffer.substr(pos + 2);
 	return command;
+}
+
+int UserManager::getIndex(const int socket)
+{
+	for (int index, )
+		return (index);
+	return (-1);
 }
