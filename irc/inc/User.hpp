@@ -10,7 +10,7 @@ class User: public Client
 {
 public:
 
-	User(struct sockaddr_in clientAddr);
+	User();
 	// ~User();
 
 	bool is(const std::string& nickname) const;
@@ -26,7 +26,6 @@ public:
 	void setUsername(const std::string& username); /** @todo ignore ?? */
 	void setRealName(const std::string& realname);
 	const std::string getPrefix() const;
-	struct sockaddr_in getAddress() const;
 
 private:
 	const std::string getDefaultUsername() const;
@@ -36,7 +35,6 @@ private:
 	std::string username_;
 	std::string realName_; /** @todo ignore ?? */
 	bool isConnected_;
-	struct sockaddr_in clientAddr_;
 
 	friend class UserTester;
 };

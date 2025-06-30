@@ -42,6 +42,7 @@ private:
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;
+	std::vector<struct sockaddr_in> addressList_;
 
 	friend class CommandTester; /** @todo remove before push */
 };

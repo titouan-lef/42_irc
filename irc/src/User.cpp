@@ -1,7 +1,6 @@
 #include "User.hpp"
 
-User::User(struct sockaddr_in clientAddr):
-	nickname_(getDefaultNickname()), username_(getDefaultUsername()), isConnected_(false), clientAddr_(clientAddr) {}
+User::User(): nickname_(getDefaultNickname()), username_(getDefaultUsername()), isConnected_(false) {}
 
 /**
  * @brief Checks if the user's nickname matches the given nickname.
@@ -102,13 +101,6 @@ const std::string User::getPrefix() const
 	prefix.append("@localhost");
 	return prefix;
 }
-
-/**
- * @brief Returns the socket address information of the user.
- *
- * @return A copy of the user's sockaddr_in structure.
- */
-struct sockaddr_in User::getAddress() const { return clientAddr_; }
 
 const std::string User::getDefaultUsername() const { return ""; }
 

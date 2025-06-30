@@ -45,10 +45,11 @@ UserManager& UserManager::getInstance()
  */
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
-	User newUser(clientAddr);
+	User newUser;
 	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
 	userList_.push_back(newUser);
 	pollfdList_.push_back(newPollfd);
+	addressList_.push_back(clientAddr);
 	MsgServ::getInstance().addNewBuffer();
 }
 
@@ -289,9 +290,10 @@ void UserManager::closeConnection(const int index)
 		std::cout << user.getNickname() + " disconnected" << std::endl;
 	else if (index != 0)
 	{
-		struct sockaddr_in addr = user.getAddress();
+		struct sockaddr_in addr = addressList_.at(index);
 		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	}
+	addressList_.erase(addressList_.begin() + index);
 	close(pollfdList_.at(index).fd);
 	deleteUser(index);
 }
