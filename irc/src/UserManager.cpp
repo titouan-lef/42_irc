@@ -1,26 +1,13 @@
 #include "UserManager.hpp"
 #include "MsgServ.hpp"
-#include "ClientDisconnectedException.hpp"
 #include "CommandManager.hpp"
-#include "NoSuchNickException.hpp"
+#include "IrcException.hpp"
 #include "ClientDisconnectedException.hpp"
-#include "ReiceveException.hpp"
-#include "SendException.hpp"
-#include "PasswordMismatchException.hpp"
-#include "ChannelIsFullException.hpp"
-#include "UnknowCmdException.hpp"
-#include "PasswordMismatchException.hpp"
-#include "ChannelIsFullException.hpp"
-#include "NicknameInUseException.hpp"
-#include "ErroneUsNicknameException.hpp"
-#include "NeedMoreParamsException.hpp"
-#include "NoNicknameGivenException.hpp"
-#include "AlreadyRegistredException.hpp"
 
 #include <unistd.h>
 #include <fcntl.h>
 
-UserManager::UserManager(): defaultNickname_("*"), defaultPrefix_("*!*@localhost") {}
+UserManager::UserManager(): defaultPrefix_("*!*@localhost") {}
 
 /**
  * @brief Initializes the user manager by adding the server as the first user.
@@ -199,14 +186,14 @@ User& UserManager::getUser(const int socket)
  * 
  * @return A reference to the nickname string. Returns a default nickname if not found.
  */
-const std::string& UserManager::getUserNickname(const int socket) const
+const std::string UserManager::getUserNickname(const int socket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
 		if (pollfdList_.at(i).fd == socket)
 			return userList_.at(i).getNickname();
 	}
-	return defaultNickname_; /** @todo not better option */
+	return User::getDefaultNickname(); /** @todo not better option */
 }
 
 /**
