@@ -64,12 +64,10 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 }
 
 /**
- * @brief Listens for incoming messages from connected clients.
+ * @brief Listens for incoming messages from connected clients and processes complete commands.
  *
- * Handles client disconnection and receive errors gracefully.
- *
- * @note Maybe it would be better to return found message and handle it somewhere else??
- *	   It currently sendback a test message to the client.
+ * Iterates through all connected clients, reads available data, and processes commands found in
+ * their buffers. Handles client disconnection cleanly.
  */
 void UserManager::listenClients()
 {
@@ -87,6 +85,15 @@ void UserManager::listenClients()
 	}
 }
 
+/**
+ * @brief Receives incoming messages from a client.
+ *
+ * Handles disconnections and receive-related errors gracefully.
+ *
+ * @param i Index of the user from whom data is expected.
+ * 
+ * @return 1 if the user has disconnected and the connection was closed, 0 otherwise.
+ */
 int UserManager::reiceveFromClient(int i)
 {
 	try
@@ -94,7 +101,7 @@ int UserManager::reiceveFromClient(int i)
 		std::string msg = MsgServ::recvMsg(pollfdList_.at(i).fd, userList_.at(i).getNickname());
 		std::cout << "Received message: " << msg << "	size: " << msg.size() << std::endl;
 		if (userList_.at(i).completeMsg(msg))
-			std::cout << "Error: msg too long." << std::endl;// throw MessageToLongException();
+			std::cout << "Error: msg too long." << std::endl;/** @todo throw MessageToLongException(); */
 	}
 	catch(const ClientDisconnectedException& e)
 	{
@@ -108,6 +115,11 @@ int UserManager::reiceveFromClient(int i)
 	return 0;
 }
 
+/**
+ * @brief Executes all complete commands contained in the buffer of the specified user.
+ *
+ * @param i Index of the user in userList_ and pollfdList_.
+ */
 void UserManager::executeCommandsClient(int i)
 {
 	try
@@ -166,6 +178,15 @@ int UserManager::getNbUserEvent() const
 	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
 }
 
+/**
+ * @brief Retrieves a reference to the user associated with the given socket.
+ *
+ * @param socket The socket descriptor of the user.
+ * 
+ * @return A reference to the corresponding User. If not found, returns the default user at index 0.
+ * 
+ * @note Returning userList_[0] is ugly: Maybe throwing an exception or returning a pointer instead.
+ */
 User& UserManager::getUser(const int socket)
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
@@ -176,6 +197,13 @@ User& UserManager::getUser(const int socket)
 	return userList_.at(0);/** @todo not better option */
 }
 
+/**
+ * @brief Retrieves the nickname of the user associated with the given socket.
+ *
+ * @param socket The socket descriptor of the user.
+ * 
+ * @return A reference to the nickname string. Returns a default nickname if not found.
+ */
 const std::string& UserManager::getUserNickname(const int socket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
@@ -186,6 +214,13 @@ const std::string& UserManager::getUserNickname(const int socket) const
 	return defaultNickname_; /** @todo not better option */
 }
 
+/**
+ * @brief Retrieves the full IRC prefix (nickname!user@host) for the given socket.
+ *
+ * @param socket The socket descriptor of the user.
+ * 
+ * @return The IRC prefix string. Returns a default prefix if the user is not found.
+ */
 const std::string UserManager::getUserPrefix(const int socket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
@@ -206,6 +241,11 @@ bool UserManager::serverReiceveData() const
 	return (getInstance().hasDataToRead(0));
 }
 
+/**
+ * @brief Accepts and handles a new incoming client connection.
+ *
+ * @throws std::runtime_error if accept or fcntl fails.
+ */
 void UserManager::checkNewConnections()
 {
 	if (!UserManager::getInstance().serverReiceveData())
@@ -254,8 +294,17 @@ void UserManager::closeConnection(const int index)
 	deleteUser(index);
 }
 
+/**
+ * @brief Removes a user from the server's tracking lists by index.
+ *
+ * Erases the user and their corresponding pollfd entry from their respective vectors.
+ * 
+ * @param index The index of the user to delete (must be valid).
+ */
 void UserManager::deleteUser(const int index)
 {
-	pollfdList_.erase(pollfdList_.begin() + index); //maybe not the best way
-	userList_.erase(userList_.begin() + index); //maybe not the best way
+	if (index <= 0 || index >= static_cast<int>(userList_.size()))
+		return; // or throw std::out_of_range("Invalid index in deleteUser");
+	pollfdList_.erase(pollfdList_.begin() + index);
+	userList_.erase(userList_.begin() + index);
 }

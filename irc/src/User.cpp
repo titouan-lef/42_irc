@@ -88,7 +88,11 @@ struct sockaddr_in User::getAddress()
 	return (clientAddr_);
 }
 
-
+/**
+ * @brief Check if the this user has received a complete command ready to execute.
+ *
+ * @return true if the buffer contain at least one complete command, 0 otherwise.
+ */
 bool User::isCommandReady() const
 {
 	std::cout << "Actual buffer_: " << buffer_ << " -> size: " << buffer_.size() << std::endl;
@@ -96,6 +100,16 @@ bool User::isCommandReady() const
 	return buffer_.find("\r\n") != std::string::npos || buffer_.find("\n") != std::string::npos;
 }
 
+/**
+ * @brief Add the reiceved message to the user's buffer.
+ * 
+ * If the buffer was containing the beggin of a command, if will complete the command.
+ * If the buffer was empty, it will simply sto the received message in the buffer.
+ *
+ * @return 1 if the total length of the current command is longer that 512, 0 otherwize.
+ * 
+ * @note You must the return value of this funciton and throw MessageToLongException() if true.
+ */
 int User::completeMsg(const std::string &msg)
 {
 	buffer_ += msg;
@@ -107,6 +121,16 @@ int User::completeMsg(const std::string &msg)
 	return 0;
 }
 
+/**
+ * @brief Extracts and returns the next complete command from the buffer.
+ * 
+ * The function removes the command from the internal buffer after extraction.
+ * 
+ * @return The next command if available, or an empty string if no complete command is found.
+ * 
+ * @note According to the IRC protocol, "\r\n" is the standard line ending.
+ *       If only "\n" is found (non-standard), it is still accepted for flexibility (netcat).
+ */
 std::string User::getCommand()
 {
 	size_t pos = buffer_.find("\r\n");
@@ -114,7 +138,7 @@ std::string User::getCommand()
 	{
 		pos = buffer_.find("\n");
 		if (pos == std::string::npos)
-			return ""; // Should not arrive maybe trhow an exception
+			return "";
 		std::string command = buffer_.substr(0, pos);
 		buffer_ = buffer_.substr(pos + 1);
 		return command;
@@ -124,21 +148,43 @@ std::string User::getCommand()
 	return command;
 }
 
+/**
+ * @brief Marks the user as connected.
+ * 
+ * @note The user must give the good server password with the PASS command before excuting this function.
+ */
 void User::validConnection()
 {
 	isConnected_ = true;
 }
 
+/**
+ * @brief Checks if the user is connected.
+ *
+ * A user is consider connected if he succesfully gave the write server password.
+ * 
+ * @return true if the user is connected, false otherwise.
+ */
 bool User::isConnected() const
 {
 	return (isConnected_);
 }
 
+/**
+ * @brief Checks if the user has registered a nickname.
+ *
+ * @return true if the nickname is different from the default "*", false otherwise.
+ */
 bool User::isNickRegister() const
 {
 	return (nickname_ != "*");
 }
 
+/**
+ * @brief Checks if the user has registered a username.
+ *
+ * @return true if the username string is not empty, false otherwise.
+ */
 bool User::isUsernameRegister() const
 {
 	return (!username_.empty());
