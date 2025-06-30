@@ -73,20 +73,21 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
  */
 void UserManager::listenClients()
 {
+	bool disconnection = false;
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
 		if (hasDataToRead(i))
 		{
-			reiceveFromClient(i);
+			disconnection = reiceveFromClient(i);
 		}
-		while (userList_.at(i).isCommandReady())
+		while (!disconnection && userList_.at(i).isCommandReady())
 		{
 			executeCommandsClient(i);
 		}
 	}
 }
 
-void UserManager::reiceveFromClient(int i)
+int UserManager::reiceveFromClient(int i)
 {
 	try
 	{
@@ -98,11 +99,13 @@ void UserManager::reiceveFromClient(int i)
 	catch(const ClientDisconnectedException& e)
 	{
 		closeConnection(i);
+		return 1;
 	}
 	catch(const IrcException& e)
 	{
 		e.sendError();
 	}
+	return 0;
 }
 
 void UserManager::executeCommandsClient(int i)
