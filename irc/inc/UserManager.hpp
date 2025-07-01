@@ -21,6 +21,7 @@ public:
 	void executeCommandsClient(int i);
 	int findUserSocket(std::string nickname);
 	void closeAllConnection();
+	void closeConnectionBySocket(const int socket);
 
 	bool serverReiceveData() const;
 	void checkNewConnections();
@@ -36,7 +37,6 @@ private:
 
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
-	void closeConnectionBySocket(const int socket);
 	void deleteUser(const int index);
 	bool isCommandReady(int i) const;
 	int completeMsg(int i, const std::string &msg);
