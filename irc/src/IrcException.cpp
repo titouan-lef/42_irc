@@ -72,10 +72,15 @@ void IrcException::displayError() const
 #include "InviteOnlyException.hpp"
 #include "NotRegisteredException.hpp"
 #include "InvalidModeParamException.hpp"
+#include "NoSuchChannelException.hpp"
+#include "UnknownModeException.hpp"
 #include "BadChanMaskException.hpp"
 
 NoSuchNickException::NoSuchNickException(const int socket, const std::vector<std::string>& arg):
-	IrcException(socket, 401, "No such nick/channel", arg) {}
+	IrcException(socket, 401, "No such nick/channel", arg) {} /** @todo check if multiple args is needed */
+
+NoSuchChannelException::NoSuchChannelException(const int socket, const std::string& channelName):
+	IrcException(socket, 403, "No such channel", std::vector<std::string>(1, channelName)) {}
 
 UnknowCmdException::UnknowCmdException(const int socket, const std::string& commandName): 
 	IrcException(socket, 421, "Unknow command", std::vector<std::string>(1, commandName)) {}
@@ -103,6 +108,9 @@ PasswordMismatchException::PasswordMismatchException(const int socket, const std
 
 ChannelIsFullException::ChannelIsFullException(const int socket, const std::string& channelName):
 	IrcException(socket, 471, "Cannot join channel (+l)", std::vector<std::string>(1, channelName)) {}
+
+UnknownModeException::UnknownModeException(const int socket, const char& mode):
+	IrcException(socket, 472, " :is unknown mode char to me", std::vector<std::string>(1, std::string(1, mode))) {}
 
 InviteOnlyException::InviteOnlyException(const int socket, const std::string& channelName):
 	IrcException(socket, 473, "You're not invited to join this channel", std::vector<std::string>(1, channelName)) {}
