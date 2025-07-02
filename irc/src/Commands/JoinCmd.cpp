@@ -61,7 +61,7 @@ void JoinCmd::tryConnection(const std::string& channel, const int socket) const
 {
 	if (checkChannelName(channel))
 		throw BadChanMaskException(socket, channel);
-	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
 	if (!tmpChan.isConnected(socket))
 		tmpChan.connectUser(socket);
 }
@@ -70,7 +70,7 @@ void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>
 {
 	if (checkChannelName(channel))
 		throw BadChanMaskException(socket, channel);
-	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
 	if (tmpChan.isPasswordProtected())
 	{
 		tmpChan.connectUser(socket, *itPwd);
@@ -84,7 +84,7 @@ void JoinCmd::tryConnection(const std::string& channel, std::string invalidPassw
 {
 	if (checkChannelName(channel))
 		throw BadChanMaskException(socket, channel);
-	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
 	if (tmpChan.isPasswordProtected())
 	{
 		tmpChan.connectUser(socket, invalidPassword);

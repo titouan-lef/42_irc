@@ -10,8 +10,8 @@ public:
 
 	static ChanServ& getInstance();
 
-	Channel& findChannelFor(std::string name, const int socketUser);
-	Channel& findChannelWithName(std::string name);
+	Channel& findOrCreateChannel(std::string name, const int socketUser);
+	Channel& findChannel(std::string name, const int socketUser);
 	void quitAllChannels(const std::string& msg, const int socket);
 
 private:

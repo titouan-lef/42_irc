@@ -1,4 +1,5 @@
 #include "ChanServ.hpp"
+#include "NoSuchChannelException.hpp"
 
 ChanServ::ChanServ() {}
 
@@ -24,7 +25,7 @@ ChanServ& ChanServ::getInstance()
  *
  * @return Reference to the existing or newly created channel.
  */
-Channel& ChanServ::findChannelFor(std::string name, const int socketUser)
+Channel& ChanServ::findOrCreateChannel(std::string name, const int socketUser)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
 	{
@@ -32,6 +33,16 @@ Channel& ChanServ::findChannelFor(std::string name, const int socketUser)
 			return *it;
 	}
 	return builtNewChannel(name, socketUser);
+}
+
+Channel& ChanServ::findChannel(std::string name, const int socketUser)
+{
+	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
+	{
+		if (it->getName() == name)
+			return *it;
+	}
+	throw NoSuchChannelException(socketUser, name);
 }
 
 /**
