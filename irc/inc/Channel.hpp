@@ -39,9 +39,9 @@ public:
 
 	int setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
-
+	
 private:
-
+	
 	void sendMessageToAllUsers(const MsgServ::Command& cmd); 
 	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
 

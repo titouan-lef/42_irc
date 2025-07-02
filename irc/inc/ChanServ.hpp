@@ -11,6 +11,7 @@ public:
 	static ChanServ& getInstance();
 
 	Channel& findChannelFor(std::string name, const int socketUser);
+	void quitAllChannel(const std::string& msg, const int socket);
 
 private:
 
@@ -18,7 +19,8 @@ private:
 	// ~ChanServ();
 
 	Channel& builtNewChannel(std::string name, const int socketModerator);
-	
+	void logOut(const size_t index, const std::string& msg, const int socket);
+
 	std::vector<Channel> channels_;
 
 };

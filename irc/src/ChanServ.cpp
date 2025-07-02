@@ -35,6 +35,22 @@ Channel& ChanServ::findChannelFor(std::string name, const int socketUser)
 }
 
 /**
+ * @brief Quit all channel where the user was connected.
+ *
+ * @param msg The message to send of all member of the channel to find.
+ * @param socket The socket of the user quit the server.
+ *
+ */
+void ChanServ::quitAllChannel(const std::string& msg, const int socket)
+{
+	for (size_t i = 0; i < channels_.size(); i++)
+	{
+		if (channels_[i].isConnected(socket))
+			logOut(i, msg, socket);
+	}
+}
+
+/**
  * @brief Creates a new channel with the given name and initial user.
  *
  * @param name The name of the new channel.
@@ -47,4 +63,10 @@ Channel& ChanServ::builtNewChannel(std::string name, const int socketModerator)
 	Channel newChannel(name, socketModerator);
 	channels_.push_back(newChannel);
 	return channels_.back();
+}
+
+void ChanServ::logOut(const size_t index, const std::string& msg, const int socket)
+{
+	/** @todo send all message for  */
+	channels_[index].disconnectUser(socket);
 }
