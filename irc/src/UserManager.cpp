@@ -257,7 +257,7 @@ void UserManager::checkNewConnections()
 	socklen_t clientLen = sizeof(clientAddr);
 	int clientSocket = accept(pollfdList_.at(0).fd, (struct sockaddr*)&clientAddr, &clientLen);
 	if (clientSocket < 0)
-		throw std::runtime_error("Error: accept failed");
+		throw std::runtime_error("Error: accept failed, cannot connect client");
 	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
 		throw std::runtime_error("Error: fcntl failed, cannot connect client");
 	addNewUser(clientSocket, clientAddr);
