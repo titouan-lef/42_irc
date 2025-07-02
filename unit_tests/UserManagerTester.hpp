@@ -27,7 +27,8 @@ private:
 		Tester::assertTrue(&um1 == &um2);
 	}
 
-	void testFindUserSocket() {
+	void testFindUserSocket()
+	{
 		Tester::startTest("UserManager Find user socket");
 
 		UserManager& um = UserManager::getInstance();
