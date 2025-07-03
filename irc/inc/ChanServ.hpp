@@ -11,6 +11,7 @@ public:
 	static ChanServ& getInstance();
 
 	Channel& findChannelFor(std::string name, const int socketUser);
+	Channel& findChannelWithName(std::string name);
 	void quitAllChannel(const std::string& msg, const int socket);
 
 private:

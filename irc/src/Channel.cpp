@@ -52,6 +52,11 @@ bool Channel::isTopicRestricted() const
 	return topicRestricted_;
 }
 
+bool Channel::havePassword() const
+{
+	return !password_.empty();
+}
+
 /**
  * @brief Adds a user to the list of connected users in the channel.
  *
@@ -297,13 +302,16 @@ void Channel::disableLimitNbUsers()
  *
  * @param cmd The command structure with name, trailing and agrs.
  */
-void Channel::sendMessageToAllUsers(const MsgServ::Command& cmd)
+void Channel::sendMessageToAllUsers(const int senderSocket, const std::string msg)
 {
-	(void) cmd;
-	/*for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
+	MsgServ::Command cmd;
+	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
-		MsgServ::sendMessageReply(it->getSocket(), cmd, it->getPrefix());
-	}*/
+		if (senderSocket == socketConnectedUsers_[i])
+			continue ;
+		cmd.trailing = msg;
+		MsgServ::sendMessageReply(senderSocket, cmd);
+	}
 }
 
 /**

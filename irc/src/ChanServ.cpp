@@ -67,6 +67,7 @@ Channel& ChanServ::builtNewChannel(std::string name, const int socketModerator)
 
 void ChanServ::logOut(const size_t index, const std::string& msg, const int socket)
 {
-	/** @todo send all message for  */
+	channels_[index].sendMessageToAllUsers(socket, msg);
 	channels_[index].disconnectUser(socket);
+	/** @todo send all message for  */
 }

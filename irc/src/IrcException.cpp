@@ -75,6 +75,7 @@ void IrcException::displayError() const
 #include "InviteOnlyException.hpp"
 #include "NotRegisteredException.hpp"
 #include "InvalidModeParamException.hpp"
+#include "BadChanMaskException.hpp"
 
 NoSuchNickException::NoSuchNickException(const int socket, const std::vector<std::string>& arg):
 	IrcException(socket, 401, "No such nick/channel", arg) {}
@@ -108,6 +109,9 @@ ChannelIsFullException::ChannelIsFullException(const int socket, const std::stri
 
 InviteOnlyException::InviteOnlyException(const int socket, const std::string& channelName):
 	IrcException(socket, 473, "You're not invited to join this channel", std::vector<std::string>(1, channelName)) {}
+
+BadChanMaskException::BadChanMaskException(const int socket, const std::string& channelName):
+	IrcException(socket, 476, "Bad Channel Mask",  std::vector<std::string>(1, channelName)) {}
 
 ChannelPrivilegesNeeded::ChannelPrivilegesNeeded(const int socket, const std::string& channelName):
 	IrcException(socket, 482, "You're not channel operator", std::vector<std::string>(1, channelName)) {}

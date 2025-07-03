@@ -19,6 +19,7 @@ public:
 	const std::string& getTopic() const;
 	bool isConnected(const int socketUser) const;
 	bool isModerator(const int socketUser) const;
+	bool havePassword() const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
 	void disconnectUser(const int socketUser);
@@ -39,10 +40,10 @@ public:
 
 	int setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
+	void sendMessageToAllUsers(const int senderSocket, const std::string msg); 
 	
 private:
-	
-	void sendMessageToAllUsers(const MsgServ::Command& cmd); 
+
 	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
 
 	bool isPasswordProtected() const;
