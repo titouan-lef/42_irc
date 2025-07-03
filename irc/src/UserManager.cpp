@@ -64,7 +64,8 @@ void UserManager::listenClients()
 	{
 		if (!hasDataToRead(i) || reiceveFromClient(i))
 			return;
-		while (MsgServ::getInstance().isCommandReady(i)){
+		while (MsgServ::getInstance().isCommandReady(i))
+		{
 			executeCommandsClient(i);
 			if (i >= userList_.size()) /** @todo betgter management quit */
 				break;
