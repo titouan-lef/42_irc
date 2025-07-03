@@ -76,8 +76,8 @@ void IrcException::displayError() const
 #include "UnknownModeException.hpp"
 #include "BadChanMaskException.hpp"
 
-NoSuchNickException::NoSuchNickException(const int socket, const std::vector<std::string>& arg):
-	IrcException(socket, 401, "No such nick/channel", arg) {} /** @todo check if multiple args is needed */
+NoSuchNickException::NoSuchNickException(const int socket, const std::string& nickname):
+	IrcException(socket, 401, "No such nick/channel", std::vector<std::string>(1, nickname)) {}
 
 NoSuchChannelException::NoSuchChannelException(const int socket, const std::string& channelName):
 	IrcException(socket, 403, "No such channel", std::vector<std::string>(1, channelName)) {}
@@ -130,5 +130,5 @@ ReiceveException::ReiceveException(const int socket, const std::string& nickname
 SendException::SendException(const int socket, const std::vector<std::string>& arg, const std::string& nickname):
 	IrcException(socket, 1, "Impossible to send data from " + nickname, arg, nickname) {}
 
-InvalidModeParamException::InvalidModeParamException(const int socket, const std::string& msg, const std::string& nickname):
-	/** @todo check this*/ IrcException(socket, 696, msg ,std::vector<std::string>(), nickname) {}
+InvalidModeParamException::InvalidModeParamException(const int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	/** @todo check this*/ IrcException(socket, 696, "Invalid parameter for mode" , arg, nickname) {}

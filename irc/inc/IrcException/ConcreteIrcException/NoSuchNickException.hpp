@@ -9,5 +9,5 @@ class NoSuchNickException: public IrcException
 public:
 	virtual ~NoSuchNickException() throw() {}
 
-	NoSuchNickException(const int socket, const std::vector<std::string>& arg);
+	NoSuchNickException(const int socket, const std::string& nickname);
 };
