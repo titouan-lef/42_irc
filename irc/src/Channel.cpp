@@ -6,6 +6,8 @@
 #include "InviteOnlyException.hpp"
 #include "InvalidModeParamException.hpp"
 
+#include <sstream>
+
 Channel::Channel(std::string name, const int socketModerator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
 {
 	addNewModerator(socketModerator);
@@ -30,6 +32,26 @@ const std::string& Channel::getName() const
 const std::string& Channel::getTopic() const
 {
 	return topic_;
+}
+
+const std::string Channel::builtOptionString() const
+{
+	std::string options;
+
+	if (isInviteRestricted())
+		options += "i";
+	if (isPasswordProtected())
+		options += "k";
+	if (isTopicRestricted())
+		options += "t";
+	if (nbMaxUsers_ != -1)
+	{
+		std::ostringstream oss;
+		oss << "l " << nbMaxUsers_;
+		options += oss.str();
+
+	}
+	return options;
 }
 
 /**

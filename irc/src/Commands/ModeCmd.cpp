@@ -10,17 +10,34 @@
 
 void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
-	if (cmd.arg.size() < 2)
+	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::string channelName = cmd.arg.at(0);
 	if (channelName.at(0) != '#')
 		throw NoSuchChannelException(socket, channelName.substr(1));
 	Channel& channel = ChanServ::getInstance().findChannel(channelName.substr(1), socket);
+	if (!channel.isModerator(socket))
+		throw ChannelPrivilegesNeeded(socket, channel.getName());
+	if (cmd.arg.size() == 1)
+	{
+		sendActualModes(channel, socket);
+		return;
+	}
 	std::vector<Option> options = parseCommand(cmd, socket);
 	executeModeOptions(channel, options, socket);
-
 }
 /** @todo MODE #channel -> ask for actives modes 324 → numeric code for RPL_CHANNELMODEIS*/ 
+
+void ModeCmd::sendActualModes(Channel& channel, const int socket) const
+{
+	std::vector<std::string> arg;
+
+	arg.push_back("#" + channel.getName());
+	arg.push_back(channel.builtOptionString());
+	MsgServ::Command cmd = {"324", "", arg};
+	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+}
+
 
 std::vector<ModeCmd::Option> ModeCmd::parseCommand(const MsgServ::Command& cmd, const int socket) const
 {
@@ -79,8 +96,6 @@ void ModeCmd::processModeChar(char modeChar, int& setOrRemove, size_t& argIndex,
 
 void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options, const int socket) const
 {
-	if (!channel.isModerator(socket))
-		throw ChannelPrivilegesNeeded(socket, channel.getName());
 	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
 	{
 		try

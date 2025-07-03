@@ -15,6 +15,7 @@ public:
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	const std::string& getTopic() const;
+	const std::string builtOptionString() const;
 	bool isConnected(const int socketUser) const;
 	bool isModerator(const int socketUser) const;
 	bool isPasswordProtected() const;

@@ -23,6 +23,7 @@ private:
 	void processModeChar(char modeChar, int& setOrRemove, size_t& argIndex, const MsgServ::Command& cmd, int socket, std::vector<ModeCmd::Option>& options) const;
 	void executeModeOptions(Channel& channel, const std::vector<Option>& options, const int socket) const;
 	void executeModeOption(Channel& channel, const Option& option, const int socket) const;
+	void sendActualModes(Channel& channel, const int socket) const;
 
 	void inviteMode(Channel& channel, const Option& option) const;
 	void topicMode(Channel& channel, const Option& option) const;
