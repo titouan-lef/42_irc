@@ -316,10 +316,10 @@ void UserManager::deleteUser(const int index)
 
 int UserManager::getIndex(const int socket)
 {
-	for (size_t index = 0; index < userList_.size(); ++index)
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_[index].fd == socket) 
-			return static_cast<int>(index);
+		if (pollfdList_.at(i).fd == socket)
+			return i;
 	}
-	return -1;
+	return -1; /** @todo not better option */
 }

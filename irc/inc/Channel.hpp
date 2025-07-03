@@ -41,7 +41,7 @@ public:
 	int setLimitNbUsers(int nbUserMax);
 	void disableLimitNbUsers();
 	void sendMessageToAllUsers(const int senderSocket, const std::string msg); 
-	
+
 private:
 
 	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
