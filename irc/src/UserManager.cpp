@@ -3,7 +3,6 @@
 #include "CommandManager.hpp"
 #include "IrcException.hpp"
 #include "ClientDisconnectedException.hpp"
-
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -129,7 +128,7 @@ void UserManager::executeCommandsClient(int i)
  * 
  * @return The socket descriptor if found, or -1 if no matching user exists.
  * 
- * @note Unused for now...
+ * @note You must throw NoSuchNickException if return -1.
  */
 int UserManager::findUserSocket(std::string nickname)
 {
