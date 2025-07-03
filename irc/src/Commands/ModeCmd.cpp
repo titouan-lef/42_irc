@@ -41,57 +41,48 @@ void ModeCmd::sendActualModes(Channel& channel, const int socket) const
 
 std::vector<ModeCmd::Option> ModeCmd::parseCommand(const MsgServ::Command& cmd, const int socket) const
 {
-	size_t argIndex = 2;
-	std::vector<Option> options;
-	std::string modeString = cmd.arg.at(1);
-	int setOrRemove = -1;
-	for (std::string::iterator it = modeString.begin() ; it < modeString.end(); ++it)
+	std::vector<Option> optionList;
+	argIterator it = cmd.arg.begin() + 1;
+	while (it < cmd.arg.end())
 	{
-		try
-		{
-			processModeChar(*it, setOrRemove, argIndex, cmd, socket, options);
-		}
-		catch(const UnknownModeException& e)
-		{
-			e.sendError();
-		}
+		addOptionInList(cmd, socket, optionList, it);
+		++it;
 	}
-	return options;
+	return optionList;/** @warning max 3 arg */
 }
 
-void ModeCmd::processModeChar(char modeChar, int& setOrRemove, size_t& argIndex,
-							  const MsgServ::Command& cmd, int socket,
-							  std::vector<ModeCmd::Option>& options) const
+void ModeCmd::addOptionInList(const MsgServ::Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
 {
-	Option option = {modeChar, setOrRemove, ""};
-	switch (modeChar)
+	const std::string& flag = *it;
+	if ((flag[0] != '+' && flag[0] != '-') || flag[1] == '\0')
+		throw UnknownModeException(socket, flag[0]);
+	const bool isAddFlag = (flag[0] == '+');
+	for (std::size_t i = 1; flag[i] != '\0'; ++i)
 	{
-		case '+':
-			setOrRemove = true;
-			break;
-		case '-':
-			setOrRemove = false;
-			break;
-		case 'i':
-		case 't':
-			if (setOrRemove == -1)
-				throw UnknownModeException(socket, modeChar);
-			options.push_back(option);
-			break;
-		case 'k':
-		case 'o':
-		case 'l':
-			if (setOrRemove == -1)
-				throw UnknownModeException(socket, modeChar);
-			if (argIndex >= cmd.arg.size())
-				throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
-			option.argument = cmd.arg.at(argIndex);
-			options.push_back(option);
-			++argIndex;
-			break;
-		default:
-			throw UnknownModeException(socket, modeChar);
+		Option option = {flag[i], isAddFlag, ""};
+		checkOptionAndAddArg(cmd, socket, it, option);
+		optionList.push_back(option);
 	}
+}
+
+void ModeCmd::checkOptionAndAddArg(const MsgServ::Command& cmd, const int socket, argIterator& it, Option& option) const
+{
+	const std::string validFlag = "itokl";
+	const std::size_t posFlagArg = 2;
+
+	std::size_t pos = validFlag.find(option.flag);
+	if (pos == std::string::npos)
+		throw UnknownModeException(socket, option.flag);
+	if (pos == posFlagArg || (pos > posFlagArg && option.isAddFlag))
+		option.argument = defineOptionArg(cmd, socket, it);
+}
+
+const std::string ModeCmd::defineOptionArg(const MsgServ::Command& cmd, const int socket, argIterator& it) const
+{
+	++it;
+	if (it >= cmd.arg.end())
+		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
+	return *it;
 }
 
 void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options, const int socket) const
@@ -111,7 +102,7 @@ void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Op
 
 void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option, const int socket) const
 {
-	switch (option.type)
+	switch (option.flag)
 	{
 		case 'i':
 			inviteMode(channel, option);
@@ -133,7 +124,7 @@ void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option,
 
 void ModeCmd::inviteMode(Channel& channel, const ModeCmd::Option& option) const
 {
-	if (option.setOrRemove)
+	if (option.isAddFlag)
 	{
 		channel.enableInviteRestriction();
 		return ;
@@ -143,7 +134,7 @@ void ModeCmd::inviteMode(Channel& channel, const ModeCmd::Option& option) const
 
 void ModeCmd::topicMode(Channel& channel, const ModeCmd::Option& option) const
 {
-	if (option.setOrRemove)
+	if (option.isAddFlag)
 	{
 		channel.enableTopicRestriction();
 		return ;
@@ -153,7 +144,7 @@ void ModeCmd::topicMode(Channel& channel, const ModeCmd::Option& option) const
 
 void ModeCmd::passwordMode(Channel& channel, const ModeCmd::Option& option) const
 {
-	if (option.setOrRemove)
+	if (option.isAddFlag)
 	{
 		channel.setPassword(option.argument);
 		return ;
@@ -166,7 +157,7 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, cons
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
 	if (targetSocket == -1)
 		throw NoSuchNickException(socket, option.argument);
-	if (option.setOrRemove)
+	if (option.isAddFlag)
 	{
 		channel.addNewModerator(targetSocket);
 		return ;
@@ -177,14 +168,14 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, cons
 void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option, const int socket) const
 {
 
-	if (option.setOrRemove)
+	if (option.isAddFlag)
 	{
 		int limit = std::atoi(option.argument.c_str());
 		if (channel.setLimitNbUsers(limit))
 		{
 			std::vector<std::string> args;
 			args.push_back("#" + channel.getName());
-			args.push_back(std::string(1, option.type));
+			args.push_back(std::string(1, option.flag));
 			args.push_back(option.argument);
 			throw InvalidModeParamException(socket, args, UserManager::getInstance().getUserNickname(socket));
 		}
