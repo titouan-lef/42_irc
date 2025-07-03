@@ -91,8 +91,6 @@ const std::string ModeCmd::defineOptionArg(const MsgServ::Command& cmd, const in
 
 void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options, const int socket) const
 {
-	if (!channel.isModerator(socket))
-		throw ChannelPrivilegesNeeded(socket, channel.getName());
 	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
 	{
 		try
