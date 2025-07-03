@@ -52,11 +52,6 @@ bool Channel::isTopicRestricted() const
 	return topicRestricted_;
 }
 
-bool Channel::havePassword() const
-{
-	return !password_.empty();
-}
-
 /**
  * @brief Adds a user to the list of connected users in the channel.
  *

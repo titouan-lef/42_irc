@@ -13,14 +13,16 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	if (cmd.arg.size() < 1 && cmd.arg.size() > 2)
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	std::vector<std::string>channels = splitArgument(cmd.arg[0]);
-	std::vector<std::string>passwords = splitArgument(cmd.arg[1]);
+	std::vector<std::string>passwords;
+	if (cmd.arg.size() == 2)
+		passwords = splitArgument(cmd.arg[1]);
 	std::vector<std::string>::iterator itPassword = passwords.begin();
 	for (size_t i = 0; i < channels.size(); i++)
 	{
 		if (checkChannelName(channels[i]))
 			throw BadChanMaskException(socket, channels[i]);
 		Channel tmpChan = ChanServ::getInstance().findChannelFor(channels[i], socket);
-		if (tmpChan.havePassword())
+		if (tmpChan.isPasswordProtected())
 		{
 			tmpChan.connectUser(socket, *itPassword);
 			itPassword++;
@@ -30,7 +32,7 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	}
 }
 
-std::vector<std::string> splitArgument(const std::string& arg)
+std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
 {
 	std::vector<std::string>elem;
 	std::string token;
@@ -44,7 +46,7 @@ std::vector<std::string> splitArgument(const std::string& arg)
 	return (elem);
 }
 
-bool checkChannelName(const std::string& channelName)
+bool JoinCmd::checkChannelName(const std::string& channelName) const
 {
 	if (channelName.size() < 1 || channelName.size() > 50)
 		return true;

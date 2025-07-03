@@ -162,7 +162,7 @@ void Server::onEvent()
 		manageEvent();
 		return;
 	}
-	if (errno != EINTR)// Interrupted by something else that a signal
+	if (errno != EINTR)// Interrupted by something else that a signal /** @todo keep because of errno not allowed in correction ?? */
 	{
 		running_ = false;
 		std::cerr << "Error: poll" << std::endl;

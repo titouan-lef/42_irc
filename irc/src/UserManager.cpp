@@ -64,7 +64,11 @@ void UserManager::listenClients()
 		if (!hasDataToRead(i) || reiceveFromClient(i))
 			return;
 		while (isCommandReady(i))
+		{
 			executeCommandsClient(i);
+			if (i >= userList_.size()) /** @todo betgter management quit */
+				break;
+		}
 	}
 }
 

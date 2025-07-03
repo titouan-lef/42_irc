@@ -19,7 +19,7 @@ public:
 	const std::string& getTopic() const;
 	bool isConnected(const int socketUser) const;
 	bool isModerator(const int socketUser) const;
-	bool havePassword() const;
+	bool isPasswordProtected() const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
 	void disconnectUser(const int socketUser);
@@ -46,7 +46,6 @@ private:
 
 	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
 
-	bool isPasswordProtected() const;
 	bool isInviteRestricted() const;
 	bool isTopicRestricted() const;
 	bool isLimitNbUserReached() const;
