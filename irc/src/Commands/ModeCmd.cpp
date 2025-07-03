@@ -2,7 +2,11 @@
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "NoSuchChannelException.hpp"
+#include "NoSuchNickException.hpp"
 #include "UnknownModeException.hpp"
+#include "ChannelPrivilegesNeeded.hpp"
+#include "InvalidModeParamException.hpp"
+#include <cstdlib>
 
 void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
@@ -13,7 +17,8 @@ void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		throw NoSuchChannelException(socket, channelName.substr(1));
 	Channel& channel = ChanServ::getInstance().findChannel(channelName.substr(1), socket);
 	std::vector<Option> options = parseCommand(cmd, socket);
-	(void)channel;//next to come
+	executeModeOptions(channel, options, socket);
+
 }
 /** @todo MODE #channel -> ask for actives modes 324 → numeric code for RPL_CHANNELMODEIS*/ 
 
@@ -70,4 +75,105 @@ void ModeCmd::processModeChar(char modeChar, int& setOrRemove, size_t& argIndex,
 		default:
 			throw UnknownModeException(socket, modeChar);
 	}
+}
+
+void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options, const int socket) const
+{
+	if (!channel.isModerator(socket))
+		throw ChannelPrivilegesNeeded(socket, channel.getName());
+	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
+	{
+		try
+		{
+			executeModeOption(channel, *it, socket);
+		}
+		catch(const IrcException& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
+	}
+}
+
+void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option, const int socket) const
+{
+	switch (option.type)
+	{
+		case 'i':
+			inviteMode(channel, option);
+			break;
+		case 't':
+			topicMode(channel, option);
+			break;
+		case 'k':
+			passwordMode(channel, option);
+			break;
+		case 'o':
+			operatorMode(channel, option, socket);
+			break;
+		case 'l':
+			limitMode(channel, option, socket);
+			break;
+	}
+}
+
+void ModeCmd::inviteMode(Channel& channel, const ModeCmd::Option& option) const
+{
+	if (option.setOrRemove)
+	{
+		channel.enableInviteRestriction();
+		return ;
+	}
+	channel.disableInviteRestriction();
+}
+
+void ModeCmd::topicMode(Channel& channel, const ModeCmd::Option& option) const
+{
+	if (option.setOrRemove)
+	{
+		channel.enableTopicRestriction();
+		return ;
+	}
+	channel.disableTopicRestriction();
+}
+
+void ModeCmd::passwordMode(Channel& channel, const ModeCmd::Option& option) const
+{
+	if (option.setOrRemove)
+	{
+		channel.setPassword(option.argument);
+		return ;
+	}
+	channel.disablePassword();
+}
+
+void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, const int socket) const
+{
+	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
+	if (targetSocket == -1)
+		throw NoSuchNickException(socket, option.argument);
+	if (option.setOrRemove)
+	{
+		channel.addNewModerator(targetSocket);
+		return ;
+	}
+	channel.removeModerator(targetSocket);
+}
+
+void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option, const int socket) const
+{
+
+	if (option.setOrRemove)
+	{
+		int limit = std::atoi(option.argument.c_str());
+		if (channel.setLimitNbUsers(limit))
+		{
+			std::vector<std::string> args;
+			args.push_back("#" + channel.getName());
+			args.push_back(std::string(1, option.type));
+			args.push_back(option.argument);
+			throw InvalidModeParamException(socket, args, UserManager::getInstance().getUserNickname(socket));
+		}
+		return ;
+	}
+	channel.disableLimitNbUsers();
 }
