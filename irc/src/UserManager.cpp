@@ -62,11 +62,8 @@ void UserManager::listenClients()
 {
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
-		if (!hasDataToRead(i))
+		if (!hasDataToRead(i) || reiceveFromClient(i))
 			continue;
-		if (reiceveFromClient(i))
-			continue;
-		std::cout << "user no: " << i << std::endl;
 		while (MsgServ::getInstance().isCommandReady(i))
 		{
 			executeCommandsClient(i);
