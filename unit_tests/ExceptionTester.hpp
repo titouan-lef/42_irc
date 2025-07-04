@@ -52,9 +52,10 @@ public:
 	{
 		Tester::startTest("Replies from server");
 
-		// sendCommand("JOIN #test");
-		// sendCommand("MODE #test +it");
-		// assertReply(":ircserv 324 testuser #test +it");
+		sendCommand("JOIN #test");
+		sendCommand("MODE #test +it");
+		sendCommand("MODE #test");
+		assertReply(":ircserv 324 testuser #test +it");
 		/** @todo complete with tests */
 	};
 
@@ -86,7 +87,7 @@ private:
 	{
 		std::string reply = readReply();
 		if (!reply.empty())
-		Tester::assertExpectedEqualsActual(expected, reply);
+		Tester::assertExpectedEqualsActual(expected + "\r\n", reply);
 	};
 
 	int sockfd;
