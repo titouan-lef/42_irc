@@ -10,26 +10,87 @@
 void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
-	if (cmd.arg.size() < 1 && cmd.arg.size() > 2)
+	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
-	std::vector<std::string>channels = splitArgument(cmd.arg[0]);
-	std::vector<std::string>passwords;
-	if (cmd.arg.size() == 2)
-		passwords = splitArgument(cmd.arg[1]);
-	std::vector<std::string>::iterator itPassword = passwords.begin();
-	for (size_t i = 0; i < channels.size(); i++)
+	if (cmd.arg.size() == 1 && cmd.arg[0] == "0")
 	{
-		if (checkChannelName(channels[i]))
-			throw BadChanMaskException(socket, channels[i]);
-		Channel tmpChan = ChanServ::getInstance().findChannelFor(channels[i], socket);
-		if (tmpChan.isPasswordProtected())
-		{
-			tmpChan.connectUser(socket, *itPassword);
-			itPassword++;
-		}
-		else
-			tmpChan.connectUser(socket);
+		ChanServ::getInstance().quitAllChannels("", socket);
+		return ;
 	}
+	std::vector<std::string> channels = splitArgument(cmd.arg[0]);
+	if (cmd.arg.size() == 1)
+	{
+		for (size_t i = 0; i < channels.size(); i++)
+		{
+			try
+			{
+				tryConnection(channels[i], socket);
+			}
+			catch(const IrcException& e)
+			{
+				e.sendError();
+			}
+		}
+	}
+	else
+	{
+		std::vector<std::string>passwords = splitArgument(cmd.arg[1]);
+		std::vector<std::string>::iterator itPwd = passwords.begin();
+		for (size_t i = 0; i < channels.size(); i++)
+		{
+			try
+			{ 
+				if (itPwd > passwords.end())
+				{
+					std::string invalidPassword;
+					tryConnection(channels[i], invalidPassword, socket);
+				}
+				else
+					tryConnection(channels[i], itPwd, socket);
+			}
+			catch(const IrcException& e)
+			{
+				e.sendError();
+			}
+		}
+	}
+
+}
+
+void JoinCmd::tryConnection(const std::string& channel, const int socket) const
+{
+	if (checkChannelName(channel))
+		throw BadChanMaskException(socket, channel);
+	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	if (!tmpChan.isConnected(socket))
+		tmpChan.connectUser(socket);
+}
+
+void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>::iterator& itPwd, const int socket) const
+{
+	if (checkChannelName(channel))
+		throw BadChanMaskException(socket, channel);
+	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	if (tmpChan.isPasswordProtected())
+	{
+		tmpChan.connectUser(socket, *itPwd);
+		itPwd++;
+	}
+	else if (!tmpChan.isConnected(socket))
+		tmpChan.connectUser(socket);
+}
+
+void JoinCmd::tryConnection(const std::string& channel, std::string invalidPassword, const int socket) const
+{
+	if (checkChannelName(channel))
+		throw BadChanMaskException(socket, channel);
+	Channel tmpChan = ChanServ::getInstance().findChannelFor(channel, socket);
+	if (tmpChan.isPasswordProtected())
+	{
+		tmpChan.connectUser(socket, invalidPassword);
+	}
+	else if (!tmpChan.isConnected(socket))
+		tmpChan.connectUser(socket);
 }
 
 std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
@@ -52,7 +113,7 @@ bool JoinCmd::checkChannelName(const std::string& channelName) const
 		return true;
 	if (std::string("#&+!").find(channelName[0]) == std::string::npos)
 		return true;
-	if (channelName.find(',') || channelName.find(32) || channelName.find(7))
+	if (!(channelName.find(',') == std::string::npos) || !(channelName.find(32) == std::string::npos) || !(channelName.find(7) == std::string::npos))
 		return true;
 	return false;
 }

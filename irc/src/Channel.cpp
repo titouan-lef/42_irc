@@ -64,7 +64,7 @@ bool Channel::isTopicRestricted() const
 void Channel::connectUser(int socketNewUser, const std::string& password)
 {
 	if (isPasswordProtected() && password != password_)
-		throw PasswordMismatchException(socketNewUser);
+		throw PasswordMismatchException(socketNewUser);/** @todo change with bad_key */
 	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
 		throw InviteOnlyException(socketNewUser, name_);
 	if (isLimitNbUserReached())

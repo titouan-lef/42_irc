@@ -41,7 +41,7 @@ Channel& ChanServ::findChannelFor(std::string name, const int socketUser)
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::quitAllChannel(const std::string& msg, const int socket)
+void ChanServ::quitAllChannels(const std::string& msg, const int socket)
 {
 	for (size_t i = 0; i < channels_.size(); i++)
 	{
