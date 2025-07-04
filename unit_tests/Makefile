@@ -79,6 +79,7 @@ fclean:	clean
 		rm -f $(NAME);\
 	fi;
 	@rm -f ircserv.a
+	@rm -f ircserv
 
 re:	fclean $(DISPLAY_TRACKER) all
 
