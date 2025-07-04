@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
@@ -113,7 +114,7 @@ void Channel::disconnectUser(const int socketUser)
 			return;
 		}
 	}
-	/** @todo throw NoSuchNickException(nickname); --> define exception in command and call a function to do test in command */
+	throw NoSuchNickException(socketUser, UserManager::getInstance().getUserNickname(socketUser)); // --> define exception in command and call a function to do test in command */
 }
 
 
