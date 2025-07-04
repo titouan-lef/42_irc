@@ -22,7 +22,7 @@ IrcException::~IrcException() throw() {}
 
 void IrcException::sendError() const
 {
-	MsgServ::sendNumericReply(socket_, cmd_, clientNickname_);
+	MsgServ::getInstance().sendNumericReply(socket_, cmd_, clientNickname_);
 	displayError();
 }
 

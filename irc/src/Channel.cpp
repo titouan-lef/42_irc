@@ -305,7 +305,7 @@ void Channel::sendMessageToAllUsers(const int senderSocket, const std::string ms
 		if (senderSocket == socketConnectedUsers_[i])
 			continue ;
 		cmd.trailing = msg;
-		MsgServ::sendMessageReply(senderSocket, cmd);
+		MsgServ::getInstance().sendMessageReply(senderSocket, cmd);
 	}
 }
 

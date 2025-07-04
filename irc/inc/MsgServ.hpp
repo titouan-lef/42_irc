@@ -16,19 +16,32 @@ public:
 		std::string trailing;
 		std::vector<std::string> arg;
 	};
-	static std::string recvMsg(int socket, const std::string& nickname);
-	static bool isMsgComplete(std::string& msg);
-	static void sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname);
-	static void sendMessageReply(int socket, const MsgServ::Command& cmd);
+
+	static MsgServ& getInstance();
+
+	void recvMsg(int socket, int buffer_index, const std::string& nickname);
+	bool isMsgComplete(std::string& msg);
+	void sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname);
+	void sendMessageReply(int socket, const MsgServ::Command& cmd);
+
+	void addNewBuffer();
+	bool isCommandReady(int buffer_index) const;
+	int completeMsg(int buffer_index, const std::string &msg);
+	std::string getCommand(int buffer_index);
+	void removeBuffer(int buffer_index);
+
 
 private:
 
 	MsgServ();
-	// ~MsgServ();
+	MsgServ(const MsgServ& other);
+	MsgServ& operator=(const MsgServ& other);
 
-	static void sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
-	static std::string formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
-	static void sendMsg(int socket, std::string& msg);
+	void sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
+	std::string formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
+	void sendMsg(int socket, std::string& msg);
+
+	std::vector<std::string> buffers_;
 
 	friend class MsgServTester;/** @todo remove before push */
 };

@@ -9,5 +9,5 @@ void PrivmsgCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	int socketReceiver = UserManager::getInstance().findUserSocket(cmd.arg[0]);
 	if (socketReceiver == -1)
 		throw NoSuchNickException(socket, cmd.arg);
-	MsgServ::sendMessageReply(socketReceiver, cmd);
+	MsgServ::getInstance().sendMessageReply(socketReceiver, cmd);
 }
