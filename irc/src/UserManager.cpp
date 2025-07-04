@@ -62,12 +62,15 @@ void UserManager::listenClients()
 {
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
-		if (!hasDataToRead(i) || reiceveFromClient(i))
-			return;
+		if (!hasDataToRead(i))
+			continue;
+		if (reiceveFromClient(i))
+			continue;
+		std::cout << "user no: " << i << std::endl;
 		while (MsgServ::getInstance().isCommandReady(i))
 		{
 			executeCommandsClient(i);
-			if (i >= userList_.size()) /** @todo betgter management quit */
+			if (i >= userList_.size()) /** @todo better management quit */
 				break;
 		}
 	}
@@ -110,7 +113,7 @@ void UserManager::executeCommandsClient(int i)
 	try
 	{
 		std::string command = MsgServ::getInstance().getCommand(i);
-		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl;
+		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 		if (userList_.at(i).isUsernameRegister())
 			CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd);
 		else
@@ -262,7 +265,7 @@ void UserManager::checkNewConnections()
 	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
 		throw std::runtime_error("Error: fcntl failed, cannot connect client");
 	addNewUser(clientSocket, clientAddr);
-	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
+	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl << std::endl;
 }
 
 /**
