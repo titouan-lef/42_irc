@@ -17,9 +17,7 @@ void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::string channelName = cmd.arg.at(0);
-	if (channelName.at(0) != '#')
-		throw NoSuchChannelException(socket, channelName.substr(1));
-	Channel& channel = ChanServ::getInstance().findChannel(channelName.substr(1), socket);
+	Channel& channel = ChanServ::getInstance().findChannel(channelName, socket);
 	if (!channel.isModerator(socket))
 		throw ChannelPrivilegesNeeded(socket, channel.getName());
 	if (cmd.arg.size() == 1)
@@ -36,7 +34,7 @@ void ModeCmd::sendActualModes(Channel& channel, const int socket) const
 {
 	std::vector<std::string> arg;
 
-	arg.push_back("#" + channel.getName());
+	arg.push_back(channel.getName());
 	arg.push_back(channel.builtOptionString());
 	MsgServ::Command cmd = {"324", "", arg};
 	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
@@ -178,7 +176,7 @@ void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option, const i
 		if (channel.setLimitNbUsers(limit))
 		{
 			std::vector<std::string> args;
-			args.push_back("#" + channel.getName());
+			args.push_back(channel.getName());
 			args.push_back(std::string(1, option.flag));
 			args.push_back(option.argument);
 			throw InvalidModeParamException(socket, args, UserManager::getInstance().getUserNickname(socket));

@@ -52,7 +52,9 @@ const std::string Channel::builtOptionString() const
 		options += oss.str();
 
 	}
-	return options;
+	if (options.empty())
+		return options;
+	return "+" + options;
 }
 
 /**

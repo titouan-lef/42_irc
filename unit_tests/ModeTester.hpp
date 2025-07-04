@@ -14,8 +14,8 @@ class ModeTester
 public:
 	void testerModeCmd()
 	{
-		ChanServ::getInstance().findOrCreateChannel(std::string("test"), 1);
-		Channel& chan = ChanServ::getInstance().findChannel("test", 1);
+		ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
+		Channel& chan = ChanServ::getInstance().findChannel("#test", 1);
 		testPermission(chan);
 		testOperator(chan);
 		testInvite(chan);
