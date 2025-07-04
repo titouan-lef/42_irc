@@ -33,13 +33,13 @@ public:
 		Tester::assertExpectedEqualsActual(res, 0);
 
 		(void)password;
-		// sendCommand("PASS " + password);
+		sendCommand("PASS " + password);
 		// assertReply("Password accepted"); /** @todo complete with good reply */
 
-		// sendCommand("NICK testuser");
+		sendCommand("NICK testuser");
 		// assertReply("001"); /** @todo complete with good reply */
 
-		// sendCommand("USER testuser 0 * :Real Name");
+		sendCommand("USER testuser 0 * :Real Name");
 		// assertReply("001"); /** @todo complete with good reply */
 	};
 
@@ -52,6 +52,9 @@ public:
 	{
 		Tester::startTest("Replies from server");
 
+		// sendCommand("JOIN #test");
+		// sendCommand("MODE #test +it");
+		// assertReply(":ircserv 324 testuser #test +it");
 		/** @todo complete with tests */
 	};
 
@@ -64,19 +67,19 @@ private:
 		// Tester::assertExpectedEqualsActual(sent, (ssize_t)fullCmd.length());
 	};
 
-std::string readReply()
-{
-	char buf[1024];
-	std::memset(buf, 0, sizeof(buf));
-	ssize_t received = recv(sockfd, buf, sizeof(buf) - 1, 0);
+	std::string readReply()
+	{
+		char buf[1024];
+		std::memset(buf, 0, sizeof(buf));
+		ssize_t received = recv(sockfd, buf, sizeof(buf) - 1, 0);
 
-	if (received < 0 && (errno == EWOULDBLOCK || errno == EAGAIN))
-		Tester::assertExpectedEqualsActual(std::string(""), std::string("time out"));
-	else if (received < 0)
-		Tester::assertTrue(false);
+		if (received < 0 && (errno == EWOULDBLOCK || errno == EAGAIN))
+			Tester::assertExpectedEqualsActual(std::string(""), std::string("time out"));
+		else if (received < 0)
+			Tester::assertTrue(false);
 
-	return std::string(buf);
-}
+		return std::string(buf);
+	}
 
 
 	void assertReply(const std::string& expected)
@@ -87,5 +90,4 @@ std::string readReply()
 	};
 
 	int sockfd;
-	// std::string buffer;
 };
