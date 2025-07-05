@@ -43,7 +43,7 @@ public:
 		Channel chan("mychannel", 10);
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
-		Tester::assertTrue(chan.isConnected(10));
+		Tester::assertTrue(chan.isConnected(11));
 	};
 
 	void testInvite()
