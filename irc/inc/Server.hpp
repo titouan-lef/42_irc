@@ -14,6 +14,7 @@ public:
 	static Server& getInstance();
 
 	bool isCorrectPassword(std::string password);
+	bool isUp();
 	int up(std::string port,std::string password);
 	void stop();
 

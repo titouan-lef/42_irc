@@ -156,8 +156,8 @@ public:
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 		Tester::assertTrue(chan.isPasswordProtected());
 
-		Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(10);});
-		Tester::assertThrows<PasswordMismatchException>([&]() {chan.connectUser(10, "wrongPassword");});
+		Tester::assertThrows<BadChanMaskException>([&]() {chan.connectUser(10);});
+		Tester::assertThrows<BadChanMaskException>([&]() {chan.connectUser(10, "wrongPassword");});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10, "password");});
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 

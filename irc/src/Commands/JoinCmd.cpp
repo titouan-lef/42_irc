@@ -68,8 +68,7 @@ void JoinCmd::tryConnection(const std::string& channel, const int socket) const
 	if (checkChannelName(channel))
 		throw BadChanMaskException(socket, channel);
 	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
-	if (!tmpChan.isConnected(socket))
-		tmpChan.connectUser(socket);
+	tmpChan.connectUser(socket);
 }
 
 /**
@@ -87,7 +86,7 @@ void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>
 		tmpChan.connectUser(socket, *itPwd);
 		itPwd++;
 	}
-	else if (!tmpChan.isConnected(socket))
+	else
 		tmpChan.connectUser(socket);
 }
 

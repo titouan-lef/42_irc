@@ -1,5 +1,5 @@
 #include "MsgServ.hpp"
-
+#include "Server.hpp"
 #include <cerrno>
 
 #include "ClientDisconnectedException.hpp"
@@ -80,6 +80,8 @@ void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::stri
 	}
 	catch (const std::exception& e)
 	{
+		if (!Server::getInstance().isUp()) // skip for tester
+			return;
 		std::cerr << e.what();
 		if (!target.empty())
 			std::cerr << " to: " << target;

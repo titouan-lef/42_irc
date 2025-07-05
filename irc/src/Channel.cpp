@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
-#include "PasswordMismatchException.hpp"
+#include "BadChanMaskException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
@@ -11,7 +11,7 @@
 
 Channel::Channel(std::string name, const int socketModerator): name_(name), nbMaxUsers_(-1), inviteRestricted_(false), topicRestricted_(false)
 {
-	addNewModerator(socketModerator);
+	socketModerators_.push_back(socketModerator);
 	connectUser(socketModerator);
 }
 
@@ -33,6 +33,69 @@ const std::string& Channel::getName() const
 const std::string& Channel::getTopic() const
 {
 	return topic_;
+}
+
+void Channel::sendActualTopic(const int socket) const
+{
+	std::vector<std::string> arg;
+	MsgServ::Command cmd;
+
+	arg.push_back(name_);
+	if (topic_.empty())
+	{
+		arg.push_back(":No topic is set");
+		cmd.name = "331";
+	}
+	else
+	{
+		arg.push_back(topic_);
+		cmd.name = "332";
+	}
+	cmd.arg = arg;
+	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+}
+
+void Channel::sendActualUsers(const int socket) const
+{
+	std::vector<std::string> arg;
+
+	arg.push_back("=");
+	arg.push_back(name_);
+	arg.push_back(":" + builtUsersString());
+	MsgServ::Command cmd = {"353", "", arg};
+	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+
+	std::vector<std::string> arg2;
+
+	arg2.push_back(name_);
+	arg2.push_back(":End of NAMES list");
+	MsgServ::Command cmd2 = {"366", "", arg2};
+	MsgServ::getInstance().sendNumericReply(socket, cmd2, UserManager::getInstance().getUserNickname(socket));
+}
+
+void Channel::sendActualModes(const int socket) const
+{
+	std::vector<std::string> arg;
+
+	arg.push_back(name_);
+	arg.push_back(builtOptionString());
+	MsgServ::Command cmd = {"324", "", arg};
+	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+}
+
+const std::string Channel::builtUsersString() const
+{
+	std::string users;
+	
+	for (std::vector<int>::const_iterator it = socketConnectedUsers_.begin(); it < socketConnectedUsers_.end(); ++it)
+	{
+		if (it != socketConnectedUsers_.begin())
+			users += " ";
+		if (isModerator(*it))
+			users += "@";
+		users += UserManager::getInstance().getUserNickname(*it);
+	}
+	return users;
 }
 
 const std::string Channel::builtOptionString() const
@@ -88,8 +151,10 @@ bool Channel::isTopicRestricted() const
  */
 void Channel::connectUser(int socketNewUser, const std::string& password)
 {
+	if (isConnected(socketNewUser))
+		return;
 	if (isPasswordProtected() && password != password_)
-		throw PasswordMismatchException(socketNewUser);/** @todo change with bad_key */
+		throw BadChanMaskException(socketNewUser, name_);
 	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
 		throw InviteOnlyException(socketNewUser, name_);
 	if (isLimitNbUserReached())
@@ -97,6 +162,9 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 	if (inviteRestricted_)
 		socketInvitedUsers_.erase(socketNewUser);
 	socketConnectedUsers_.push_back(socketNewUser);
+	sendActualTopic(socketNewUser);
+	sendActualUsers(socketNewUser);
+	/** @todo send message to all user about new connection (refacto needed) */
 }
 
 /**
@@ -253,11 +321,18 @@ void Channel::inviteUser(int socketUser)
  *
  * @param newModerator Reference to the user to be added as moderator.
  *
- * @note Currently does not check if the user is already a moderator.
+ * @return -1 if the user is not connected to the channel, 0 otherwise.
+ * 
+ * @note You must throw UserNotInChannelException if it returns -1.
  */
-void Channel::addNewModerator(const int socketNewModerator)
+int Channel::addNewModerator(const int socketNewModerator)
 {
+	if (!isConnected(socketNewModerator))
+		return -1;
+	if (isModerator(socketNewModerator))
+		return 0;
 	socketModerators_.push_back(socketNewModerator);
+	return 0;
 }
 
 /**

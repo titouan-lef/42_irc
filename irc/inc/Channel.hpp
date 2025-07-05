@@ -16,6 +16,10 @@ public:
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	const std::string& getTopic() const;
+	void sendActualTopic(const int socket) const;
+	void sendActualUsers(const int socket) const;
+	void sendActualModes(const int socket) const;
+	const std::string builtUsersString() const;
 	const std::string builtOptionString() const;
 	bool isConnected(const int socketUser) const;
 	bool isModerator(const int socketUser) const;
@@ -35,7 +39,7 @@ public:
 	void disableInviteRestriction();
 	void inviteUser(const int socketUser);
 
-	void addNewModerator(const int socketNewOperator);
+	int addNewModerator(const int socketNewOperator);
 	void removeModerator(const int socketUser);
 
 	int setLimitNbUsers(int nbUserMax);

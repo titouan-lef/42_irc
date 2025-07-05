@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InvalidModeParamException.hpp"
+#include "UserNotInChannelException.hpp"
+
 #include <cstdlib>
 
 void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
@@ -22,24 +24,12 @@ void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		throw ChannelPrivilegesNeeded(socket, channel.getName());
 	if (cmd.arg.size() == 1)
 	{
-		sendActualModes(channel, socket);
+		channel.sendActualModes(socket);
 		return;
 	}
 	std::vector<Option> options = parseCommand(cmd, socket);
 	executeModeOptions(channel, options, socket);
 }
-/** @todo MODE #channel -> ask for actives modes 324 → numeric code for RPL_CHANNELMODEIS*/ 
-
-void ModeCmd::sendActualModes(Channel& channel, const int socket) const
-{
-	std::vector<std::string> arg;
-
-	arg.push_back(channel.getName());
-	arg.push_back(channel.builtOptionString());
-	MsgServ::Command cmd = {"324", "", arg};
-	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
-}
-
 
 std::vector<ModeCmd::Option> ModeCmd::parseCommand(const MsgServ::Command& cmd, const int socket) const
 {
@@ -161,7 +151,14 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, cons
 		throw NoSuchNickException(socket, option.argument);
 	if (option.isAddFlag)
 	{
-		channel.addNewModerator(targetSocket);
+		if (channel.addNewModerator(targetSocket) < 0)
+		{
+			std::vector<std::string> arg;
+			std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
+			arg.push_back(nickname);
+			arg.push_back(channel.getName());
+			throw UserNotInChannelException(socket, arg, UserManager::getInstance().getUserNickname(socket));
+		}
 		return ;
 	}
 	channel.removeModerator(targetSocket);

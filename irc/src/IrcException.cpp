@@ -74,7 +74,9 @@ void IrcException::displayError() const
 #include "InvalidModeParamException.hpp"
 #include "NoSuchChannelException.hpp"
 #include "UnknownModeException.hpp"
+#include "BadChanKeyException.hpp"
 #include "BadChanMaskException.hpp"
+#include "UserNotInChannelException.hpp"
 
 NoSuchNickException::NoSuchNickException(const int socket, const std::string& nickname):
 	IrcException(socket, 401, "No such nick/channel", std::vector<std::string>(1, nickname)) {}
@@ -93,6 +95,9 @@ ErroneUsNicknameException::ErroneUsNicknameException(const int socket, const std
 
 NicknameInUseException::NicknameInUseException(const int socket, const std::vector<std::string>& arg, const std::string& nickname):
 	IrcException(socket, 433, "Nickname is already in use", arg, nickname) {}
+
+UserNotInChannelException::UserNotInChannelException(const int socket, const std::vector<std::string>& arg, const std::string& nickname):
+	IrcException(socket, 441, "They aren't on that channel", arg, nickname) {}
 
 NotRegisteredException::NotRegisteredException(int socket, const std::string& nickname):
 	IrcException(socket, 451, "You have not registered", std::vector<std::string>(), nickname) {}
@@ -114,6 +119,9 @@ UnknownModeException::UnknownModeException(const int socket, const char& mode):
 
 InviteOnlyException::InviteOnlyException(const int socket, const std::string& channelName):
 	IrcException(socket, 473, "You're not invited to join this channel", std::vector<std::string>(1, channelName)) {}
+
+BadChanKeyException::BadChanKeyException(const int socket, const std::string& channelName):
+	IrcException(socket, 476, "Cannot join channel (+k)",  std::vector<std::string>(1, channelName)) {}
 
 BadChanMaskException::BadChanMaskException(const int socket, const std::string& channelName):
 	IrcException(socket, 476, "Bad Channel Mask",  std::vector<std::string>(1, channelName)) {}

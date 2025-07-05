@@ -42,6 +42,11 @@ bool Server::isCorrectPassword(std::string password)
 	return (password_ == password);
 }
 
+bool Server::isUp()
+{
+	return running_;
+}
+
 void Server::closeServerConnection()
 {
 	UserManager::getInstance().closeAllConnection();
