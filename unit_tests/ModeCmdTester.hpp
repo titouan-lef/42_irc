@@ -9,7 +9,7 @@
 #include "UnknownModeException.hpp"
 #include "ChannelIsFullException.hpp"
 
-class ModeTester
+class ModeCmdTester
 {
 public:
 	void testerModeCmd()

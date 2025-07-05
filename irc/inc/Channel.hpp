@@ -5,7 +5,7 @@
 #include "MsgServ.hpp"
 
 class ChannelTester; /** @todo remove before push */
-class ModeTester; /** @todo remove before push */
+class ModeCmdTester; /** @todo remove before push */
 
 class Channel
 {
@@ -61,5 +61,5 @@ private:
 	std::vector<int> socketModerators_;
 
 	friend class ChannelTester ; /** @todo remove before push */
-	friend class ModeTester; /** @todo remove before push */
+	friend class ModeCmdTester; /** @todo remove before push */
 };

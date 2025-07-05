@@ -4,6 +4,7 @@
 #include <iostream>
 
 class CommandTester ;	/** @todo remove before push */
+class PassCmdTester ;	/** @todo remove before push */
 
 class Server
 {
@@ -41,4 +42,5 @@ private:
 	bool running_;
 
 	friend class CommandTester ;	/** @todo remove before push */
+	friend class PassCmdTester ;	/** @todo remove before push */
 };

@@ -5,7 +5,8 @@
 #include "ExceptionTester.hpp"
 #include "CommandTester.hpp"
 #include "UserManagerTester.hpp"
-#include "ModeTester.hpp"
+#include "ModeCmdTester.hpp"
+#include "PassCmdTester.hpp"
 
 void testerUser();
 
@@ -32,7 +33,11 @@ int main()
 		test.testerUserManager();
 	}
 	{
-		ModeTester test;
+		PassCmdTester test;
+		test.testerPassCmd();
+	}
+	{
+		ModeCmdTester test;
 		test.testerModeCmd();
 	}
 	{

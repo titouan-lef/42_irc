@@ -7,7 +7,8 @@
 #include "User.hpp"
 
 class CommandTester; /** @todo remove before push */
-class ModeTester;
+class ModeCmdTester; /** @todo remove before push */
+class PassCmdTester; /** @todo remove before push */
 class UserManagerTester; /** @todo remove before push */
 
 class UserManager
@@ -47,6 +48,7 @@ private:
 	std::vector<struct sockaddr_in> addressList_;
 
 	friend class CommandTester; /** @todo remove before push */
-	friend class ModeTester; /** @todo remove before push */
+	friend class ModeCmdTester; /** @todo remove before push */
+	friend class PassCmdTester; /** @todo remove before push */
 	friend class UserManagerTester; /** @todo remove before push */
 };
