@@ -9,6 +9,7 @@
 #include "NeedMoreParamsException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "ErroneUsNicknameException.hpp"
+#include "NicknameInUseException.hpp"
 
 class NickCmdTester
 {
@@ -41,6 +42,13 @@ public:
 
 		cmd = {"NICK", "", {""}};
 		Tester::assertThrows<NoNicknameGivenException>([&]() {nick.execute(cmd ,10);});
+
+		UserManager::getInstance().addNewUser(11, dummyAddr(4242));
+		UserManager::getInstance().getUser(11).setNickname("me");
+		UserManager::getInstance().getUser(11).validConnection();
+
+		cmd = {"NICK", "", {"me"}};
+		Tester::assertThrows<NicknameInUseException>([&]() {nick.execute(cmd ,10);});\
 
 		UserManager::getInstance().deleteUser(1);
 	};
