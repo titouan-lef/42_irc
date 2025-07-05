@@ -89,8 +89,8 @@ public:
 
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(11);});
-		UserManager::getInstance().deleteUser(0);
-		UserManager::getInstance().deleteUser(0);
+		UserManager::getInstance().deleteUser(1);
+		UserManager::getInstance().deleteUser(1);
 	};
 
 	void testInvite(Channel& chan)

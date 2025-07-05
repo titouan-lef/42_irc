@@ -80,7 +80,7 @@ public:
 			{
 				Tester::assertThrows<UnknowCmdException>([&]() {CommandManager::getInstance().interpretData("	PASS Password", 1);});
 			}
-			UserManager::getInstance().deleteUser(0);
+			UserManager::getInstance().deleteUser(1);
 		}
 	};
 };

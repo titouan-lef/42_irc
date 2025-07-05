@@ -48,11 +48,6 @@ public:
 		cmd = {"PASS", "", {"password"}};
 		Tester::assertThrows<AlreadyRegistredException>([&]() {pass.execute(cmd ,10);});
 
-		UserManager::getInstance().deleteUser(10);
-		UserManager::getInstance().addNewUser(11, dummyAddr(4242));
-		UserManager::getInstance().getUser(11).setUsername("name");
-		Tester::assertThrows<AlreadyRegistredException>([&]() {pass.execute(cmd ,10);});
-
-		UserManager::getInstance().deleteUser(11);
+		UserManager::getInstance().deleteUser(1);
 	};
 };

@@ -42,8 +42,8 @@ private:
 		Tester::assertExpectedEqualsActual(10, um.findUserSocket("testNick"));
 		Tester::assertExpectedEqualsActual(11, um.findUserSocket("testNick2"));
 		
-		um.deleteUser(0);
-		um.deleteUser(0);
+		um.deleteUser(1);
+		um.deleteUser(1);
 	}
 
 	void testGetUserNicknameAndPrefix()
@@ -63,6 +63,6 @@ private:
 		u.setUsername("tester2");
 		Tester::assertExpectedEqualsActual(um.getUserPrefix(10), std::string("test2!tester2@localhost"));
 
-		um.deleteUser(0);
+		um.deleteUser(1);
 	}
 };

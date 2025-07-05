@@ -4,7 +4,7 @@ CXX				:= c++
 CXXFLAGS		+= -Wall -Wextra -Werror -MP -MMD -g
 MAKEFLAGS		+= --no-print-directory
 BUILD_DIR		:= .build/
-IRCHEADERS		:= inc/ inc/IrcException/ inc/IrcException/ConcreteIrcException/ inc/struct/ inc/Commands/
+IRCHEADERS		:= inc/ inc/IrcException/ inc/IrcException/ConcreteIrcException/ inc/struct/ inc/Commands/ inc/IrcException/ConcreteIrcException/NickException
 IRCHEADERS		:= $(addprefix ../irc/, $(IRCHEADERS))
 
 HEADERS			:= 

@@ -7,11 +7,13 @@
 #include "UserManagerTester.hpp"
 #include "ModeCmdTester.hpp"
 #include "PassCmdTester.hpp"
+#include "NickCmdTester.hpp"
 
 void testerUser();
 
 int main()
 {
+	UserManager::getInstance().addNewUser(0, dummyAddr(4242)); //simulate server at user 0
 	{
 		UserTester test;
 		test.testerUser();
@@ -35,6 +37,10 @@ int main()
 	{
 		PassCmdTester test;
 		test.testerPassCmd();
+	}
+	{
+		NickCmdTester test;
+		test.testerNickCmd();
 	}
 	{
 		ModeCmdTester test;
