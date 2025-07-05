@@ -12,13 +12,16 @@ public:
 
 	Channel& findOrCreateChannel(std::string name, const int socketUser);
 	Channel& findChannel(std::string name, const int socketUser);
-	void quitAllChannels(const std::string& msg, const int socket);
+	void deleteChannel(const std::string& name);
+	void namesAllChannels(const int socketUser);
+	void listAllChannels(const int socketUser);
+	void quitAllChannels(const int socket, const std::string& msg = "");
 
 private:
 
 	ChanServ();
 	// ~ChanServ();
-
+	void deleteChannel(const int index);
 	Channel& builtNewChannel(std::string name, const int socketModerator);
 	void logOut(const size_t index, const std::string& msg, const int socket);
 

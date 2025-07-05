@@ -1,4 +1,5 @@
 #include "ChanServ.hpp"
+#include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
 
 ChanServ::ChanServ() {}
@@ -45,6 +46,30 @@ Channel& ChanServ::findChannel(std::string name, const int socketUser)
 	throw NoSuchChannelException(socketUser, name);
 }
 
+void ChanServ::namesAllChannels(const int socketUser)
+{
+	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
+	{
+		it->sendActualUsers(socketUser);
+	}
+}
+
+void ChanServ::listAllChannels(const int socketUser)
+{
+	std::vector<Channel>::iterator it = channels_.begin();
+	for (;it < channels_.end(); ++it)
+	{
+		it->sendChannelSummary(socketUser);
+	}
+	if (it == channels_.begin())
+		return ;
+	std::vector<std::string> arg;
+ 
+	arg.push_back(":End of LIST");
+	MsgServ::Command cmd = {"323", "", arg};
+	MsgServ::getInstance().sendNumericReply(socketUser, cmd, UserManager::getInstance().getUserNickname(socketUser));
+}
+
 /**
  * @brief Quit all channel where the user was connected.
  *
@@ -52,11 +77,11 @@ Channel& ChanServ::findChannel(std::string name, const int socketUser)
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::quitAllChannels(const std::string& msg, const int socket)
+void ChanServ::quitAllChannels(const int socket, const std::string& msg)
 {
-	for (size_t i = 0; i < channels_.size(); i++)
+	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
-		if (channels_[i].isConnected(socket))
+		if (channels_.at(i).isConnected(socket))
 			logOut(i, msg, socket);
 	}
 }
@@ -76,9 +101,27 @@ Channel& ChanServ::builtNewChannel(std::string name, const int socketModerator)
 	return channels_.back();
 }
 
+void ChanServ::deleteChannel(const std::string& name)
+{
+	for (std::vector<Channel>::iterator it = channels_.begin(); it != channels_.end(); ++it)
+	{
+		if (it->getName() == name)
+		{
+			channels_.erase(it);
+			break;
+		}
+	}
+}
+
+void ChanServ::deleteChannel(const int index)
+{
+	channels_.erase(channels_.begin() + index);
+}
+
 void ChanServ::logOut(const size_t index, const std::string& msg, const int socket)
 {
 	channels_[index].sendMessageToAllUsers(socket, msg);
-	channels_[index].disconnectUser(socket);
+	if(channels_[index].disconnectUser(socket) == -1)
+		deleteChannel(index);
 	/** @todo send all message for  */
 }

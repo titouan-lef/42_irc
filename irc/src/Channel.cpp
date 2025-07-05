@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+#include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
 #include "BadChanMaskException.hpp"
@@ -33,6 +34,23 @@ const std::string& Channel::getName() const
 const std::string& Channel::getTopic() const
 {
 	return topic_;
+}
+
+void Channel::sendChannelSummary(const int socket) const
+{
+	std::vector<std::string> arg;
+	MsgServ::Command cmd;
+
+	std::stringstream ss;
+	ss << socketConnectedUsers_.size();
+	std::string nbUsers = ss.str();
+	
+	arg.push_back(name_);
+	arg.push_back(nbUsers);
+	arg.push_back(":" + topic_);
+	cmd.name = "322";
+	cmd.arg = arg;
+	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
 }
 
 void Channel::sendActualTopic(const int socket) const
@@ -174,17 +192,32 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
  *
  * @throws NoSuchNickException If no user with the given nickname is found in the channel.
  */
-void Channel::disconnectUser(const int socketUser)
+int Channel::disconnectUser(const int socketUser)
 {
+	if (!isConnected(socketUser))
+		throw NoSuchNickException(socketUser, UserManager::getInstance().getUserNickname(socketUser)); // --> define exception in command and call a function to do test in command */
+	if (isModerator(socketUser))
+	{
+		for (std::vector<int>::iterator it = socketModerators_.begin(); it < socketModerators_.end(); ++it)
+		{
+			if (*it == socketUser)
+			{
+				socketModerators_.erase(it);
+				break;
+			}
+		}
+	}
 	for (std::vector<int>::iterator it = socketConnectedUsers_.begin(); it < socketConnectedUsers_.end(); ++it)
 	{
 		if (*it == socketUser)
 		{
 			socketConnectedUsers_.erase(it);
-			return;
+			break;
 		}
 	}
-	throw NoSuchNickException(socketUser, UserManager::getInstance().getUserNickname(socketUser)); // --> define exception in command and call a function to do test in command */
+	if (socketConnectedUsers_.size() == 0)
+		return -1;
+	return 0;
 }
 
 

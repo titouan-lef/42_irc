@@ -1,2 +1,2 @@
 SRC	:= main Server Client User IrcException UserManager Service MsgServ Channel ChanServ \
-	$(addprefix Commands/, CommandManager $(addsuffix Cmd, Join Kick Mode Nick Part Pass Ping Pong Quit User Topic Invite Privmsg))
+	$(addprefix Commands/, CommandManager $(addsuffix Cmd, Join Kick List Mode Names Nick Part Pass Ping Pong Quit User Topic Invite Privmsg))

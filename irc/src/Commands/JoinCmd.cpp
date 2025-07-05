@@ -15,7 +15,7 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	if (cmd.arg.size() == 1 && cmd.arg[0] == "0")
 	{
-		ChanServ::getInstance().quitAllChannels("", socket);
+		ChanServ::getInstance().quitAllChannels(socket);
 		return ;
 	}
 	std::vector<std::string> channels = splitArgument(cmd.arg[0]);

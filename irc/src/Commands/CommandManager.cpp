@@ -6,7 +6,9 @@
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
+#include "ListCmd.hpp"
 #include "ModeCmd.hpp"
+#include "NamesCmd.hpp"
 #include "NickCmd.hpp"
 #include "PartCmd.hpp"
 #include "PassCmd.hpp"
@@ -30,7 +32,9 @@ CommandManager::CommandManager()
 	commands_["INVITE"] = new InviteCmd();
 	commands_["JOIN"] = new JoinCmd();
 	commands_["KICK"] = new KickCmd();
+	commands_["LIST"] = new ListCmd();
 	commands_["MODE"] = new ModeCmd();
+	commands_["NAMES"] = new NamesCmd();
 	commands_["NICK"] = new NickCmd();
 	commands_["PART"] = new PartCmd();
 	commands_["PASS"] = new PassCmd();

@@ -1,5 +1,6 @@
 #include "UserManager.hpp"
 #include "MsgServ.hpp"
+#include "ChanServ.hpp"
 #include "CommandManager.hpp"
 #include "IrcException.hpp"
 #include "ClientDisconnectedException.hpp"
@@ -286,6 +287,8 @@ bool UserManager::hasDataToRead(const int index) const
  */
 void UserManager::closeConnection(const int index)
 {
+	int socket = pollfdList_.at(index).fd;
+	ChanServ::getInstance().quitAllChannels(socket);
 	User user = userList_.at(index);
 	if (user.isNickRegister())
 		std::cout << user.getNickname() + " disconnected" << std::endl;
