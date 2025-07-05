@@ -12,6 +12,6 @@ void QuitCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	std::string msg;
 	if (!cmd.trailing.empty())
 		msg = cmd.trailing.substr(1);
-	ChanServ::getInstance().quitAllChannels(msg, socket);
+	ChanServ::getInstance().quitAllChannels(socket, msg);
 	UserManager::getInstance().closeConnectionBySocket(socket);
 }

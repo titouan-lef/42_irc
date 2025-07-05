@@ -7,11 +7,10 @@
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
 
-
 void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
-	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
+	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
 	if (cmd.arg.size() == 1 && cmd.arg[0] == "0")
 	{
@@ -19,93 +18,48 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		return ;
 	}
 	std::vector<std::string> channels = splitArgument(cmd.arg[0]);
-	if (cmd.arg.size() == 1)
+	std::vector<std::string> passwords;
+	if (cmd.arg.size() == 2)
+		passwords = splitArgument(cmd.arg[1]);
+
+	size_t j = 0;
+	for (size_t i = 0; i < channels.size(); ++i)
 	{
-		for (size_t i = 0; i < channels.size(); i++)
+		const std::string* pwd = NULL;
+		if (isPasswordProtected(channels.at(i)) && j < passwords.size())
 		{
-			try
-			{
-				tryConnection(channels[i], socket);
-			}
-			catch(const IrcException& e)
-			{
-				e.sendError();
-			}
+			pwd = &passwords.at(j);
+			j++;
+		}
+		try
+		{
+			tryConnection(channels.at(i), socket, pwd);
+		}
+		catch (const IrcException& e)
+		{
+			e.sendError();
 		}
 	}
-	else
-	{
-		std::vector<std::string>passwords = splitArgument(cmd.arg[1]);
-		std::vector<std::string>::iterator itPwd = passwords.begin();
-		for (size_t i = 0; i < channels.size(); i++)
-		{
-			try
-			{ 
-				if (itPwd > passwords.end())
-				{
-					std::string invalidPassword;
-					tryConnection(channels[i], invalidPassword, socket);
-				}
-				else
-					tryConnection(channels[i], itPwd, socket);
-			}
-			catch(const IrcException& e)
-			{
-				e.sendError();
-			}
-		}
-	}
-
 }
 
-/**
- * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
- * 
- * @throw BadChanMaskException when the name of channel or not on format
- */
-void JoinCmd::tryConnection(const std::string& channel, const int socket) const
+void JoinCmd::tryConnection(const std::string& channel, const int socket, const std::string* password) const
 {
-	if (checkChannelName(channel))
+	if (!isValidChannelName(channel))
 		throw BadChanMaskException(socket, channel);
-	Channel& tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
-	tmpChan.connectUser(socket);
-}
 
-/**
- * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
- * 
- * @throw BadChanMaskException when the name of channel or not on format
- */
-void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>::iterator& itPwd, const int socket) const
-{
-	if (checkChannelName(channel))
-		throw BadChanMaskException(socket, channel);
-	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
-	if (tmpChan.isPasswordProtected())
+	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
+	
+	if (chan.isPasswordProtected())
 	{
-		tmpChan.connectUser(socket, *itPwd);
-		itPwd++;
+		if (password)
+			chan.connectUser(socket, *password);
+		else
+			chan.connectUser(socket, "");
 	}
-	else
-		tmpChan.connectUser(socket);
-}
-
-/**
- * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
- * 
- * @throw BadChanMaskException when the name of channel or not on format
- */
-void JoinCmd::tryConnection(const std::string& channel, std::string invalidPassword, const int socket) const
-{
-	if (checkChannelName(channel))
-		throw BadChanMaskException(socket, channel);
-	Channel tmpChan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
-	if (tmpChan.isPasswordProtected())
+	else if (!chan.isConnected(socket))
 	{
-		tmpChan.connectUser(socket, invalidPassword);
+		chan.connectUser(socket);
 	}
-	else if (!tmpChan.isConnected(socket))
-		tmpChan.connectUser(socket);
 }
 
 /**
@@ -117,8 +71,7 @@ std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
 {
 	std::vector<std::string>elem;
 	std::string token;
-	std::istringstream iss;
-	iss.str(arg);
+	std::istringstream iss(arg);
 
 	while (std::getline(iss, token, ','))
 	{
@@ -127,21 +80,23 @@ std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
 	return (elem);
 }
 
-/**
- * @brief Function verifie a good composition of name channel with the following restriction:
- * - must have a size of 1 to 50 characters.
- * - must start with a #, &, !, +.
- * - must not contain ASCII char 32, 7 and ','.
- * 
- * @return true when the composition is wrong and false when is wright.
- */
-bool JoinCmd::checkChannelName(const std::string& channelName) const
+bool JoinCmd::isValidChannelName(const std::string& channelName) const
 {
-	if (channelName.size() < 1 || channelName.size() > 50)
-		return true;
-	if (std::string("#&+!").find(channelName[0]) == std::string::npos)
-		return true;
-	if (!(channelName.find(',') == std::string::npos) || !(channelName.find(32) == std::string::npos) || !(channelName.find(7) == std::string::npos))
-		return true;
+	if (channelName.empty() || channelName.size() > 50)
+		return false;
+	if (channelName.find_first_of("#&+!") != 0)
+		return false;
+	if (channelName.find_first_of(",\a") != std::string::npos)
+		return false;
+	return true;
+}
+
+bool JoinCmd::isPasswordProtected(const std::string &channelName) const
+{
+	try
+	{
+		return ChanServ::getInstance().findChannel(channelName, 1).isPasswordProtected();
+	}
+	catch (...) {}
 	return false;
 }
