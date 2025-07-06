@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "Server.hpp"
 #include "UserManager.hpp"
 
 IrcException::IrcException(const int socket, const int code, const std::string& trailing, const std::vector<std::string>& arg): socket_(socket)
@@ -37,6 +38,9 @@ void IrcException::initIrcException(const int code, const std::string& trailing,
 
 void IrcException::displayError() const
 {
+	if (!Server::getInstance().isUp())
+		return;
+
 	const char* WHITE = "\033[0m";
 	const char* RED = "\033[31m";
 	const char* GREEN = "\033[32m";
