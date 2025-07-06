@@ -11,7 +11,6 @@
 #include "InviteOnlyException.hpp"
 #include "UnknownModeException.hpp"
 #include "ChannelIsFullException.hpp"
-#include "BadChanKeyException.hpp"
 
 class JoinCmdTester
 {
@@ -30,13 +29,18 @@ public:
 		JoinCmd join;
 
 		MsgServ::Command cmd = {"JOIN", "", {}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
 
 		cmd = {"JOIN", "", {"#test", "#test2", "#test3"}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
 
 		cmd = {"JOIN", "trailing", {"#test"}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
+
+		cmd = {"JOIN", "", {"test"}};
+		Tester::assertDoNotThrows([&]() {join.execute(cmd ,1);});
+		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join", 1);});
+
 	};
 
 	void testJoinChannels()
