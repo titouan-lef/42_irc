@@ -192,7 +192,7 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
  *
  * @throws NoSuchNickException If no user with the given nickname is found in the channel.
  */
-int Channel::disconnectUser(const int socketUser)
+int Channel::disconnectUser(const int socketUser, const std::string& message)
 {
 	if (!isConnected(socketUser))
 		throw NoSuchNickException(socketUser, UserManager::getInstance().getUserNickname(socketUser)); // --> define exception in command and call a function to do test in command */
@@ -215,6 +215,7 @@ int Channel::disconnectUser(const int socketUser)
 			break;
 		}
 	}
+	(void)message; /** @todo send leaving message to all users or default message if empty */
 	if (socketConnectedUsers_.size() == 0)
 		return -1;
 	return 0;

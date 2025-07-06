@@ -16,18 +16,17 @@ public:
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	const std::string& getTopic() const;
-	void sendChannelSummary(const int socket) const;
-	void sendActualTopic(const int socket) const;
-	void sendActualUsers(const int socket) const;
-	void sendActualModes(const int socket) const;
-	const std::string builtUsersString() const;
-	const std::string builtOptionString() const;
 	bool isConnected(const int socketUser) const;
 	bool isModerator(const int socketUser) const;
 	bool isPasswordProtected() const;
 
+	void sendChannelSummary(const int socket) const;
+	void sendActualTopic(const int socket) const;
+	void sendActualUsers(const int socket) const;
+	void sendActualModes(const int socket) const;
+
 	void connectUser(const int socketNewUser, const std::string& password = "");
-	int disconnectUser(const int socketUser);
+	int disconnectUser(const int socketUser, const std::string& message = "");
 
 	void enableTopicRestriction();
 	void disableTopicRestriction();
@@ -54,6 +53,9 @@ private:
 	bool isInviteRestricted() const;
 	bool isTopicRestricted() const;
 	bool isLimitNbUserReached() const;
+
+	const std::string builtUsersString() const;
+	const std::string builtOptionString() const;
 
 	std::string name_;
 	std::string topic_;
