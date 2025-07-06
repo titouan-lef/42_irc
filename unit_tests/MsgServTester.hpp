@@ -171,7 +171,7 @@ private:
 
 	void testCompleteMsgAndCommandExtraction()
 	{
-		Tester::startTest("UserManager complete message and command extraction");
+		Tester::startTest("MsgServ complete message and command extraction");
 
 		MsgServ& manager = MsgServ::getInstance();
 
