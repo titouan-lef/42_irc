@@ -16,6 +16,7 @@ public:
 	void namesAllChannels(const int socketUser);
 	void listAllChannels(const int socketUser);
 	void quitAllChannels(const int socket, const std::string& msg = "");
+	void logOut(const std::string& channelName, const std::string& msg, const int socket);
 
 private:
 

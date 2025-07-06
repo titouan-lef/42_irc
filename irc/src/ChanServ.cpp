@@ -86,6 +86,19 @@ void ChanServ::quitAllChannels(const int socket, const std::string& msg)
 	}
 }
 
+void ChanServ::logOut(const std::string &channelName, const std::string &msg, const int socket)
+{
+	for (int i = channels_.size() - 1; i >= 0; --i)
+	{
+		if (channels_.at(i).getName() == channelName)
+		{
+			logOut(i, msg, socket);
+			return;
+		}
+	}
+	throw NoSuchChannelException(socket, channelName);
+}
+
 /**
  * @brief Creates a new channel with the given name and initial user.
  *
