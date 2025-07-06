@@ -7,7 +7,7 @@
 
 void KickCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
-	if (cmd.arg.size() < 2 || cmd.arg.size() > 3)
+	if (cmd.arg.size() < 2 || cmd.arg.size() > 3 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	std::vector<std::string> users = split(cmd.arg.at(1), ',');

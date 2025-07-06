@@ -5,7 +5,7 @@
 
 void PartCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
-	if (cmd.arg.size() < 1 || cmd.arg.size() > 2)
+	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	std::string message;
