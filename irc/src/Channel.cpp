@@ -7,6 +7,8 @@
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
 #include "InvalidModeParamException.hpp"
+#include "UserNotInChannelException.hpp"
+#include "UserOnChannelException.hpp"
 
 #include <sstream>
 
@@ -170,7 +172,12 @@ bool Channel::isTopicRestricted() const
 void Channel::connectUser(int socketNewUser, const std::string& password)
 {
 	if (isConnected(socketNewUser))
-		return;
+	{
+		std::vector<std::string> arg;
+		arg.push_back(UserManager::getInstance().getUserNickname(socketNewUser));
+		arg.push_back(name_);
+		throw UserOnChannelException(socketNewUser, arg);
+	}
 	if (isPasswordProtected() && password != password_)
 		throw BadChanMaskException(socketNewUser, name_);
 	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
@@ -195,7 +202,12 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 int Channel::disconnectUser(const int socketUser, const std::string& message)
 {
 	if (!isConnected(socketUser))
-		throw NoSuchNickException(socketUser, UserManager::getInstance().getUserNickname(socketUser)); // --> define exception in command and call a function to do test in command */
+	{
+		std::vector<std::string> arg;
+		arg.push_back(UserManager::getInstance().getUserNickname(socketUser));
+		arg.push_back(name_);
+		throw UserNotInChannelException(socketUser, arg, UserManager::getInstance().getUserNickname(socketUser));
+	} /** @todo FIX: wrong socket to throw exception */
 	if (isModerator(socketUser))
 	{
 		for (std::vector<int>::iterator it = socketModerators_.begin(); it < socketModerators_.end(); ++it)
@@ -436,10 +448,10 @@ void Channel::sendMessageToAllUsers(const int senderSocket, const std::string ms
 	MsgServ::Command cmd;
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
-		if (senderSocket == socketConnectedUsers_[i])
+		if (senderSocket == socketConnectedUsers_.at(i))
 			continue ;
 		cmd.trailing = msg;
-		MsgServ::getInstance().sendMessageReply(socketConnectedUsers_[i], cmd);
+		MsgServ::getInstance().sendMessageReply(socketConnectedUsers_.at(i), cmd);
 	}
 }
 

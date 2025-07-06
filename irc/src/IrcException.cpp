@@ -77,6 +77,8 @@ void IrcException::displayError() const
 #include "BadChanKeyException.hpp"
 #include "BadChanMaskException.hpp"
 #include "UserNotInChannelException.hpp"
+#include "NotOnChannelException.hpp"
+#include "UserOnChannelException.hpp"
 
 NoSuchNickException::NoSuchNickException(const int socket, const std::string& nickname):
 	IrcException(socket, 401, "No such nick/channel", std::vector<std::string>(1, nickname)) {}
@@ -98,6 +100,12 @@ NicknameInUseException::NicknameInUseException(const int socket, const std::vect
 
 UserNotInChannelException::UserNotInChannelException(const int socket, const std::vector<std::string>& arg, const std::string& nickname):
 	IrcException(socket, 441, "They aren't on that channel", arg, nickname) {}
+
+NotOnChannelException::NotOnChannelException(const int socket, const std::string& channelName):
+	IrcException(socket, 442, "You're not on that channel", std::vector<std::string>(1, channelName)) {}
+
+UserOnChannelException::UserOnChannelException(const int socket, const std::vector<std::string>& arg):
+	IrcException(socket, 443, "is already on channel", arg) {}
 
 NotRegisteredException::NotRegisteredException(int socket, const std::string& nickname):
 	IrcException(socket, 451, "You have not registered", std::vector<std::string>(), nickname) {}
