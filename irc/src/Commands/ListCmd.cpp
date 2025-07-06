@@ -6,14 +6,14 @@
 void ListCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 
-	if (cmd.arg.size() == 0)
+	if (cmd.arg.empty())
 	{
 		ChanServ::getInstance().listAllChannels(socket);
 		return;
 	}
 	if (cmd.arg.size() > 1)
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
-	std::vector<std::string> channels = split(cmd.arg[0], ',');
+	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		ChanServ::getInstance().findChannel(channels.at(i), socket).sendChannelSummary(socket);

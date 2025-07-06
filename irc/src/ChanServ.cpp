@@ -133,8 +133,8 @@ void ChanServ::deleteChannel(const int index)
 
 void ChanServ::logOut(const size_t index, const std::string& msg, const int socket)
 {
-	channels_[index].sendMessageToAllUsers(socket, msg);
-	if(channels_[index].disconnectUser(socket) == -1)
+	channels_.at(index).sendMessageToAllUsers(socket, msg);
+	if(channels_.at(index).disconnectUser(socket) == -1)
 		deleteChannel(index);
 	/** @todo send all message for  */
 }

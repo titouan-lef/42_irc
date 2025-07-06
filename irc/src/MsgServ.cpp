@@ -95,7 +95,7 @@ std::string MsgServ::formatMsg(const MsgServ::Command& cmd, const std::string& p
 	if (target != "")
 		reply += " " + target;
 	for (std::size_t i = 0; i < cmd.arg.size(); ++i)
-		reply += " " + cmd.arg[i];
+		reply += " " + cmd.arg.at(i);
 	if (cmd.trailing != "")
 		reply += " :" + cmd.trailing; 
 	reply += "\r\n";

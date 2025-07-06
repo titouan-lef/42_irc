@@ -12,15 +12,15 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	User &user = UserManager::getInstance().getUser(socket);
 	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
-	if (cmd.arg.size() == 1 && cmd.arg[0] == "0")
+	if (cmd.arg.size() == 1 && cmd.arg.at(0) == "0")
 	{
 		ChanServ::getInstance().quitAllChannels(socket);
 		return ;
 	}
-	std::vector<std::string> channels = splitArgument(cmd.arg[0]);
+	std::vector<std::string> channels = splitArgument(cmd.arg.at(0));
 	std::vector<std::string> passwords;
 	if (cmd.arg.size() == 2)
-		passwords = splitArgument(cmd.arg[1]);
+		passwords = splitArgument(cmd.arg.at(1));
 
 	size_t j = 0;
 	for (size_t i = 0; i < channels.size(); ++i)
