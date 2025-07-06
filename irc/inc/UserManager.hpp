@@ -11,6 +11,7 @@ class ModeCmdTester; /** @todo remove before push */
 class PassCmdTester; /** @todo remove before push */
 class NickCmdTester; /** @todo remove before push */
 class JoinCmdTester; /** @todo remove before push */
+class PartCmdTester; /** @todo remove before push */
 class UserManagerTester; /** @todo remove before push */
 
 class UserManager
@@ -54,5 +55,6 @@ private:
 	friend class PassCmdTester; /** @todo remove before push */
 	friend class NickCmdTester; /** @todo remove before push */
 	friend class JoinCmdTester; /** @todo remove before push */
+	friend class PartCmdTester; /** @todo remove before push */
 	friend class UserManagerTester; /** @todo remove before push */
 };
