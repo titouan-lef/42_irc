@@ -11,7 +11,7 @@ void KickCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	std::vector<std::string> users = split(cmd.arg.at(1), ',');
-	if (channels.size() != 1 || channels.size() != users.size())
+	if (channels.size() != 1 && channels.size() != users.size())
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
 	std::string message;
 	if (cmd.arg.size() == 2)
@@ -21,14 +21,14 @@ void KickCmd::execute(const MsgServ::Command& cmd, const int socket) const
 		int socketKicked = UserManager::getInstance().findUserSocket(users.at(i));
 		try
 		{
-			if (!ChanServ::getInstance().findChannel(channels.at(0), socket).isModerator(socket))
-				throw ChannelPrivilegesNeeded(socket, channels.at(0));
+			int chanNumber = i;
+			if (i > channels.size())
+				chanNumber = 0;
+			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber), socket).isModerator(socket))
+				throw ChannelPrivilegesNeeded(socket, channels.at(chanNumber));
 			if (socketKicked < 0)
 				throw NoSuchNickException(socket, users.at(i));
-			if (i > channels.size())
-				ChanServ::getInstance().logOut(channels.at(0), message, socketKicked); /** @todo FIX: will send error message to the tagert if fails */
-			else
-				ChanServ::getInstance().logOut(channels.at(i), message, socketKicked);
+			ChanServ::getInstance().logOut(channels.at(chanNumber), message, socketKicked); /** @todo FIX: will send error message to the tagert if fails and not the sender */
 		}
 		catch (const IrcException& e)
 		{
