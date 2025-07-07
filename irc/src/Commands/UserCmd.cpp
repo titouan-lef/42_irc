@@ -7,9 +7,9 @@
 #include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"
 
-void UserCmd::execute(const Command& cmd, const int socket) const
+void UserCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	User& user = UserManager::getInstance().getUser(socket);
+	User& user = UserManager::getInstance().getUser(senderSocket);
 	if (!user.isConnected())
 		throw PasswordMismatchException();
 	if (!user.isNickRegister())

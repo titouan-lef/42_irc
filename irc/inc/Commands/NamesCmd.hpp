@@ -10,7 +10,7 @@ public:
 	NamesCmd(){}
 	~NamesCmd(){}
 
-	void execute(const Command& cmd, const int socket) const;
+	void execute(const Command& cmd, const int senderSocket) const;
 
 private:
 

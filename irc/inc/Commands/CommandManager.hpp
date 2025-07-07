@@ -12,8 +12,8 @@ class CommandManager
 {
 public:
 	static CommandManager& getInstance();
-	void interpretData(const std::string& recv, const int socket);
-	void registerClient(const std::string& recv, const int socket);
+	void interpretData(const std::string& recv, const int senderSocket);
+	void registerClient(const std::string& recv, const int senderSocket);
 
 private:
 	CommandManager();

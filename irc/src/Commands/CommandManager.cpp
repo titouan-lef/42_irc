@@ -63,10 +63,10 @@ CommandManager& CommandManager::getInstance()
 * This method parses the raw command received (as a string),
 * then performs the appropriate action based on the user's state.
 */
-void CommandManager::interpretData(const std::string& recv, const int socket)
+void CommandManager::interpretData(const std::string& recv, const int senderSocket)
 {
 	Command cmd = parserCmd(recv);
-	commands_[cmd.name]->execute(cmd, socket);
+	commands_[cmd.name]->execute(cmd, senderSocket);
 }
 
 /**
@@ -131,10 +131,10 @@ Command CommandManager::parserCmd(const std::string& recv)
  * @throws PasswordMismatchException If a command other than PASS is sent before authentication.
  * @throws NotRegisteredException If a disallowed command is sent during the registration phase.
  */
-void CommandManager::registerClient(const std::string& recv, const int socket)
+void CommandManager::registerClient(const std::string& recv, const int senderSocket)
 {
 	Command cmd = parserCmd(recv);
 	if (cmd.name != "USER" && cmd.name != "NICK" && cmd.name != "PASS")
 		throw NotRegisteredException();
-	commands_[cmd.name]->execute(cmd, socket);
+	commands_[cmd.name]->execute(cmd, senderSocket);
 }

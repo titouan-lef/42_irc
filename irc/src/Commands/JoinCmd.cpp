@@ -6,13 +6,13 @@
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
 
-void JoinCmd::execute(const Command& cmd, const int socket) const
+void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(cmd.name);
 	if (cmd.arg.size() == 1 && cmd.arg.at(0) == "0")
 	{
-		ChanServ::getInstance().quitAllChannels(socket);
+		ChanServ::getInstance().quitAllChannels(senderSocket);
 		return ;
 	}
 	std::vector<std::string> channels = splitArgument(cmd.arg.at(0));
@@ -31,32 +31,32 @@ void JoinCmd::execute(const Command& cmd, const int socket) const
 		}
 		try
 		{
-			tryConnection(channels.at(i), socket, pwd);
+			tryConnection(channels.at(i), senderSocket, pwd);
 		}
 		catch (const IrcException& e)
 		{
-			e.sendError(socket);
+			e.sendError(senderSocket);
 		}
 	}
 }
 
-void JoinCmd::tryConnection(const std::string& channel, const int socket, const std::string* password) const
+void JoinCmd::tryConnection(const std::string& channel, const int senderSocket, const std::string* password) const
 {
 	if (!isValidChannelName(channel))
 		throw BadChanMaskException(channel);
 
-	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
+	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, senderSocket);
 	
 	if (chan.isPasswordProtected())
 	{
 		if (password)
-			chan.connectUser(socket, *password);
+			chan.connectUser(senderSocket, *password);
 		else
-			chan.connectUser(socket, "");
+			chan.connectUser(senderSocket, "");
 	}
-	else if (!chan.isConnected(socket))
+	else if (!chan.isConnected(senderSocket))
 	{
-		chan.connectUser(socket);
+		chan.connectUser(senderSocket);
 	}
 }
 

@@ -8,5 +8,5 @@ public:
 	ACommand(){}
 	virtual ~ACommand(){}
 
-	virtual void execute(const Command& cmd, const int socket) const = 0;
+	virtual void execute(const Command& cmd, const int senderSocket) const = 0;
 };

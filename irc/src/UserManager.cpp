@@ -160,9 +160,9 @@ void UserManager::closeAllConnection()
  *
  * @param socket The Socket of the connection/user to close.
  */
-void UserManager::closeConnectionBySocket(const int socket)
+void UserManager::closeConnectionBySocket(const int userSocket)
 {
-	int index = getIndex(socket);
+	int index = getIndex(userSocket);
 	if (index == -1)
 	{
 		std::cerr << "socket not found" << std::endl; /** @todo exception or just a log */
@@ -192,11 +192,11 @@ int UserManager::getNbUserEvent() const
  * 
  * @note Returning userList_[0] is ugly: Maybe throwing an exception or returning a pointer instead.
  */
-User& UserManager::getUser(const int socket)
+User& UserManager::getUser(const int userSocket)
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_.at(i).fd == socket)
+		if (pollfdList_.at(i).fd == userSocket)
 			return userList_.at(i);
 	}
 	return userList_.at(0);/** @todo not better option */
@@ -209,11 +209,11 @@ User& UserManager::getUser(const int socket)
  * 
  * @return A reference to the nickname string. Returns a default nickname if not found.
  */
-const std::string UserManager::getUserNickname(const int socket) const
+const std::string UserManager::getUserNickname(const int userSocket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_.at(i).fd == socket)
+		if (pollfdList_.at(i).fd == userSocket)
 			return userList_.at(i).getNickname();
 	}
 	return User::getDefaultNickname(); /** @todo not better option */
@@ -226,11 +226,11 @@ const std::string UserManager::getUserNickname(const int socket) const
  * 
  * @return The IRC prefix string. Returns a default prefix if the user is not found.
  */
-const std::string UserManager::getUserPrefix(const int socket) const
+const std::string UserManager::getUserPrefix(const int userSocket) const
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_.at(i).fd == socket)
+		if (pollfdList_.at(i).fd == userSocket)
 			return userList_.at(i).getPrefix();
 	}
 	return User::getDefaultPrefix(); /** @todo not better option */
@@ -324,11 +324,11 @@ void UserManager::deleteUser(const int index)
  * 
  * @param index The index of socket user, -1 if is not found;
  */
-int UserManager::getIndex(const int socket)
+int UserManager::getIndex(const int userSocket)
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
 	{
-		if (pollfdList_.at(i).fd == socket)
+		if (pollfdList_.at(i).fd == userSocket)
 			return i;
 	}
 	return -1; /** @todo not better option */

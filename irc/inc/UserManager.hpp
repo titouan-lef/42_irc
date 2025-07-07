@@ -28,14 +28,14 @@ public:
 	void executeCommandsClient(int i);
 	int findUserSocket(std::string nickname);
 	void closeAllConnection();
-	void closeConnectionBySocket(const int socket);
+	void closeConnectionBySocket(const int userSocket);
 
 	bool serverReiceveData() const;
 	void checkNewConnections();
 	int getNbUserEvent() const;
-	User& getUser(const int socket);
-	const std::string getUserNickname(const int socket) const;
-	const std::string getUserPrefix(const int socket) const;
+	User& getUser(const int userSocket);
+	const std::string getUserNickname(const int userSocket) const;
+	const std::string getUserPrefix(const int userSocket) const;
 
 private:
 	UserManager();
@@ -45,7 +45,7 @@ private:
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
 	void deleteUser(const int index);
-	int getIndex(const int socket);
+	int getIndex(const int userSocket);
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;

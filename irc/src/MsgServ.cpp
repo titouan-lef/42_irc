@@ -119,21 +119,21 @@ std::string MsgServ::formatMsg(const Message &msg)
 /**
  * @brief Sends a message over the given socket.
  *
- * @param socket The socket file descriptor to send the message through.
+ * @param receiverSocket The socket file descriptor to send the message through.
  * @param msg The message to send; the sent part will be erased from this string.
  *
  * @throws SendException if sending fails for reasons other than EAGAIN.
  *
  * @note Currently uses a temporary nickname placeholder for error reporting.
  */
-void MsgServ::sendMsg(int socket, std::string& msg)
+void MsgServ::sendMsg(int receiverSocket, std::string& msg)
 {
 	/** std::string nickname = "tmpNickname"; @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	if (msg.empty())
 		return;
-	ssize_t sent = send(socket, msg.c_str(), msg.size(), MSG_NOSIGNAL);
+	ssize_t sent = send(receiverSocket, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 	if (sent == -1 && errno != EAGAIN)
-		throw std::runtime_error("Error: cannot send message");
+		throw std::runtime_error("Error: cannot send message"); /** @todo it s a right exeption ? */
 	if (sent > 0)
 		msg.erase(0, sent);
 }

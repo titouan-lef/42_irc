@@ -74,22 +74,22 @@ void ChanServ::listAllChannels(const int socketUser)
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::quitAllChannels(const int socket, const std::string& msg)
+void ChanServ::quitAllChannels(const int logedOutSocket, const std::string& msg)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
-		if (channels_.at(i).isConnected(socket))
-			logOut(i, msg, socket);
+		if (channels_.at(i).isConnected(logedOutSocket))
+			logOut(i, msg, logedOutSocket);
 	}
 }
 
-void ChanServ::logOut(const std::string &channelName, const std::string &msg, const int socket)
+void ChanServ::logOut(const std::string &channelName, const std::string &msg, const int logedOutSocket)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).getName() == channelName)
 		{
-			logOut(i, msg, socket);
+			logOut(i, msg, logedOutSocket);
 			return;
 		}
 	}
@@ -128,10 +128,10 @@ void ChanServ::deleteChannel(const int index)
 	channels_.erase(channels_.begin() + index);
 }
 
-void ChanServ::logOut(const size_t index, const std::string& msg, const int socket)
+void ChanServ::logOut(const size_t index, const std::string& msg, const int logedOutsocket)
 {
-	channels_.at(index).sendMessageToAllUsers(socket, msg);
-	if(channels_.at(index).disconnectUser(socket) == -1)
+	channels_.at(index).sendMessageToAllUsers(logedOutsocket, msg);
+	if(channels_.at(index).disconnectUser(logedOutsocket) == -1)
 		deleteChannel(index);
 	/** @todo send all message for  */
 }

@@ -8,11 +8,11 @@
  * thhis funcion quit all time and throw none error.
  */
 
-void QuitCmd::execute(const Command& cmd, const int socket) const
+void QuitCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	std::string msg;
 	if (!cmd.trailing.empty())
 		msg = cmd.trailing.substr(1);
-	ChanServ::getInstance().quitAllChannels(socket, msg);
-	UserManager::getInstance().closeConnectionBySocket(socket);
+	ChanServ::getInstance().quitAllChannels(senderSocket, msg);
+	UserManager::getInstance().closeConnectionBySocket(senderSocket);
 }

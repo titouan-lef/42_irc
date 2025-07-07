@@ -6,7 +6,7 @@
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NoSuchNickException.hpp"
 
-void KickCmd::execute(const Command& cmd, const int socket) const
+void KickCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	if (cmd.arg.size() < 2 || cmd.arg.size() > 3 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(cmd.name);
@@ -25,7 +25,7 @@ void KickCmd::execute(const Command& cmd, const int socket) const
 			int chanNumber = i;
 			if (i > channels.size())
 				chanNumber = 0;
-			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber)).isModerator(socket))
+			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber)).isModerator(senderSocket))
 				throw ChannelPrivilegesNeeded(channels.at(chanNumber));
 			if (socketKicked < 0)
 				throw NoSuchNickException(users.at(i));
@@ -33,7 +33,7 @@ void KickCmd::execute(const Command& cmd, const int socket) const
 		}
 		catch (const IrcException& e)
 		{
-			e.sendError(socket);
+			e.sendError(senderSocket);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 #include "InviteCmd.hpp"
 
-void InviteCmd::execute(const Command& cmd, const int socket) const
+void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	(void)cmd;
-	(void)socket;
+	(void)senderSocket;
 }

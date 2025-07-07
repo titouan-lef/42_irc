@@ -10,6 +10,6 @@ public:
 	UserCmd(){}
 	~UserCmd(){}
 
-	void execute(const Command& cmd, const int socket) const;
+	void execute(const Command& cmd, const int senderSocket) const;
 	bool validUsername(std::string username) const;
 };
