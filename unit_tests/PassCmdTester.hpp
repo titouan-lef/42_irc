@@ -8,6 +8,7 @@
 #include "PasswordMismatchException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "AlreadyRegistredException.hpp"
+#include "command.hpp"
 
 class PassCmdTester
 {
@@ -27,7 +28,7 @@ public:
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
-		MsgServ::Command cmd = {"PASS", "", {}};
+		Command cmd = {"PASS", "", {}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
 
 		cmd = {"PASS", "", {"pass", "pass2"}};

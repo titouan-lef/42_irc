@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Tester.hpp"
-#include "MsgServ.hpp"
+#include "command.hpp"
 
 #include <iostream>
 
@@ -20,7 +20,7 @@ private:
 	{
 		Tester::startTest("formatMsg() for message reply");
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "COMMAND";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
@@ -33,7 +33,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "COMMAND";
 			cmd.arg = {};
 			cmd.trailing = "";
@@ -46,7 +46,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "COMMAND";
 			cmd.arg = {};
 			cmd.trailing = "My trailing";
@@ -59,7 +59,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "COMMAND";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "";
@@ -77,7 +77,7 @@ private:
 	{
 		Tester::startTest("formatMsg() for numeric reply");
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "423";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
@@ -90,7 +90,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "423";
 			cmd.arg = {};
 			cmd.trailing = "";
@@ -103,7 +103,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "002";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
@@ -116,7 +116,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "042";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
@@ -129,7 +129,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "040";
 			cmd.arg = {"arg1", "arg2", "arg3"};
 			cmd.trailing = "My trailing";
@@ -142,7 +142,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "423";
 			cmd.arg = {};
 			cmd.trailing = "My trailing";
@@ -155,7 +155,7 @@ private:
 			);
 		}
 		{
-			MsgServ::Command cmd;
+			Command cmd;
 			cmd.name = "423";
 			cmd.arg = {"arg1"};
 			cmd.trailing = "";

@@ -11,6 +11,7 @@
 #include "InviteOnlyException.hpp"
 #include "UnknownModeException.hpp"
 #include "ChannelIsFullException.hpp"
+#include "command.hpp"
 
 class PartCmdTester
 {
@@ -28,7 +29,7 @@ public:
 
 		PartCmd part;
 
-		MsgServ::Command cmd = {"PART", "", {}};
+		Command cmd = {"PART", "", {}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd ,10);});
 
 		cmd = {"PART", "", {"#test", "#test2", "#test3"}};
@@ -46,7 +47,7 @@ public:
 		PartCmd part;
 
 		ChanServ::getInstance().findOrCreateChannel("#join", 10);
-		MsgServ::Command cmd = {"PART", "", {"#join"}};
+		Command cmd = {"PART", "", {"#join"}};
 		Tester::assertDoNotThrows([&]() {part.execute(cmd ,10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join", 1);});
 

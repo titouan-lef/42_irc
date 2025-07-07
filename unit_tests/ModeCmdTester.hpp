@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tester.hpp"
+#include "ChanServ.hpp"
 #include "ModeCmd.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NoSuchChannelException.hpp"
@@ -8,6 +9,7 @@
 #include "InviteOnlyException.hpp"
 #include "UnknownModeException.hpp"
 #include "ChannelIsFullException.hpp"
+#include "command.hpp"
 
 class ModeCmdTester
 {
@@ -31,7 +33,7 @@ public:
 		ModeCmd mode;
 		(void)chan;
 
-		MsgServ::Command cmd = {"MODE", "", {"#test"}};
+		Command cmd = {"MODE", "", {"#test"}};
 		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {mode.execute(cmd ,10);});
 
 		cmd = {"MODE", "", {"#testre"}};
@@ -62,7 +64,7 @@ public:
 		Tester::assertFalse(chan.isModerator(10));
 		Tester::assertFalse(chan.isModerator(11));
 
-		MsgServ::Command cmd = {"MODE", "", {"#test", "+o", "Alice"}};
+		Command cmd = {"MODE", "", {"#test", "+o", "Alice"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 		Tester::assertTrue(chan.isModerator(10));
 
@@ -99,7 +101,7 @@ public:
 
 		ModeCmd mode;
 
-		MsgServ::Command cmd = {"MODE", "", {"#test", "+i"}};
+		Command cmd = {"MODE", "", {"#test", "+i"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 		Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
@@ -125,7 +127,7 @@ public:
 		ModeCmd mode;
 
 		Tester::assertFalse(chan.isTopicRestricted());
-		MsgServ::Command cmd = {"MODE", "", {"#test", "+t"}};
+		Command cmd = {"MODE", "", {"#test", "+t"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 
 		cmd = {"MODE", "", {"#test", "-t"}};
@@ -148,7 +150,7 @@ public:
 		ModeCmd mode;
 
 		Tester::assertFalse(chan.isPasswordProtected());
-		MsgServ::Command cmd = {"MODE", "", {"#test", "+k"}};
+		Command cmd = {"MODE", "", {"#test", "+k"}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 		Tester::assertFalse(chan.isPasswordProtected());
@@ -175,7 +177,7 @@ public:
 		ModeCmd mode;
 
 		Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, -1);
-		MsgServ::Command cmd = {"MODE", "", {"#test", "+l"}};
+		Command cmd = {"MODE", "", {"#test", "+l"}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 		Tester::assertFalse(chan.isPasswordProtected());

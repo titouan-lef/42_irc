@@ -28,7 +28,7 @@ public:
 
 		KickCmd kick;
 
-		MsgServ::Command cmd = {"KICK", "", {}};
+		Command cmd = {"KICK", "", {}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
 
 		cmd = {"KICK", "", {"#test"}};
@@ -56,7 +56,7 @@ public:
 		KickCmd kick;
 
 		ChanServ::getInstance().findOrCreateChannel("#join", 10);
-		MsgServ::Command cmd = {"KICK", "", {"#join", "Bob"}};
+		Command cmd = {"KICK", "", {"#join", "Bob"}};
 		Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join", 1);});
 

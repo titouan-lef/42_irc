@@ -28,7 +28,7 @@ public:
 
 		JoinCmd join;
 
-		MsgServ::Command cmd = {"JOIN", "", {}};
+		Command cmd = {"JOIN", "", {}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
 
 		cmd = {"JOIN", "", {"#test", "#test2", "#test3"}};
@@ -50,7 +50,7 @@ public:
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		JoinCmd join;
 
-		MsgServ::Command cmd = {"JOIN", "", {"#join"}};
+		Command cmd = {"JOIN", "", {"#join"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join", 1).isConnected(10));
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join", 1).isModerator(10));
@@ -81,7 +81,7 @@ public:
 		
 		JoinCmd join;
 
-		MsgServ::Command cmd = {"JOIN", "", {"#join"}};
+		Command cmd = {"JOIN", "", {"#join"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#join", 1).isConnected(10));
 

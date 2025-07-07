@@ -4,11 +4,11 @@
 
 #include "CommandManager.hpp"
 #include "UserManager.hpp"
-#include "MsgServ.hpp"
 #include "Server.hpp"
 #include "UnknowCmdException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "PasswordMismatchException.hpp"
+#include "command.hpp"
 
 class CommandTester
 {
@@ -22,37 +22,37 @@ public:
 	{
 		
 		Tester::startTest("Parser Valid PASS");
-		const MsgServ::Command cmdtester = {"PASS", "", {"Password"}};
+		const Command cmdtester = {"PASS", "", {"Password"}};
 		{
-			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password", 1);
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password", 1);
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			MsgServ::Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ", 1);
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);

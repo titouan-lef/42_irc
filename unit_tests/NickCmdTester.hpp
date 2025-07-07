@@ -10,6 +10,7 @@
 #include "NoNicknameGivenException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "NicknameInUseException.hpp"
+#include "command.hpp"
 
 class NickCmdTester
 {
@@ -29,7 +30,7 @@ public:
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
-		MsgServ::Command cmd = {"NICK", "", {"me"}};
+		Command cmd = {"NICK", "", {"me"}};
 		Tester::assertThrows<PasswordMismatchException>([&]() {nick.execute(cmd ,10);});
 
 		UserManager::getInstance().getUser(10).validConnection();
@@ -68,7 +69,7 @@ public:
 
 		for (std::size_t i = 0; i < validNicks.size(); ++i)
 		{
-			MsgServ::Command cmd = {"NICK", "", {validNicks[i]}};
+			Command cmd = {"NICK", "", {validNicks[i]}};
 			Tester::assertDoNotThrows([&]() {nick.execute(cmd, 10);});
 			Tester::assertExpectedEqualsActual(validNicks[i], user.getNickname());
 		}
@@ -92,7 +93,7 @@ public:
 
 		for (std::size_t i = 0; i < invalidNicks.size(); ++i)
 		{
-			MsgServ::Command cmd = {"NICK", "", {invalidNicks[i]}};
+			Command cmd = {"NICK", "", {invalidNicks[i]}};
 			Tester::assertThrows<ErroneUsNicknameException>([&]() {nick.execute(cmd ,10);});
 		}
 
