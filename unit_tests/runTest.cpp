@@ -8,6 +8,7 @@
 #include "ModeCmdTester.hpp"
 #include "PassCmdTester.hpp"
 #include "NickCmdTester.hpp"
+#include "UserCmdTester.hpp"
 #include "JoinCmdTester.hpp"
 #include "PartCmdTester.hpp"
 #include "KickCmdTester.hpp"
@@ -44,6 +45,10 @@ int main()
 	{
 		NickCmdTester test;
 		test.testerNickCmd();
+	}
+	{
+		UserCmdTester test;
+		test.testerUserCmd();
 	}
 	{
 		JoinCmdTester test;

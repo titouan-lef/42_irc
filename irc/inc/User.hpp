@@ -22,6 +22,7 @@ public:
 	static const std::string getDefaultNickname();
 	static const std::string getDefaultPrefix();
 	const std::string& getNickname() const;
+	const std::string& getUsername() const;
 	void setNickname(const std::string& nickname);
 	void setUsername(const std::string& username); /** @todo ignore ?? */
 	void setRealName(const std::string& realname);
@@ -29,7 +30,6 @@ public:
 
 private:
 	const std::string getDefaultUsername() const;
-	const std::string& getUsername() const;
 
 	std::string nickname_;
 	std::string username_;
