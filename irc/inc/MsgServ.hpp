@@ -12,18 +12,17 @@ class MsgServTester;/** @todo remove before push */
 class MsgServ: public Service
 {
 public:
-	/*struct Command {
-		std::string name;
-		std::string trailing;
-		std::vector<std::string> arg;
-	};*/
-
 	static MsgServ& getInstance();
 
-	void recvMsg(int socket, int buffer_index, const std::string& nickname);
+	void recvMsg(int socket, int buffer_index);
 	bool isMsgComplete(std::string& msg);
-	void sendNumericReply(int socket, const Command& cmd, const std::string& clientTargetNickname);
-	void sendMessageReply(int socket, const Command& cmd);
+
+	void sendNumericReply(const int receiverSocket, const int code, const std::string& trailing = "");
+	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg, const std::string& trailing = "");
+
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& cmdName, const std::string& trailing = "");
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& cmdName, const std::vector<std::string>& arg,
+		const std::string& trailing = "");
 
 	void addNewBuffer();
 	bool isCommandReady(int buffer_index) const;
@@ -33,14 +32,22 @@ public:
 
 
 private:
+	struct Message {
+		int receiverSocket;
+		std::string senderPrefix;
+		std::string commandId;
+		std::vector<std::string> arg;
+		std::string trailing;
+	};
 
 	MsgServ();
 	MsgServ(const MsgServ& other);
 	MsgServ& operator=(const MsgServ& other);
 
-	void sendReply(int socket, const Command& cmd, const std::string& prefix, const std::string& target);
-	std::string formatMsg(const Command& cmd, const std::string& prefix, const std::string& target);
+	void sendReply(const Message& msg);
+	std::string formatMsg(const Message &msg);
 	void sendMsg(int socket, std::string& msg);
+	const std::string convertCodeToCommandId(const int code);
 
 	std::vector<std::string> buffers_;
 

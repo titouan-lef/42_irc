@@ -8,6 +8,6 @@ class ChannelPrivilegesNeeded: public IrcException
 public:
 	virtual ~ChannelPrivilegesNeeded() throw() {}
 
-	ChannelPrivilegesNeeded(const int socket, const std::string& channelName);
+	ChannelPrivilegesNeeded(const std::string& channelName);
 
 };

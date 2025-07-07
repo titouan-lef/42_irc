@@ -2,7 +2,6 @@
 
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
-#include "UserManager.hpp"
 
 void NamesCmd::execute(const Command& cmd, const int socket) const
 {
@@ -12,11 +11,11 @@ void NamesCmd::execute(const Command& cmd, const int socket) const
 		return;
 	}
 	if (cmd.arg.size() > 1)
-		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
+		throw NeedMoreParamsException(cmd.name);
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
-		ChanServ::getInstance().findChannel(channels.at(i), socket).sendActualUsers(socket);
+		ChanServ::getInstance().findChannel(channels.at(i)).sendActualUsers(socket);
 	}
 }
 

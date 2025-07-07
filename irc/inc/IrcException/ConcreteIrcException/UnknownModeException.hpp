@@ -9,6 +9,6 @@ class UnknownModeException: public IrcException
 public:
 	virtual ~UnknownModeException() throw() {}
 
-	UnknownModeException(const int socket, const char& mode);
+	UnknownModeException(const char& mode);
 
 };

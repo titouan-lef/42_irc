@@ -9,5 +9,5 @@ class NoSuchChannelException: public IrcException
 public:
 	virtual ~NoSuchChannelException() throw() {}
 
-	NoSuchChannelException(const int socket, const std::string& channelName);
+	NoSuchChannelException(const std::string& channelName);
 };

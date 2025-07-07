@@ -11,16 +11,16 @@ void UserCmd::execute(const Command& cmd, const int socket) const
 {
 	User& user = UserManager::getInstance().getUser(socket);
 	if (!user.isConnected())
-		throw PasswordMismatchException(socket, user.getNickname());
+		throw PasswordMismatchException();
 	if (!user.isNickRegister())
-		throw NotRegisteredException(socket, user.getNickname());
+		throw NotRegisteredException();
 	if (cmd.arg.size() != 3 || cmd.trailing.empty())
-		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
+		throw NeedMoreParamsException(cmd.name);
 		/** @todo parse "0 *" */
 	if (!validUsername(cmd.arg.at(0)))
-		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
+		throw NeedMoreParamsException(cmd.name);
 	if (user.isUsernameRegister())
-		throw AlreadyRegistredException(socket, user.getNickname());
+		throw AlreadyRegistredException();
 	user.setUsername(cmd.arg.at(0));
 	user.setRealName(cmd.trailing);
 }

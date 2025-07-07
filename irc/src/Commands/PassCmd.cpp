@@ -12,12 +12,12 @@ void PassCmd::execute(const Command& cmd, const int socket) const
 
 	User& user = UserManager::getInstance().getUser(socket);
 	if (user.isConnected())
-		throw AlreadyRegistredException(socket, user.getNickname());
+		throw AlreadyRegistredException();
 	if (!cmd.trailing.empty() || cmd.arg.size() == 0)
-		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
+		throw NeedMoreParamsException(cmd.name);
 	if (cmd.arg.size() != argsMax) /** @todo check is correct exception*/
-		throw PasswordMismatchException(socket);
+		throw PasswordMismatchException();
 	if (!Server::getInstance().isCorrectPassword(cmd.arg.at(0))) 
-		throw PasswordMismatchException(socket);
+		throw PasswordMismatchException();
 	user.validConnection();
 }

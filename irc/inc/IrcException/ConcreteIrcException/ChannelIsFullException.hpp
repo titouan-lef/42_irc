@@ -8,5 +8,5 @@ class ChannelIsFullException: public IrcException
 public:
 	virtual ~ChannelIsFullException() throw() {}
 
-	ChannelIsFullException(const int socket, const std::string& channelName);
+	ChannelIsFullException(const std::string& channelName);
 };

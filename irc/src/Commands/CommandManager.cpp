@@ -65,7 +65,7 @@ CommandManager& CommandManager::getInstance()
 */
 void CommandManager::interpretData(const std::string& recv, const int socket)
 {
-	Command cmd = parserCmd(recv, socket);
+	Command cmd = parserCmd(recv);
 	commands_[cmd.name]->execute(cmd, socket);
 }
 
@@ -88,7 +88,7 @@ void CommandManager::interpretData(const std::string& recv, const int socket)
 *
 * @throws UnknowCmdException if the command is not registered in `commands_`.
 */
-Command CommandManager::parserCmd(const std::string& recv, const int socket)
+Command CommandManager::parserCmd(const std::string& recv)
 {
 	Command cmd;
 	std::string token;
@@ -98,7 +98,7 @@ Command CommandManager::parserCmd(const std::string& recv, const int socket)
 	while (std::getline(iss, cmd.name, ' ') && cmd.name.empty())
 		continue ;
 	if (commands_.find(cmd.name) == commands_.end())
-		throw UnknowCmdException(socket, cmd.name);
+		throw UnknowCmdException(cmd.name);
 	while (std::getline(iss, token, ' '))
 	{
 		if (token.empty())
@@ -133,8 +133,8 @@ Command CommandManager::parserCmd(const std::string& recv, const int socket)
  */
 void CommandManager::registerClient(const std::string& recv, const int socket)
 {
-	Command cmd = parserCmd(recv, socket);
+	Command cmd = parserCmd(recv);
 	if (cmd.name != "USER" && cmd.name != "NICK" && cmd.name != "PASS")
-		throw NotRegisteredException(socket);
+		throw NotRegisteredException();
 	commands_[cmd.name]->execute(cmd, socket);
 }

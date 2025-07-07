@@ -21,7 +21,7 @@ private:
 	CommandManager(const CommandManager& other);
 	CommandManager& operator=(const CommandManager& other);
 
-	Command parserCmd(const std::string& recv, const int socket);
+	Command parserCmd(const std::string& recv);
 
 	std::map<std::string, ACommand*> commands_;
 

@@ -16,73 +16,73 @@
 void ModeCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 1)
-		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
+		throw NeedMoreParamsException(cmd.name);
 	std::string channelName = cmd.arg.at(0);
-	Channel& channel = ChanServ::getInstance().findChannel(channelName, socket);
+	Channel& channel = ChanServ::getInstance().findChannel(channelName);
 	if (!channel.isModerator(socket))
-		throw ChannelPrivilegesNeeded(socket, channel.getName());
+		throw ChannelPrivilegesNeeded(channel.getName());
 	if (cmd.arg.size() == 1)
 	{
 		channel.sendActualModes(socket);
 		return;
 	}
-	std::vector<Option> options = parseCommand(cmd, socket);
-	executeModeOptions(channel, options, socket);
+	std::vector<Option> options = parseCommand(cmd);
+	executeModeOptions(channel, options);
 }
 
-std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int socket) const
+std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd) const
 {
 	std::vector<Option> optionList;
 	argIterator it = cmd.arg.begin() + 1;
 	while (it < cmd.arg.end())
 	{
-		addOptionInList(cmd, socket, optionList, it);
+		addOptionInList(cmd, optionList, it);
 		++it;
 	}
 	return optionList;/** @warning max 3 arg */
 }
 
-void ModeCmd::addOptionInList(const Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
+void ModeCmd::addOptionInList(const Command &cmd, std::vector<Option> &optionList, argIterator& it) const
 {
 	const std::string& flag = *it;
 	if ((flag[0] != '+' && flag[0] != '-') || flag[1] == '\0')
-		throw UnknownModeException(socket, flag[0]);
+		throw UnknownModeException(flag[0]);
 	const bool isAddFlag = (flag[0] == '+');
 	for (std::size_t i = 1; flag[i] != '\0'; ++i)
 	{
 		Option option = {flag[i], isAddFlag, ""};
-		checkOptionAndAddArg(cmd, socket, it, option);
+		checkOptionAndAddArg(cmd, it, option);
 		optionList.push_back(option);
 	}
 }
 
-void ModeCmd::checkOptionAndAddArg(const Command& cmd, const int socket, argIterator& it, Option& option) const
+void ModeCmd::checkOptionAndAddArg(const Command& cmd, argIterator& it, Option& option) const
 {
 	const std::string validFlag = "itokl";
 	const std::size_t posFlagArg = 2;
 
 	std::size_t pos = validFlag.find(option.flag);
 	if (pos == std::string::npos)
-		throw UnknownModeException(socket, option.flag);
+		throw UnknownModeException(option.flag);
 	if (pos == posFlagArg || (pos > posFlagArg && option.isAddFlag))
-		option.argument = defineOptionArg(cmd, socket, it);
+		option.argument = defineOptionArg(cmd, it);
 }
 
-const std::string ModeCmd::defineOptionArg(const Command& cmd, const int socket, argIterator& it) const
+const std::string ModeCmd::defineOptionArg(const Command& cmd, argIterator& it) const
 {
 	++it;
 	if (it >= cmd.arg.end())
-		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
+		throw NeedMoreParamsException(cmd.name);
 	return *it;
 }
 
-void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options, const int socket) const
+void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options) const
 {
 	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
 	{
 		try
 		{
-			executeModeOption(channel, *it, socket);
+			executeModeOption(channel, *it);
 		}
 		catch(const IrcException& e)
 		{
@@ -91,7 +91,7 @@ void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Op
 	}
 }
 
-void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option, const int socket) const
+void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option) const
 {
 	switch (option.flag)
 	{
@@ -105,10 +105,10 @@ void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option,
 			passwordMode(channel, option);
 			break;
 		case 'o':
-			operatorMode(channel, option, socket);
+			operatorMode(channel, option);
 			break;
 		case 'l':
-			limitMode(channel, option, socket);
+			limitMode(channel, option);
 			break;
 	}
 }
@@ -143,11 +143,11 @@ void ModeCmd::passwordMode(Channel& channel, const ModeCmd::Option& option) cons
 	channel.disablePassword();
 }
 
-void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, const int socket) const
+void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) const
 {
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
 	if (targetSocket == -1)
-		throw NoSuchNickException(socket, option.argument);
+		throw NoSuchNickException(option.argument);
 	if (option.isAddFlag)
 	{
 		if (channel.addNewModerator(targetSocket) < 0)
@@ -156,14 +156,14 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option, cons
 			std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
 			arg.push_back(nickname);
 			arg.push_back(channel.getName());
-			throw UserNotInChannelException(socket, arg, UserManager::getInstance().getUserNickname(socket));
+			throw UserNotInChannelException(arg);
 		}
 		return ;
 	}
 	channel.removeModerator(targetSocket);
 }
 
-void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option, const int socket) const
+void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option) const
 {
 
 	if (option.isAddFlag)
@@ -175,7 +175,7 @@ void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option, const i
 			args.push_back(channel.getName());
 			args.push_back(std::string(1, option.flag));
 			args.push_back(option.argument);
-			throw InvalidModeParamException(socket, args, UserManager::getInstance().getUserNickname(socket));
+			throw InvalidModeParamException(args);
 		}
 		return ;
 	}

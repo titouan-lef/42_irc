@@ -8,5 +8,5 @@ class BadChanMaskException: public IrcException
 public:
 	virtual ~BadChanMaskException() throw() {}
 
-	BadChanMaskException(const int socket, const std::string& channelName);
+	BadChanMaskException(const std::string& channelName);
 };

@@ -11,7 +11,7 @@ public:
 	static ChanServ& getInstance();
 
 	Channel& findOrCreateChannel(std::string name, const int socketUser);
-	Channel& findChannel(std::string name, const int socketUser);
+	Channel& findChannel(std::string name);
 	void deleteChannel(const std::string& name);
 	void namesAllChannels(const int socketUser);
 	void listAllChannels(const int socketUser);

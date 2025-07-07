@@ -1,6 +1,8 @@
 #include "MsgServ.hpp"
 
 #include <cerrno>
+#include <iomanip>
+#include <sstream>
 
 #include "Server.hpp"
 #include "ClientDisconnectedException.hpp"
@@ -35,14 +37,14 @@ MsgServ& MsgServ::getInstance()
  *
  * @note Currently uses a temporary nickname placeholder for exception reporting.
  */
-void MsgServ::recvMsg(int socket, int buffer_index, const std::string& nickname)
+void MsgServ::recvMsg(int socket, int buffer_index)
 {
 	char buffer[512];
 	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
-		throw ReiceveException(socket, nickname);
+		throw ReiceveException();
 	if (bytes_received == 0) // Connection closed by client
-		throw ClientDisconnectedException(socket, nickname);
+		throw ClientDisconnectedException();
 	buffer[bytes_received] = '\0';
 	std::cout << "Received message: " << buffer << std::endl;
 	if (completeMsg(buffer_index, buffer))
@@ -61,44 +63,55 @@ bool MsgServ::isMsgComplete(std::string& msg)
 	return (msg.find("\r\n") != std::string::npos);
 }
 
-void MsgServ::sendNumericReply(int socket, const Command& cmd, const std::string& clientTargetNickname)
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::string &trailing)
 {
-	sendReply(socket, cmd, "ircserv", clientTargetNickname);/** @todo ircServer ? server? other? */
+	sendNumericReply(receiverSocket, code, std::vector<std::string>(), trailing);
 }
 
-void MsgServ::sendMessageReply(int socket, const Command& cmd)
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg, const std::string &trailing)
 {
-	const std::string prefix = UserManager::getInstance().getUserPrefix(socket);
-	sendReply(socket, cmd, prefix, "");
+	std::string commandId = convertCodeToCommandId(code);
+	Message msg = {receiverSocket, "ircserv", commandId, arg, trailing};
+	sendReply(msg);
 }
 
-void MsgServ::sendReply(int socket, const Command& cmd, const std::string& prefix, const std::string& target)
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &cmdName, const std::string &trailing)
 {
-	std::string reply = formatMsg(cmd, prefix, target);
+	sendMessageReply(senderSocket, receiverSocket, cmdName, std::vector<std::string>(), trailing);
+}
+
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing)
+{
+	std::string senderPrefix = UserManager::getInstance().getUserPrefix(senderSocket);
+	Message msg = {receiverSocket, senderPrefix, cmdName, arg, trailing};
+	sendReply(msg);
+}
+
+void MsgServ::sendReply(const Message &msg)
+{
+	std::string reply = formatMsg(msg);
 	try
 	{
-		sendMsg(socket, reply);
+		sendMsg(msg.receiverSocket, reply);
 	}
 	catch (const std::exception& e)
 	{
-		if (!Server::getInstance().isUp()) // skip for tester
+		if (!Server::getInstance().isUp()) /** @todo skip for tester */
 			return;
 		std::cerr << e.what();
-		if (!target.empty())
-			std::cerr << " to: " << target;
+		//if (!target.empty())
+			//std::cerr << " to: " << target;
 		std::cerr << std::endl;
 	}
 }
 
-std::string MsgServ::formatMsg(const Command& cmd, const std::string& prefix, const std::string& target)
+std::string MsgServ::formatMsg(const Message &msg)
 {
-	std::string reply = ":" + prefix + " " + cmd.name;
-	if (target != "")
-		reply += " " + target;
-	for (std::size_t i = 0; i < cmd.arg.size(); ++i)
-		reply += " " + cmd.arg.at(i);
-	if (cmd.trailing != "")
-		reply += " :" + cmd.trailing; 
+	std::string reply = ":" + msg.senderPrefix + " " + msg.commandId;
+	for (std::size_t i = 0; i < msg.arg.size(); ++i)
+		reply += " " + msg.arg.at(i);
+	if (msg.trailing != "")
+		reply += " :" + msg.trailing; 
 	reply += "\r\n";
 	return reply;
 }
@@ -123,6 +136,13 @@ void MsgServ::sendMsg(int socket, std::string& msg)
 		throw std::runtime_error("Error: cannot send message");
 	if (sent > 0)
 		msg.erase(0, sent);
+}
+
+const std::string MsgServ::convertCodeToCommandId(const int code)
+{
+	std::stringstream codeName;
+	codeName << std::setw(3) << std::setfill('0') << code;
+	return codeName.str();
 }
 
 void MsgServ::addNewBuffer()

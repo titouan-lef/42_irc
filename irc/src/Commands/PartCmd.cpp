@@ -7,7 +7,7 @@
 void PartCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
-		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
+		throw NeedMoreParamsException(cmd.name);
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	std::string message;
 	if (cmd.arg.size() == 2)
@@ -20,7 +20,7 @@ void PartCmd::execute(const Command& cmd, const int socket) const
 		}
 		catch (const IrcException& e)
 		{
-			e.sendError();
+			e.sendError(socket);
 		}
 	}
 }

@@ -37,14 +37,14 @@ Channel& ChanServ::findOrCreateChannel(std::string name, const int socketUser)
 	return builtNewChannel(name, socketUser);
 }
 
-Channel& ChanServ::findChannel(std::string name, const int socketUser)
+Channel& ChanServ::findChannel(std::string name)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
 	{
 		if (it->getName() == name)
 			return *it;
 	}
-	throw NoSuchChannelException(socketUser, name);
+	throw NoSuchChannelException(name);
 }
 
 void ChanServ::namesAllChannels(const int socketUser)
@@ -64,11 +64,7 @@ void ChanServ::listAllChannels(const int socketUser)
 	}
 	if (it == channels_.begin())
 		return ;
-	std::vector<std::string> arg;
- 
-	arg.push_back(":End of LIST");
-	Command cmd = {"323", "", arg};
-	MsgServ::getInstance().sendNumericReply(socketUser, cmd, UserManager::getInstance().getUserNickname(socketUser));
+	MsgServ::getInstance().sendNumericReply(socketUser, 323, "End of LIST");
 }
 
 /**
@@ -97,7 +93,7 @@ void ChanServ::logOut(const std::string &channelName, const std::string &msg, co
 			return;
 		}
 	}
-	throw NoSuchChannelException(socket, channelName);
+	throw NoSuchChannelException(channelName);
 }
 
 /**

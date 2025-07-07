@@ -8,5 +8,5 @@ class BadChanKeyException: public IrcException
 public:
 	virtual ~BadChanKeyException() throw() {}
 
-	BadChanKeyException(const int socket, const std::string& channelName);
+	BadChanKeyException(const std::string& channelName);
 };

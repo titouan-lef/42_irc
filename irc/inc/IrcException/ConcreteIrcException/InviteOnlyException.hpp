@@ -8,5 +8,5 @@ class InviteOnlyException: public IrcException
 public:
 	virtual ~InviteOnlyException() throw() {}
 
-	InviteOnlyException(const int socket, const std::string& channelName);
+	InviteOnlyException(const std::string& channelName);
 };

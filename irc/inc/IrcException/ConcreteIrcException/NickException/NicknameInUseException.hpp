@@ -9,5 +9,5 @@ class NicknameInUseException: public IrcException
 public:
 	virtual ~NicknameInUseException() throw () {}
 
-	NicknameInUseException(const int socket, const std::vector<std::string>& arg, const std::string& nickname);
+	NicknameInUseException(const std::string& nickname);
 };

@@ -2,16 +2,14 @@
 
 #include <sstream>
 
-#include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
 
 void JoinCmd::execute(const Command& cmd, const int socket) const
 {
-	User &user = UserManager::getInstance().getUser(socket);
 	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())
-		throw NeedMoreParamsException(socket, cmd.name, user.getNickname());
+		throw NeedMoreParamsException(cmd.name);
 	if (cmd.arg.size() == 1 && cmd.arg.at(0) == "0")
 	{
 		ChanServ::getInstance().quitAllChannels(socket);
@@ -37,7 +35,7 @@ void JoinCmd::execute(const Command& cmd, const int socket) const
 		}
 		catch (const IrcException& e)
 		{
-			e.sendError();
+			e.sendError(socket);
 		}
 	}
 }
@@ -45,7 +43,7 @@ void JoinCmd::execute(const Command& cmd, const int socket) const
 void JoinCmd::tryConnection(const std::string& channel, const int socket, const std::string* password) const
 {
 	if (!isValidChannelName(channel))
-		throw BadChanMaskException(socket, channel);
+		throw BadChanMaskException(channel);
 
 	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, socket);
 	
@@ -95,7 +93,7 @@ bool JoinCmd::isPasswordProtected(const std::string &channelName) const
 {
 	try
 	{
-		return ChanServ::getInstance().findChannel(channelName, 1).isPasswordProtected();
+		return ChanServ::getInstance().findChannel(channelName).isPasswordProtected();
 	}
 	catch (...) {}
 	return false;

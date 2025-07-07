@@ -42,7 +42,6 @@ const std::string& Channel::getTopic() const
 void Channel::sendChannelSummary(const int socket) const
 {
 	std::vector<std::string> arg;
-	Command cmd;
 
 	std::stringstream ss;
 	ss << socketConnectedUsers_.size();
@@ -50,30 +49,28 @@ void Channel::sendChannelSummary(const int socket) const
 	
 	arg.push_back(name_);
 	arg.push_back(nbUsers);
-	arg.push_back(":" + topic_);
-	cmd.name = "322";
-	cmd.arg = arg;
-	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+	MsgServ::getInstance().sendNumericReply(socket, 322, arg, topic_);
 }
 
 void Channel::sendActualTopic(const int socket) const
 {
 	std::vector<std::string> arg;
-	Command cmd;
+	std::string trailing = "";
+	int code;
 
 	arg.push_back(name_);
 	if (topic_.empty())
 	{
-		arg.push_back(":No topic is set");
-		cmd.name = "331";
+		code = 331;
+		trailing = "No topic is set";
 	}
 	else
 	{
+		code = 332;
 		arg.push_back(topic_);
-		cmd.name = "332";
+
 	}
-	cmd.arg = arg;
-	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+	MsgServ::getInstance().sendNumericReply(socket, code, arg, trailing);
 }
 
 void Channel::sendActualUsers(const int socket) const
@@ -82,16 +79,12 @@ void Channel::sendActualUsers(const int socket) const
 
 	arg.push_back("=");
 	arg.push_back(name_);
-	arg.push_back(":" + builtUsersString());
-	Command cmd = {"353", "", arg};
-	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+	MsgServ::getInstance().sendNumericReply(socket, 353, arg, builtUsersString());
 
 	std::vector<std::string> arg2;
 
 	arg2.push_back(name_);
-	arg2.push_back(":End of NAMES list");
-	Command cmd2 = {"366", "", arg2};
-	MsgServ::getInstance().sendNumericReply(socket, cmd2, UserManager::getInstance().getUserNickname(socket));
+	MsgServ::getInstance().sendNumericReply(socket, 366, arg2, "End of NAMES list");
 }
 
 void Channel::sendActualModes(const int socket) const
@@ -100,8 +93,7 @@ void Channel::sendActualModes(const int socket) const
 
 	arg.push_back(name_);
 	arg.push_back(builtOptionString());
-	Command cmd = {"324", "", arg};
-	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
+	MsgServ::getInstance().sendNumericReply(socket, 324, arg);
 }
 
 const std::string Channel::builtUsersString() const
@@ -177,14 +169,14 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 		std::vector<std::string> arg;
 		arg.push_back(UserManager::getInstance().getUserNickname(socketNewUser));
 		arg.push_back(name_);
-		throw UserOnChannelException(socketNewUser, arg);
+		throw UserOnChannelException(arg);
 	}
 	if (isPasswordProtected() && password != password_)
-		throw BadChanMaskException(socketNewUser, name_);
+		throw BadChanMaskException(name_);
 	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
-		throw InviteOnlyException(socketNewUser, name_);
+		throw InviteOnlyException(name_);
 	if (isLimitNbUserReached())
-		throw ChannelIsFullException(socketNewUser, name_);
+		throw ChannelIsFullException(name_);
 	if (inviteRestricted_)
 		socketInvitedUsers_.erase(socketNewUser);
 	socketConnectedUsers_.push_back(socketNewUser);
@@ -207,7 +199,7 @@ int Channel::disconnectUser(const int socketUser, const std::string& message)
 		std::vector<std::string> arg;
 		arg.push_back(UserManager::getInstance().getUserNickname(socketUser));
 		arg.push_back(name_);
-		throw UserNotInChannelException(socketUser, arg, UserManager::getInstance().getUserNickname(socketUser));
+		throw UserNotInChannelException(arg);
 	} /** @todo FIX: wrong socket to throw exception */
 	if (isModerator(socketUser))
 	{
@@ -303,7 +295,7 @@ void Channel::disableTopicRestriction()
 void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
 	if (isTopicRestricted() && !isModerator(socketUser))
-		throw ChannelPrivilegesNeeded(socketUser, name_);
+		throw ChannelPrivilegesNeeded(name_);
 	topic_ = newTopic;
 }
 
@@ -446,13 +438,13 @@ void Channel::disableLimitNbUsers()
  */
 void Channel::sendMessageToAllUsers(const int senderSocket, const std::string msg)
 {
-	Command cmd;
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
 		if (senderSocket == socketConnectedUsers_.at(i))
 			continue ;
-		cmd.trailing = msg;
-		MsgServ::getInstance().sendMessageReply(socketConnectedUsers_.at(i), cmd);
+		/** @todo trailing cmdName ect */
+		(void) msg;
+		//MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i),  );
 	}
 }
 

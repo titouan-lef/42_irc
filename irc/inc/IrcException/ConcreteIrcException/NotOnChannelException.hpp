@@ -9,5 +9,5 @@ class NotOnChannelException: public IrcException
 public:
 	virtual ~NotOnChannelException() throw() {}
 
-	NotOnChannelException(const int socket, const std::string& channelName);
+	NotOnChannelException(const std::string& channelName);
 };

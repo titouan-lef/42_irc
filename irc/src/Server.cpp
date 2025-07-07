@@ -178,8 +178,8 @@ void Server::manageEvent()
 		UserManager::getInstance().checkNewConnections();
 		UserManager::getInstance().listenClients();
 	}
-	catch(const IrcException& e)
+	catch(const std::exception& e)
 	{
-		e.sendError();
+		e.what();
 	}
 }

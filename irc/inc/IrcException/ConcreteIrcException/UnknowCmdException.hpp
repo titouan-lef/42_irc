@@ -8,5 +8,5 @@ class UnknowCmdException: public IrcException
 public:
 	virtual ~UnknowCmdException() throw() {}
 
-	UnknowCmdException(const int socket, const std::string& commandName);
+	UnknowCmdException(const std::string& commandName);
 };

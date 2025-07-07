@@ -87,7 +87,7 @@ int UserManager::reiceveFromClient(int i)
 {
 	try
 	{
-		MsgServ::getInstance().recvMsg(pollfdList_.at(i).fd, i, userList_.at(i).getNickname());
+		MsgServ::getInstance().recvMsg(pollfdList_.at(i).fd, i);
 	}
 	catch(const ClientDisconnectedException& e)
 	{
@@ -96,7 +96,7 @@ int UserManager::reiceveFromClient(int i)
 	}
 	catch(const IrcException& e)
 	{
-		e.sendError();
+		e.sendError(pollfdList_.at(i).fd);
 	}
 	return 0;
 }
@@ -119,7 +119,7 @@ void UserManager::executeCommandsClient(int i)
 	}
 	catch(const IrcException& e)
 	{
-		e.sendError();
+		e.sendError(pollfdList_.at(i).fd);
 	}
 }
 
