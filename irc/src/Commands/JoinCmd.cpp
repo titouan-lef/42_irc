@@ -15,10 +15,10 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 		ChanServ::getInstance().quitAllChannels(senderSocket);
 		return ;
 	}
-	std::vector<std::string> channels = splitArgument(cmd.arg.at(0));
+	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	std::vector<std::string> passwords;
 	if (cmd.arg.size() == 2)
-		passwords = splitArgument(cmd.arg.at(1));
+		passwords = split(cmd.arg.at(1), ',');
 
 	size_t j = 0;
 	for (size_t i = 0; i < channels.size(); ++i)
@@ -58,24 +58,6 @@ void JoinCmd::tryConnection(const std::string& channel, const int senderSocket, 
 	{
 		chan.connectUser(senderSocket);
 	}
-}
-
-/**
- * @brief Function split argument on ,
- * 
- * @return a vector of string split on ','.
- */
-std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
-{
-	std::vector<std::string>elem;
-	std::string token;
-	std::istringstream iss(arg);
-
-	while (std::getline(iss, token, ','))
-	{
-		elem.push_back(token);
-	}
-	return (elem);
 }
 
 bool JoinCmd::isValidChannelName(const std::string& channelName) const
