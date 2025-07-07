@@ -225,7 +225,12 @@ int Channel::disconnectUser(const int socketUser, const std::string& message)
 			break;
 		}
 	}
-	(void)message; /** @todo send leaving message to all users or default message if empty */
+	Command cmd;
+	cmd.name = "PART";
+	cmd.arg.push_back(name_);
+	cmd.trailing = message;
+	sendMessageToAllUsers(socketUser, cmd);
+	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmd.name, cmd.arg, cmd.trailing);
 	if (socketConnectedUsers_.size() == 0)
 		return -1;
 	return 0;
