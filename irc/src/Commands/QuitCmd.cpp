@@ -2,11 +2,16 @@
 #include "UserManager.hpp"
 #include "ChanServ.hpp"
 
+/**
+ * @brief Quit the server and send a essage to all channel if is in parameters
+ * thhis funcion quit all time and throw none error.
+ */
+
 void QuitCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
-	UserManager::getInstance().closeConnectionBySocket(socket);
+	std::string msg;
 	if (!cmd.trailing.empty())
-	{
-		std::string msg = cmd.trailing.substr(1);
-	}
+		msg = cmd.trailing.substr(1);
+	ChanServ::getInstance().quitAllChannels(msg, socket);
+	UserManager::getInstance().closeConnectionBySocket(socket);
 }

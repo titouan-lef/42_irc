@@ -7,6 +7,7 @@
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
 
+
 void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
@@ -57,6 +58,11 @@ void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
 
 }
 
+/**
+ * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
+ * 
+ * @throw BadChanMaskException when the name of channel or not on format
+ */
 void JoinCmd::tryConnection(const std::string& channel, const int socket) const
 {
 	if (checkChannelName(channel))
@@ -66,6 +72,11 @@ void JoinCmd::tryConnection(const std::string& channel, const int socket) const
 		tmpChan.connectUser(socket);
 }
 
+/**
+ * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
+ * 
+ * @throw BadChanMaskException when the name of channel or not on format
+ */
 void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>::iterator& itPwd, const int socket) const
 {
 	if (checkChannelName(channel))
@@ -80,6 +91,11 @@ void JoinCmd::tryConnection(const std::string& channel, std::vector<std::string>
 		tmpChan.connectUser(socket);
 }
 
+/**
+ * @brief Check the channel name format and try to connect a user if the channel is create or create the channel.
+ * 
+ * @throw BadChanMaskException when the name of channel or not on format
+ */
 void JoinCmd::tryConnection(const std::string& channel, std::string invalidPassword, const int socket) const
 {
 	if (checkChannelName(channel))
@@ -93,6 +109,11 @@ void JoinCmd::tryConnection(const std::string& channel, std::string invalidPassw
 		tmpChan.connectUser(socket);
 }
 
+/**
+ * @brief Function split argument on ,
+ * 
+ * @return a vector of string split on ','.
+ */
 std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
 {
 	std::vector<std::string>elem;
@@ -107,6 +128,14 @@ std::vector<std::string> JoinCmd::splitArgument(const std::string& arg) const
 	return (elem);
 }
 
+/**
+ * @brief Function verifie a good composition of name channel with the following restriction:
+ * - must have a size of 1 to 50 characters.
+ * - must start with a #, &, !, +.
+ * - must not contain ASCII char 32, 7 and ','.
+ * 
+ * @return true when the composition is wrong and false when is wright.
+ */
 bool JoinCmd::checkChannelName(const std::string& channelName) const
 {
 	if (channelName.size() < 1 || channelName.size() > 50)

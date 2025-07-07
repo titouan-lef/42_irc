@@ -259,7 +259,7 @@ void UserManager::checkNewConnections()
 	int clientSocket = accept(pollfdList_.at(0).fd, (struct sockaddr*)&clientAddr, &clientLen);
 	if (clientSocket < 0)
 		throw std::runtime_error("Error: accept failed, cannot connect client");
-	if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
 		throw std::runtime_error("Error: fcntl failed, cannot connect client");
 	addNewUser(clientSocket, clientAddr);
 	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl;
@@ -315,6 +315,12 @@ void UserManager::deleteUser(const int index)
 	MsgServ::getInstance().removeBuffer(index);
 }
 
+
+/**
+ * @brief Find the index of socket user
+ * 
+ * @param index The index of socket user, -1 if is not found;
+ */
 int UserManager::getIndex(const int socket)
 {
 	for (std::size_t i = 1; i < pollfdList_.size(); ++i)

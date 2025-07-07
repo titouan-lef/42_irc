@@ -6,9 +6,6 @@
 #include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
 
-/**
- * std::string::npos est egale "Pas trouvé" / "valeur invalide" dans une recherche
- */
 void NickCmd::execute(const MsgServ::Command& cmd, const int socket) const
 {
 	const int sizeMax = 9;
