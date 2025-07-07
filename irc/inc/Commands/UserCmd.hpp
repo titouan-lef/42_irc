@@ -11,5 +11,8 @@ public:
 	~UserCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;
+
+private:
 	bool validUsername(std::string username) const;
+	bool validParam(const std::vector<std::string>&  param) const;
 };

@@ -16,7 +16,8 @@ void UserCmd::execute(const Command& cmd, const int senderSocket) const
 		throw NotRegisteredException();
 	if (cmd.arg.size() != 3 || cmd.trailing.empty())
 		throw NeedMoreParamsException(cmd.name);
-		/** @todo parse "0 *" */
+	if (!validParam(cmd.arg))
+		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
 	if (!validUsername(cmd.arg.at(0)))
 		throw NeedMoreParamsException(cmd.name);
 	if (user.isUsernameRegister())
@@ -34,6 +35,18 @@ bool UserCmd::validUsername(std::string username) const
 		if (!isalnum(c))
 			return false;
 	}
+	return true;
+}
+
+/**
+ * @brief Verifie if the mode are "0" and "*" if is not return false
+ */
+bool UserCmd::validParam(const std::vector<std::string>&  param) const
+{
+	if (param.at(1) != "0")
+		return false;
+	if (param.at(2) != "*")
+		return false;
 	return true;
 }
 
