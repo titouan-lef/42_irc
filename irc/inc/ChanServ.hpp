@@ -16,7 +16,7 @@ public:
 	void namesAllChannels(const int socketUser);
 	void listAllChannels(const int socketUser);
 	void quitAllChannels(const int logedOutSocket, const std::string& msg = "");
-	void logOut(const std::string& channelName, const std::string& msg, const int logedOutsocket);
+	void logOut(const std::string& channelName, const Command& cmd, const int logedOutsocket);
 
 private:
 
@@ -24,7 +24,7 @@ private:
 	// ~ChanServ();
 	void deleteChannel(const int index);
 	Channel& builtNewChannel(std::string name, const int socketModerator);
-	void logOut(const size_t index, const std::string& msg, const int logedOutSocket);
+	void logOut(const size_t index, const Command& cmd, const int logedOutSocket);
 
 	std::vector<Channel> channels_;
 

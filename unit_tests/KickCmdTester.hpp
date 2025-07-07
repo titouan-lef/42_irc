@@ -88,7 +88,7 @@ public:
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 
-		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", "", 1);});
+		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 1);});
 
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findOrCreateChannel("#join", 10);});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findOrCreateChannel("#chan", 10).connectUser(10);});
@@ -99,7 +99,7 @@ public:
 		Tester::assertDoNotThrows([&]() {kick.execute(cmd ,1);});
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 
-		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", "", 1);});
+		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", cmd, 1);});
 		UserManager::getInstance().deleteUser(1);
 	};
 };

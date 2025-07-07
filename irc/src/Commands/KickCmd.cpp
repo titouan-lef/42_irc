@@ -14,9 +14,10 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 	std::vector<std::string> users = split(cmd.arg.at(1), ',');
 	if (channels.size() != 1 && channels.size() != users.size())
 		throw NeedMoreParamsException(cmd.name);
-	std::string message;
+	Command replyCmd;
+	replyCmd.name = "KICK";
 	if (cmd.arg.size() == 2)
-		message = cmd.arg.at(1);
+		replyCmd.trailing = cmd.arg.at(1);
 	for (size_t i = 0; i < users.size(); ++i)
 	{
 		int socketKicked = UserManager::getInstance().findUserSocket(users.at(i));
@@ -29,7 +30,7 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 				throw ChannelPrivilegesNeeded(channels.at(chanNumber));
 			if (socketKicked < 0)
 				throw NoSuchNickException(users.at(i));
-			ChanServ::getInstance().logOut(channels.at(chanNumber), message, socketKicked); /** @todo FIX: will send error message to the tagert if fails and not the sender */
+			ChanServ::getInstance().logOut(channels.at(chanNumber), replyCmd, socketKicked); /** @todo FIX: will send error message to the tagert if fails and not the sender */
 		}
 		catch (const IrcException& e)
 		{

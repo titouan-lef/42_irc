@@ -180,6 +180,11 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 	if (inviteRestricted_)
 		socketInvitedUsers_.erase(socketNewUser);
 	socketConnectedUsers_.push_back(socketNewUser);
+	Command cmd;
+	cmd.name = "JOIN";
+	cmd.trailing = name_;
+	sendMessageToAllUsers(socketNewUser, cmd);
+	MsgServ::getInstance().sendMessageReply(socketNewUser, socketNewUser, cmd.name, cmd.arg, cmd.trailing);
 	sendActualTopic(socketNewUser);
 	sendActualUsers(socketNewUser);
 	/** @todo send message to all user about new connection (refacto needed) */
@@ -436,15 +441,13 @@ void Channel::disableLimitNbUsers()
  *
  * @param cmd The command structure with name, trailing and agrs.
  */
-void Channel::sendMessageToAllUsers(const int senderSocket, const std::string msg)
+void Channel::sendMessageToAllUsers(const int senderSocket, const Command& cmd)
 {
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
 		if (senderSocket == socketConnectedUsers_.at(i))
 			continue ;
-		/** @todo trailing cmdName ect */
-		(void) msg;
-		//MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i),  );
+		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i),  cmd.name, cmd.arg, cmd.trailing);
 	}
 }
 
