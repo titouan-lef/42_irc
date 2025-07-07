@@ -1,4 +1,5 @@
 #include "NickCmd.hpp"
+
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"
@@ -9,7 +10,7 @@
 #define MAX_NICK_LENGTH 9
 #define MAX_ARGS 1
 
-void NickCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void NickCmd::execute(const Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
 	if (!user.isConnected())

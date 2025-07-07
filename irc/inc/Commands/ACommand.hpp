@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MsgServ.hpp"
+#include "command.hpp"
 
 class ACommand
 {
@@ -8,5 +8,5 @@ public:
 	ACommand(){}
 	virtual ~ACommand(){}
 
-	virtual void execute(const MsgServ::Command& cmd, const int socket) const = 0;
+	virtual void execute(const Command& cmd, const int socket) const = 0;
 };

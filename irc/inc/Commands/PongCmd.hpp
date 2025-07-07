@@ -2,11 +2,13 @@
 
 #include "ACommand.hpp"
 
+#include "command.hpp"
+
 class PongCmd : public ACommand
 {
 public:
 	PongCmd(){}
 	~PongCmd(){}
 
-	void execute(const MsgServ::Command& cmd, const int socket) const;
+	void execute(const Command& cmd, const int socket) const;
 };

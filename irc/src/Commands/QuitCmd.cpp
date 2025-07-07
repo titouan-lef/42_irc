@@ -1,4 +1,5 @@
 #include "QuitCmd.hpp"
+
 #include "UserManager.hpp"
 #include "ChanServ.hpp"
 
@@ -7,7 +8,7 @@
  * thhis funcion quit all time and throw none error.
  */
 
-void QuitCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void QuitCmd::execute(const Command& cmd, const int socket) const
 {
 	std::string msg;
 	if (!cmd.trailing.empty())

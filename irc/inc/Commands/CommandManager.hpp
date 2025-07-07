@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <map>
+
 #include "ACommand.hpp"
+#include "command.hpp"
 
 class CommandTester; /** @todo remove before push */
 
@@ -19,7 +21,7 @@ private:
 	CommandManager(const CommandManager& other);
 	CommandManager& operator=(const CommandManager& other);
 
-	MsgServ::Command parserCmd(const std::string& recv, const int socket);
+	Command parserCmd(const std::string& recv, const int socket);
 
 	std::map<std::string, ACommand*> commands_;
 

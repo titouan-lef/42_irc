@@ -2,7 +2,6 @@
 
 #include <sstream>
 
-#include "MsgServ.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -66,7 +65,7 @@ CommandManager& CommandManager::getInstance()
 */
 void CommandManager::interpretData(const std::string& recv, const int socket)
 {
-	MsgServ::Command cmd = parserCmd(recv, socket);
+	Command cmd = parserCmd(recv, socket);
 	commands_[cmd.name]->execute(cmd, socket);
 }
 
@@ -85,13 +84,13 @@ void CommandManager::interpretData(const std::string& recv, const int socket)
 *
 * @param recv The raw command sent by the client (e.g., "PRIVMSG #channel :Hello all").
 *
-* @return An `MsgServ::Command` structure containing the parsed command.
+* @return An `Command` structure containing the parsed command.
 *
 * @throws UnknowCmdException if the command is not registered in `commands_`.
 */
-MsgServ::Command CommandManager::parserCmd(const std::string& recv, const int socket)
+Command CommandManager::parserCmd(const std::string& recv, const int socket)
 {
-	MsgServ::Command cmd;
+	Command cmd;
 	std::string token;
 	std::istringstream iss;
 	iss.str(recv);
@@ -134,7 +133,7 @@ MsgServ::Command CommandManager::parserCmd(const std::string& recv, const int so
  */
 void CommandManager::registerClient(const std::string& recv, const int socket)
 {
-	MsgServ::Command cmd = parserCmd(recv, socket);
+	Command cmd = parserCmd(recv, socket);
 	if (cmd.name != "USER" && cmd.name != "NICK" && cmd.name != "PASS")
 		throw NotRegisteredException(socket);
 	commands_[cmd.name]->execute(cmd, socket);

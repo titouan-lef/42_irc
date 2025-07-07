@@ -1,4 +1,5 @@
 #include "ChanServ.hpp"
+
 #include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
 
@@ -66,7 +67,7 @@ void ChanServ::listAllChannels(const int socketUser)
 	std::vector<std::string> arg;
  
 	arg.push_back(":End of LIST");
-	MsgServ::Command cmd = {"323", "", arg};
+	Command cmd = {"323", "", arg};
 	MsgServ::getInstance().sendNumericReply(socketUser, cmd, UserManager::getInstance().getUserNickname(socketUser));
 }
 

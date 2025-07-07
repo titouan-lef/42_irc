@@ -1,9 +1,10 @@
 #include "ListCmd.hpp"
+
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "UserManager.hpp"
 
-void ListCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void ListCmd::execute(const Command& cmd, const int socket) const
 {
 
 	if (cmd.arg.empty())

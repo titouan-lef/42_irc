@@ -5,7 +5,7 @@
 #include "NeedMoreParamsException.hpp"
 
 /** @todo penser a parser le nom de user */
-void PrivmsgCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void PrivmsgCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));

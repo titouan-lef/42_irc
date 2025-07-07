@@ -1,9 +1,10 @@
 #include "NamesCmd.hpp"
+
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "UserManager.hpp"
 
-void NamesCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void NamesCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() == 0)
 	{

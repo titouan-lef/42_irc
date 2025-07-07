@@ -1,4 +1,5 @@
 #include "UserCmd.hpp"
+
 #include "User.hpp"
 #include "UserManager.hpp"
 #include "PasswordMismatchException.hpp"
@@ -6,7 +7,7 @@
 #include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"
 
-void UserCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void UserCmd::execute(const Command& cmd, const int socket) const
 {
 	User& user = UserManager::getInstance().getUser(socket);
 	if (!user.isConnected())

@@ -1,11 +1,12 @@
 #include "KickCmd.hpp"
+
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NoSuchNickException.hpp"
 
-void KickCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void KickCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 2 || cmd.arg.size() > 3 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));

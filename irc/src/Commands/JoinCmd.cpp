@@ -1,13 +1,13 @@
-#include <iostream>
-#include <string>
-#include <sstream>
 #include "JoinCmd.hpp"
+
+#include <sstream>
+
 #include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
 
-void JoinCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void JoinCmd::execute(const Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
 	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())

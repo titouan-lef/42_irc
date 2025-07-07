@@ -1,28 +1,29 @@
 #pragma once
 
+#include "Service.hpp"
+
 #include <iostream>
 #include <vector>
 
-#include "Service.hpp"
-#include "MsgServ.hpp"
+#include "command.hpp"
 
 class MsgServTester;/** @todo remove before push */
 
 class MsgServ: public Service
 {
 public:
-	struct Command {
+	/*struct Command {
 		std::string name;
 		std::string trailing;
 		std::vector<std::string> arg;
-	};
+	};*/
 
 	static MsgServ& getInstance();
 
 	void recvMsg(int socket, int buffer_index, const std::string& nickname);
 	bool isMsgComplete(std::string& msg);
-	void sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname);
-	void sendMessageReply(int socket, const MsgServ::Command& cmd);
+	void sendNumericReply(int socket, const Command& cmd, const std::string& clientTargetNickname);
+	void sendMessageReply(int socket, const Command& cmd);
 
 	void addNewBuffer();
 	bool isCommandReady(int buffer_index) const;
@@ -37,8 +38,8 @@ private:
 	MsgServ(const MsgServ& other);
 	MsgServ& operator=(const MsgServ& other);
 
-	void sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
-	std::string formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target);
+	void sendReply(int socket, const Command& cmd, const std::string& prefix, const std::string& target);
+	std::string formatMsg(const Command& cmd, const std::string& prefix, const std::string& target);
 	void sendMsg(int socket, std::string& msg);
 
 	std::vector<std::string> buffers_;

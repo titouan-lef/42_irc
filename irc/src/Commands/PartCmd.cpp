@@ -1,9 +1,10 @@
 #include "PartCmd.hpp"
+
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 
-void PartCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void PartCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));

@@ -1,4 +1,5 @@
 #include "Channel.hpp"
+
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
@@ -41,7 +42,7 @@ const std::string& Channel::getTopic() const
 void Channel::sendChannelSummary(const int socket) const
 {
 	std::vector<std::string> arg;
-	MsgServ::Command cmd;
+	Command cmd;
 
 	std::stringstream ss;
 	ss << socketConnectedUsers_.size();
@@ -58,7 +59,7 @@ void Channel::sendChannelSummary(const int socket) const
 void Channel::sendActualTopic(const int socket) const
 {
 	std::vector<std::string> arg;
-	MsgServ::Command cmd;
+	Command cmd;
 
 	arg.push_back(name_);
 	if (topic_.empty())
@@ -82,14 +83,14 @@ void Channel::sendActualUsers(const int socket) const
 	arg.push_back("=");
 	arg.push_back(name_);
 	arg.push_back(":" + builtUsersString());
-	MsgServ::Command cmd = {"353", "", arg};
+	Command cmd = {"353", "", arg};
 	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
 
 	std::vector<std::string> arg2;
 
 	arg2.push_back(name_);
 	arg2.push_back(":End of NAMES list");
-	MsgServ::Command cmd2 = {"366", "", arg2};
+	Command cmd2 = {"366", "", arg2};
 	MsgServ::getInstance().sendNumericReply(socket, cmd2, UserManager::getInstance().getUserNickname(socket));
 }
 
@@ -99,7 +100,7 @@ void Channel::sendActualModes(const int socket) const
 
 	arg.push_back(name_);
 	arg.push_back(builtOptionString());
-	MsgServ::Command cmd = {"324", "", arg};
+	Command cmd = {"324", "", arg};
 	MsgServ::getInstance().sendNumericReply(socket, cmd, UserManager::getInstance().getUserNickname(socket));
 }
 
@@ -445,7 +446,7 @@ void Channel::disableLimitNbUsers()
  */
 void Channel::sendMessageToAllUsers(const int senderSocket, const std::string msg)
 {
-	MsgServ::Command cmd;
+	Command cmd;
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
 		if (senderSocket == socketConnectedUsers_.at(i))
@@ -460,7 +461,7 @@ void Channel::sendMessageToAllUsers(const int senderSocket, const std::string ms
  *
  * @param cmd The command structure with name, trailing and agrs.
  */
-void Channel::sendNumericToAllUsers(const MsgServ::Command& cmd)
+void Channel::sendNumericToAllUsers(const Command& cmd)
 {
 	(void) cmd;
 	/*for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)

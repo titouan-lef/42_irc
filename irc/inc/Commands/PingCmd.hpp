@@ -2,11 +2,13 @@
 
 #include "ACommand.hpp"
 
+#include "command.hpp"
+
 class PingCmd : public ACommand
 {
 public:
 	PingCmd(){}
 	~PingCmd(){}
 
-	void execute(const MsgServ::Command& cmd, const int socket) const;
+	void execute(const Command& cmd, const int socket) const;
 };

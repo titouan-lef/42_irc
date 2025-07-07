@@ -1,8 +1,11 @@
 #pragma once
 
 #include "ACommand.hpp"
-#include "ChanServ.hpp"
+
 #include <vector>
+
+#include "Channel.hpp"
+#include "command.hpp"
 
 class ModeCmd : public ACommand
 {
@@ -10,7 +13,7 @@ public:
 	ModeCmd(){}
 	~ModeCmd(){}
 
-	void execute(const MsgServ::Command& cmd, const int socket) const;
+	void execute(const Command& cmd, const int socket) const;
 
 private:
 	typedef std::vector<std::string>::const_iterator argIterator;
@@ -20,10 +23,10 @@ private:
 		std::string argument;
 	};
 
-	std::vector<Option> parseCommand(const MsgServ::Command& cmd, const int socket) const;
-	void addOptionInList(const MsgServ::Command& cmd, const int socket, std::vector<Option>& optionList, argIterator& it) const;
-	void checkOptionAndAddArg(const MsgServ::Command& cmd, const int socket, argIterator& it, Option& option) const;
-	const std::string defineOptionArg(const MsgServ::Command& cmd, const int socket, argIterator& it) const;
+	std::vector<Option> parseCommand(const Command& cmd, const int socket) const;
+	void addOptionInList(const Command& cmd, const int socket, std::vector<Option>& optionList, argIterator& it) const;
+	void checkOptionAndAddArg(const Command& cmd, const int socket, argIterator& it, Option& option) const;
+	const std::string defineOptionArg(const Command& cmd, const int socket, argIterator& it) const;
 	void executeModeOptions(Channel& channel, const std::vector<Option>& options, const int socket) const;
 	void executeModeOption(Channel& channel, const Option& option, const int socket) const;
 	void sendActualModes(Channel& channel, const int socket) const;

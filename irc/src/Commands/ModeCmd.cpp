@@ -1,20 +1,19 @@
 #include "ModeCmd.hpp"
+
+#include <cstdlib>
+
 #include "UserManager.hpp"
+#include <ChanServ.hpp>
 #include "NeedMoreParamsException.hpp"
 #include "NoSuchChannelException.hpp"
-#include "NoSuchNickException.hpp"
 #include "NoSuchNickException.hpp"
 #include "UnknownModeException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InvalidModeParamException.hpp"
-#include <cstdlib>
-#include "ChannelPrivilegesNeeded.hpp"
-#include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 
-#include <cstdlib>
 
-void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
+void ModeCmd::execute(const Command& cmd, const int socket) const
 {
 	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(socket, cmd.name, UserManager::getInstance().getUserNickname(socket));
@@ -31,7 +30,7 @@ void ModeCmd::execute(const MsgServ::Command& cmd, const int socket) const
 	executeModeOptions(channel, options, socket);
 }
 
-std::vector<ModeCmd::Option> ModeCmd::parseCommand(const MsgServ::Command& cmd, const int socket) const
+std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int socket) const
 {
 	std::vector<Option> optionList;
 	argIterator it = cmd.arg.begin() + 1;
@@ -43,7 +42,7 @@ std::vector<ModeCmd::Option> ModeCmd::parseCommand(const MsgServ::Command& cmd, 
 	return optionList;/** @warning max 3 arg */
 }
 
-void ModeCmd::addOptionInList(const MsgServ::Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
+void ModeCmd::addOptionInList(const Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
 {
 	const std::string& flag = *it;
 	if ((flag[0] != '+' && flag[0] != '-') || flag[1] == '\0')
@@ -57,7 +56,7 @@ void ModeCmd::addOptionInList(const MsgServ::Command &cmd, const int socket, std
 	}
 }
 
-void ModeCmd::checkOptionAndAddArg(const MsgServ::Command& cmd, const int socket, argIterator& it, Option& option) const
+void ModeCmd::checkOptionAndAddArg(const Command& cmd, const int socket, argIterator& it, Option& option) const
 {
 	const std::string validFlag = "itokl";
 	const std::size_t posFlagArg = 2;
@@ -69,7 +68,7 @@ void ModeCmd::checkOptionAndAddArg(const MsgServ::Command& cmd, const int socket
 		option.argument = defineOptionArg(cmd, socket, it);
 }
 
-const std::string ModeCmd::defineOptionArg(const MsgServ::Command& cmd, const int socket, argIterator& it) const
+const std::string ModeCmd::defineOptionArg(const Command& cmd, const int socket, argIterator& it) const
 {
 	++it;
 	if (it >= cmd.arg.end())

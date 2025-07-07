@@ -2,7 +2,8 @@
 
 #include <vector>
 #include <set>
-#include "MsgServ.hpp"
+
+#include "command.hpp"
 
 class ChannelTester; /** @todo remove before push */
 class ModeCmdTester; /** @todo remove before push */
@@ -48,7 +49,7 @@ public:
 
 private:
 
-	void sendNumericToAllUsers(const MsgServ::Command& cmd); 
+	void sendNumericToAllUsers(const Command& cmd); 
 
 	bool isInviteRestricted() const;
 	bool isTopicRestricted() const;

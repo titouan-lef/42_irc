@@ -1,7 +1,8 @@
 #include "MsgServ.hpp"
-#include "Server.hpp"
+
 #include <cerrno>
 
+#include "Server.hpp"
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "UserManager.hpp"
@@ -60,18 +61,18 @@ bool MsgServ::isMsgComplete(std::string& msg)
 	return (msg.find("\r\n") != std::string::npos);
 }
 
-void MsgServ::sendNumericReply(int socket, const MsgServ::Command& cmd, const std::string& clientTargetNickname)
+void MsgServ::sendNumericReply(int socket, const Command& cmd, const std::string& clientTargetNickname)
 {
 	sendReply(socket, cmd, "ircserv", clientTargetNickname);/** @todo ircServer ? server? other? */
 }
 
-void MsgServ::sendMessageReply(int socket, const MsgServ::Command& cmd)
+void MsgServ::sendMessageReply(int socket, const Command& cmd)
 {
 	const std::string prefix = UserManager::getInstance().getUserPrefix(socket);
 	sendReply(socket, cmd, prefix, "");
 }
 
-void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
+void MsgServ::sendReply(int socket, const Command& cmd, const std::string& prefix, const std::string& target)
 {
 	std::string reply = formatMsg(cmd, prefix, target);
 	try
@@ -89,7 +90,7 @@ void MsgServ::sendReply(int socket, const MsgServ::Command& cmd, const std::stri
 	}
 }
 
-std::string MsgServ::formatMsg(const MsgServ::Command& cmd, const std::string& prefix, const std::string& target)
+std::string MsgServ::formatMsg(const Command& cmd, const std::string& prefix, const std::string& target)
 {
 	std::string reply = ":" + prefix + " " + cmd.name;
 	if (target != "")

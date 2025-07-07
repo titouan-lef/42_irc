@@ -20,6 +20,6 @@ private:
 	void displayError() const;
 
 	int socket_;
-	MsgServ::Command cmd_;
+	Command cmd_;
 	std::string clientNickname_;
 };
