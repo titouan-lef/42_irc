@@ -24,35 +24,35 @@ public:
 		Tester::startTest("Parser Valid PASS");
 		const Command cmdtester = {"PASS", "", {"Password"}};
 		{
-			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password");
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ");
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password");
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ");
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
 			Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
 		}
 		{
-			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ", 1);
+			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ");
 			Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);

@@ -17,7 +17,7 @@ public:
 	void testerModeCmd()
 	{
 		ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
-		Channel& chan = ChanServ::getInstance().findChannel("#test", 1);
+		Channel& chan = ChanServ::getInstance().findChannel("#test");
 		testPermission(chan);
 		testOperator(chan);
 		testInvite(chan);

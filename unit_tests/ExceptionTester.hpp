@@ -53,10 +53,10 @@ public:
 		Tester::startTest("Replies from server");
 
 		sendCommand("JOIN #test");
-		assertReply(":ircserv 331 testuser #test :No topic is set\r\n:ircserv 353 testuser = #test :@testuser\r\n:ircserv 366 testuser #test :End of NAMES list");
+		assertReply(":ircserv 331 #test :No topic is set\r\n:ircserv 353 = #test :@testuser\r\n:ircserv 366 #test :End of NAMES list");
 		sendCommand("MODE #test +it");
 		sendCommand("MODE #test");
-		assertReply(":ircserv 324 testuser #test +it");
+		assertReply(":ircserv 324 #test +it");
 		/** @todo complete with tests */
 	};
 
