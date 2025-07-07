@@ -6,7 +6,7 @@
 
 void PartCmd::execute(const Command& cmd, const int socket) const
 {
-	if (cmd.arg.size() < 1 || cmd.arg.size() > 2 || !cmd.trailing.empty())
+	if (cmd.arg.size() < 1 || cmd.arg.size() > 2)
 		throw NeedMoreParamsException(cmd.name);
 	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
 	Command replyCmd;

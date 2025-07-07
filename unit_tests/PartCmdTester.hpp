@@ -35,8 +35,6 @@ public:
 		cmd = {"PART", "", {"#test", "#test2", "#test3"}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd ,10);});
 
-		cmd = {"PART", "trailing", {"#test"}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd ,10);});
 	};
 
 	void testPartChannels()
