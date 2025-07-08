@@ -72,6 +72,7 @@ int main()
 		ModeCmdTester test;
 		test.testerModeCmd();
 	}
+	
 	{
 		PrivMsgTester test;
 		test.testerPrivMsg();
