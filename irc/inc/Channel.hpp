@@ -38,7 +38,7 @@ public:
 
 	void enableInviteRestriction();
 	void disableInviteRestriction();
-	void inviteUser(const int socketUser);
+	void inviteUser(int invitedSocket, int socketSender);
 
 	int addNewModerator(const int socketNewOperator);
 	void removeModerator(const int socketUser);
@@ -52,6 +52,7 @@ private:
 	void sendNumericToAllUsers(const Command& cmd); 
 
 	bool isInviteRestricted() const;
+	bool isInvited(const int socketNewUser) const;
 	bool isTopicRestricted() const;
 	bool isLimitNbUserReached() const;
 

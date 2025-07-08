@@ -144,6 +144,16 @@ bool Channel::isInviteRestricted() const
 }
 
 /**
+ * @brief Checks if the channel is invite-only.
+ *
+ * @return True if the channel has invite-only restriction enabled, false otherwise.
+ */
+bool Channel::isInvited(const int socketNewUser) const
+{
+	return socketInvitedUsers_.find(socketNewUser) != socketInvitedUsers_.end();
+}
+
+/**
  * @brief Checks if the channel's topic can only be changed by moderators.
  *
  * @return True if topic changes are restricted to operators, false otherwise.
@@ -173,11 +183,11 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 	}
 	if (isPasswordProtected() && password != password_)
 		throw BadChanMaskException(name_);
-	if (inviteRestricted_ && socketInvitedUsers_.find(socketNewUser) == socketInvitedUsers_.end())
+	if (isInviteRestricted() && !isInvited(socketNewUser))
 		throw InviteOnlyException(name_);
 	if (isLimitNbUserReached())
 		throw ChannelIsFullException(name_);
-	if (inviteRestricted_)
+	if (isInvited(socketNewUser))
 		socketInvitedUsers_.erase(socketNewUser);
 	socketConnectedUsers_.push_back(socketNewUser);
 	Command cmd;
@@ -359,11 +369,28 @@ void Channel::disableInviteRestriction()
 	inviteRestricted_ = false;
 }
 
-void Channel::inviteUser(int socketUser)
+/**
+ * @brief Invite user to join the channel.
+ *
+ * @param invitedSocket The socket of the user invited on the channel.
+ * @param socketSender The socket os the user who is inviting.
+ * 
+ * @throw ChannelPrivilegesNeeded if socketSender is not operator.
+ * @throw UserOnChannelException if invitedSocket is already connected on the channel.
+ */
+void Channel::inviteUser(int invitedSocket, int socketSender)
 {
-	socketInvitedUsers_.insert(socketUser); //ERR_USERONCHANNEL
+	if (!isModerator( socketSender))
+		throw ChannelPrivilegesNeeded(name_);
+	if (isConnected(invitedSocket))
+	{
+		std::vector<std::string> args;
+		args.push_back(UserManager::getInstance().getUser(invitedSocket).getUsername());
+		args.push_back(name_);
+		throw UserOnChannelException(args);
+	}
+	socketInvitedUsers_.insert(invitedSocket);
 }
-
 
 /**
  * @brief Adds a new moderator to the channel.

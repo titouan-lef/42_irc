@@ -7,6 +7,7 @@
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
+#include "UserOnChannelException.hpp"
 
 #include "UserTester.hpp"	// dummyAddr()
 
@@ -55,9 +56,14 @@ public:
 		chan.enableInviteRestriction();
 		Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(11);});
 		Tester::assertFalse(chan.isConnected(11));
-		Tester::assertDoNotThrows([&]() {chan.inviteUser(11);});
+		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {chan.inviteUser(11, 12);});
+		Tester::assertDoNotThrows([&]() {chan.inviteUser(11, 10);});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 		Tester::assertTrue(chan.isConnected(11));
+		Tester::assertThrows<UserOnChannelException>([&]() {chan.inviteUser(11, 10);});
+		Tester::assertDoNotThrows([&]() {chan.disconnectUser(11);});
+		Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(11);});
+
 	};
 
 	void testPassword()
