@@ -108,7 +108,8 @@ Command CommandManager::parserCmd(const std::string& recv)
 			cmd.trailing = token;
 			std::string rest;
 			std::getline(iss, rest);
-			cmd.trailing += " " + rest;
+			if (!rest.empty())
+				cmd.trailing += " " + rest;
 			break;
 		}
 		cmd.arg.push_back(token);
