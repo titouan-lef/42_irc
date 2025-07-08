@@ -3,7 +3,7 @@
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 
-#define ARG_REQUIERED 1
+#define ARG_REQUIERED 2
 
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
