@@ -1,7 +1,5 @@
 #include "CommandManager.hpp"
 
-#include <sstream>
-
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -88,33 +86,58 @@ void CommandManager::interpretData(const std::string& recv, const int senderSock
 *
 * @throws UnknowCmdException if the command is not registered in `commands_`.
 */
-Command CommandManager::parserCmd(const std::string& recv)
+Command CommandManager::parserCmd(const std::string& recv) const
 {
 	Command cmd;
-	std::string token;
-	std::istringstream iss;
-	iss.str(recv);
-
-	while (std::getline(iss, cmd.name, ' ') && cmd.name.empty())
-		continue ;
-	if (commands_.find(cmd.name) == commands_.end())
-		throw UnknowCmdException(cmd.name);
-	while (std::getline(iss, token, ' '))
-	{
-		if (token.empty())
-			continue ;
-		if (token[0] == ':')
-		{
-			cmd.trailing = token;
-			std::string rest;
-			std::getline(iss, rest);
-			if (!rest.empty())
-				cmd.trailing += " " + rest;
-			break;
-		}
-		cmd.arg.push_back(token);
-	}
+	std::size_t startNextParam = createCmdName(recv, cmd.name);
+	parserCmdElement(recv, startNextParam, cmd);
 	return (cmd);
+}
+
+std::size_t CommandManager::createCmdName(const std::string& recv, std::string& cmdName) const
+{
+	std::size_t startNextParam = delimitParameter(recv, 0, cmdName);
+	if (cmdNotExist(cmdName))
+		throw UnknowCmdException(cmdName);
+	return startNextParam;
+}
+
+bool CommandManager::cmdNotExist(const std::string &cmdName) const
+{
+	return (cmdName.empty() || commands_.find(cmdName) == commands_.end());
+}
+
+void CommandManager::parserCmdElement(const std::string& recv, std::size_t start, Command& cmd) const
+{
+	while (start != recv.size())
+	{
+		std::string param;
+		start = delimitParameter(recv, start, param);
+		if (param.empty())
+			return;
+		if (param[0] == ':')
+		{
+			cmd.trailing = param;
+			return ;
+		}
+		cmd.arg.push_back(param);
+	}
+}
+
+std::size_t CommandManager::delimitParameter(const std::string& recv, std::size_t start, std::string& param) const
+{
+	const char delimiter = ' ';
+
+	std::size_t end = recv.find(delimiter, start);
+	while (end != std::string::npos && end - start == 0)
+	{
+		++start;
+		end = recv.find(delimiter, start);
+	}
+	if (end == std::string::npos || recv[start] == ':')
+		end = recv.size();
+	param = recv.substr(start, end - start);
+	return end;
 }
 
 /**
