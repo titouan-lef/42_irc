@@ -51,8 +51,6 @@ public:
 		Tester::startTest("TOPIC managment tests");
 
 		TopicCmd mode;
-		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		UserManager::getInstance().getUser(10).setNickname("Alice");
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 		Tester::assertFalse(chan.isModerator(10));
@@ -69,5 +67,6 @@ public:
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 		Tester::assertExpectedEqualsActual(std::string(""), chan.getTopic());
 
+		ChanServ::getInstance().quitAllChannels(10);
 	};
 };

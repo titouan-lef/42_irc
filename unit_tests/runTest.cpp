@@ -61,16 +61,16 @@ int main()
 		test.testerPartCmd();
 	}
 	{
+		TopicCmdTester test;
+		test.testerTopicCmd();
+	}
+	{
 		KickCmdTester test;
 		test.testerKickCmd();
 	}
 	{
 		ModeCmdTester test;
 		test.testerModeCmd();
-	}
-	{
-		TopicCmdTester test;
-		test.testerTopicCmd();
 	}
 	{
 		PrivMsgTester test;
