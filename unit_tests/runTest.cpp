@@ -6,6 +6,7 @@
 #include "CommandTester.hpp"
 #include "UserManagerTester.hpp"
 #include "ModeCmdTester.hpp"
+#include "TopicCmdTester.hpp"
 #include "PassCmdTester.hpp"
 #include "NickCmdTester.hpp"
 #include "UserCmdTester.hpp"
@@ -65,6 +66,10 @@ int main()
 	{
 		ModeCmdTester test;
 		test.testerModeCmd();
+	}
+	{
+		TopicCmdTester test;
+		test.testerTopicCmd();
 	}
 	{
 		Tester::startTest("Init client");
