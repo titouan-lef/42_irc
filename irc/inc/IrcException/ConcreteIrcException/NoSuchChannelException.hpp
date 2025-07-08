@@ -2,7 +2,6 @@
 
 #include "IrcException.hpp"
 #include <iostream>
-#include <vector>
 
 class NoSuchChannelException: public IrcException
 {

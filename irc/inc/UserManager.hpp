@@ -8,6 +8,7 @@
 #include "User.hpp"
 
 class CommandTester; /** @todo remove before push */
+class PrivMsgTester; /** @todo remove before push */
 class ModeCmdTester; /** @todo remove before push */
 class TopicCmdTester; /** @todo remove before push */
 class PassCmdTester; /** @todo remove before push */
@@ -66,6 +67,7 @@ private:
 	std::vector<Activity> lastActivities_;
 
 	friend class CommandTester; /** @todo remove before push */
+	friend class PrivMsgTester; /** @todo remove before push */
 	friend class ModeCmdTester; /** @todo remove before push */
 	friend class TopicCmdTester; /** @todo remove before push */
 	friend class PassCmdTester; /** @todo remove before push */

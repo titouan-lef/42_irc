@@ -7,6 +7,7 @@
 #include "command.hpp"
 
 class CommandTester; /** @todo remove before push */
+class PrivMsgTester; /** @todo remove before push */
 
 class CommandManager
 {
@@ -30,4 +31,5 @@ private:
 	std::map<std::string, ACommand*> commands_;
 
 	friend class CommandTester ;	/** @todo remove before push */
+	friend class PrivMsgTester ;	/** @todo remove before push */
 };
