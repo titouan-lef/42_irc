@@ -1,7 +1,16 @@
 #include "TopicCmd.hpp"
+#include "ChanServ.hpp"
+#include "NeedMoreParamsException.hpp"
 
-void TopicCmd::execute(const Command& cmd, const int socket) const
+void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	(void)cmd;
-	(void)socket;
+	if (cmd.arg.size() != 1)
+		throw NeedMoreParamsException(cmd.name);
+	Channel& channel = ChanServ::getInstance().findChannel(cmd.arg.at(0));
+	if (cmd.trailing.empty())
+	{
+		channel.sendActualTopic(senderSocket);
+		return;
+	}
+	channel.setTopic(cmd.trailing.substr(1), senderSocket);
 }

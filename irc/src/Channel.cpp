@@ -55,7 +55,7 @@ void Channel::sendChannelSummary(const int socket) const
 void Channel::sendActualTopic(const int socket) const
 {
 	std::vector<std::string> arg;
-	std::string trailing = "";
+	std::string trailing;
 	int code;
 
 	arg.push_back(name_);
