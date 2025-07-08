@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "command.hpp"
 
 class ACommand
@@ -12,6 +14,6 @@ public:
 
 protected:
 
-	std::vector<std::string> split(const std::string& str, char delimiter) const;
+	std::vector<std::string> split(const std::string& str, const char delimiter) const;
 
 };
