@@ -2,7 +2,7 @@
 #include "ChannelTester.hpp"
 #include "MsgServTester.hpp"
 #include "UserTester.hpp"
-#include "ExceptionTester.hpp"
+#include "ReplyTester.hpp"
 #include "CommandTester.hpp"
 #include "UserManagerTester.hpp"
 #include "ModeCmdTester.hpp"
@@ -13,6 +13,7 @@
 #include "JoinCmdTester.hpp"
 #include "PartCmdTester.hpp"
 #include "KickCmdTester.hpp"
+#include "PrivMsgTester.hpp"
 
 void testerUser();
 
@@ -22,6 +23,10 @@ int main()
 	{
 		UserTester test;
 		test.testerUser();
+	}
+	{
+		UserManagerTester test;
+		test.testerUserManager();
 	}
 	{
 		ChannelTester test;
@@ -34,10 +39,6 @@ int main()
 	{
 		CommandTester test;
 		test.testerCommand();
-	}
-	{
-		UserManagerTester test;
-		test.testerUserManager();
 	}
 	{
 		PassCmdTester test;
@@ -72,9 +73,7 @@ int main()
 		test.testerTopicCmd();
 	}
 	{
-		Tester::startTest("Init client");
-		ExceptionTester test(4343, "password");
-		test.testerException();
+		PrivMsgTester test;
+		test.testerPrivMsg();
 	}
-
 }

@@ -11,10 +11,10 @@
 
 #include "Tester.hpp"
 
-class ExceptionTester
+class ReplyTester
 {
 public:
-	ExceptionTester(int port, const std::string& password)
+	ReplyTester(int port, const std::string& password, const std::string& nickname)
 	{
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		Tester::assertTrue(sockfd >= 0);
@@ -36,21 +36,21 @@ public:
 		sendCommand("PASS " + password);
 		// assertReply("Password accepted"); /** @todo complete with good reply */
 
-		sendCommand("NICK testuser");
+		sendCommand("NICK " + nickname);
 		// assertReply("001"); /** @todo complete with good reply */
 
-		sendCommand("USER testuser 0 * :Real Name");
+		sendCommand("USER " + nickname +" 0 * :Real Name");
 		// assertReply("001"); /** @todo complete with good reply */
 	};
 
-	~ExceptionTester()
+	~ReplyTester()
 	{
 		close(sockfd);
 	};
 
-	void testerException()
+	void testerModeReply()
 	{
-		Tester::startTest("Replies from server");
+		Tester::startTest("MODE replies test");
 
 		sendCommand("JOIN #test");
 		assertReply(":testuser!testuser@localhost JOIN :#test\r\n:ircserv 331 #test :No topic is set\r\n:ircserv 353 = #test :@testuser\r\n:ircserv 366 #test :End of NAMES list");
@@ -60,14 +60,29 @@ public:
 		/** @todo complete with tests */
 	};
 
-private:
-
 	void sendCommand(const std::string& cmd)
 	{
 		std::string fullCmd = cmd + "\r\n";
 		/** ssize_t sent = */ send(sockfd, fullCmd.c_str(), fullCmd.length(), MSG_NOSIGNAL);
 		// Tester::assertExpectedEqualsActual(sent, (ssize_t)fullCmd.length());
 	};
+
+	void assertReply(const std::string& expected)
+	{
+		std::string reply = readReply();
+		if (!reply.empty())
+			Tester::assertExpectedEqualsActual(expected + "\r\n", reply);
+	};
+
+	void skipReply()
+	{
+		usleep(100);
+		readReply();
+	};
+
+private:
+
+
 
 	std::string readReply()
 	{
@@ -82,14 +97,6 @@ private:
 
 		return std::string(buf);
 	}
-
-
-	void assertReply(const std::string& expected)
-	{
-		std::string reply = readReply();
-		if (!reply.empty())
-		Tester::assertExpectedEqualsActual(expected + "\r\n", reply);
-	};
 
 	int sockfd;
 };

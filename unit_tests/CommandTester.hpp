@@ -62,6 +62,25 @@ public:
 			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
 		}
 		{
+			Tester::startTest("Parser valid PRIVMSG");
+			{
+				const Command cmdtester = {"PRIVMSG", ":salut la team", {"titouan,lucien,pl"}};
+				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :salut la team");
+				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+			}
+			{
+				const Command cmdtester = {"PRIVMSG", ":   salut la team", {"titouan,lucien,pl"}};
+				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :   salut la team");
+				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
+				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
+				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
+				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+			}
+		}
+		{
 			Tester::startTest("Parser Unvalid PASS");
 			Server::getInstance().definePassword("Password");
 			UserManager::getInstance().addNewUser(1, dummyAddr(1234));
