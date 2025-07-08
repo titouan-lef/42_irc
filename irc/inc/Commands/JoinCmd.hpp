@@ -15,7 +15,6 @@ public:
 private:
 
 	void tryConnection(const std::string& channel, const int socket, const std::string* password) const;
-	bool isValidChannelName(const std::string& channelName) const;
 	bool isPasswordProtected(const std::string& channelName) const;
 
 };

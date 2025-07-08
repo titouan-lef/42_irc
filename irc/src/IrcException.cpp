@@ -67,12 +67,20 @@ void IrcException::displayError(const int receiverSocket) const
 #include "UserNotInChannelException.hpp"
 #include "NotOnChannelException.hpp"
 #include "UserOnChannelException.hpp"
+#include "NoTextToSendException.hpp"
+#include "TooManyTargetsException.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname):
 	IrcException(401, std::vector<std::string>(1, nickname), "No such nick/channel") {}
 
 NoSuchChannelException::NoSuchChannelException(const std::string& channelName):
 	IrcException(403, std::vector<std::string>(1, channelName), "No such channel") {}
+
+TooManyTargetsException::TooManyTargetsException(const std::string& target):
+	IrcException(407, std::vector<std::string>(1, target), "To many target") {} /** @todo it is a good message ? */
+
+NoTextToSendException::NoTextToSendException():
+	IrcException(412, "No text to send") {}
 
 UnknowCmdException::UnknowCmdException(const std::string& commandName): 
 	IrcException(421, std::vector<std::string>(1, commandName), "Unknow command") {}

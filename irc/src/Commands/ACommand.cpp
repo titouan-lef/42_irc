@@ -15,3 +15,12 @@ std::vector<std::string> ACommand::split(const std::string& str, const char deli
 	tokens.push_back(str.substr(start));
 	return tokens;
 }
+
+Command ACommand::truncateTrailing(const Command& cmd) const
+{
+	Command newCmd;
+	newCmd.name = cmd.name;
+	newCmd.arg = cmd.arg;
+	newCmd.trailing = cmd.trailing.substr(1);
+	return (newCmd);
+}

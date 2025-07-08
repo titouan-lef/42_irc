@@ -40,7 +40,7 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 
 void JoinCmd::tryConnection(const std::string& channel, const int senderSocket, const std::string* password) const
 {
-	if (!isValidChannelName(channel))
+	if (!ChanServ::getInstance().isValidChannelName(channel))
 		throw BadChanMaskException(channel);
 
 	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, senderSocket);
@@ -56,17 +56,6 @@ void JoinCmd::tryConnection(const std::string& channel, const int senderSocket, 
 	{
 		chan.connectUser(senderSocket);
 	}
-}
-
-bool JoinCmd::isValidChannelName(const std::string& channelName) const
-{
-	if (channelName.empty() || channelName.size() > 50)
-		return false;
-	if (channelName.find_first_of("#&+!") != 0)
-		return false;
-	if (channelName.find_first_of(",\a") != std::string::npos)
-		return false;
-	return true;
 }
 
 bool JoinCmd::isPasswordProtected(const std::string &channelName) const

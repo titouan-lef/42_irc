@@ -17,6 +17,7 @@ public:
 	void listAllChannels(const int socketUser);
 	void quitAllChannels(const int loggedOutSocket, const std::string& msg = "");
 	void logOut(const std::string& channelName, const Command& cmd, const int loggedOutSocket);
+	bool isValidChannelName(const std::string& channelName) const;
 
 private:
 

@@ -99,6 +99,17 @@ void ChanServ::logOut(const std::string &channelName, const Command& cmd, const 
 	throw NoSuchChannelException(channelName);
 }
 
+bool ChanServ::isValidChannelName(const std::string& channelName) const
+{
+	if (channelName.empty() || channelName.size() > 50)
+		return false;
+	if (channelName.find_first_of("#&+!") != 0)
+		return false;
+	if (channelName.find_first_of(",\a") != std::string::npos)
+		return false;
+	return true;
+}
+
 /**
  * @brief Creates a new channel with the given name and initial user.
  *
