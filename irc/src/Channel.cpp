@@ -2,7 +2,7 @@
 
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
-#include "BadChanMaskException.hpp"
+#include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
@@ -85,7 +85,7 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 		throw UserOnChannelException(username, name_);
 	}
 	if (isPasswordProtected() && password != password_)
-		throw BadChanMaskException(name_);
+		throw BadChanKeyException(name_);
 	if (isInviteRestricted() && !isInvited(socketNewUser))
 		throw InviteOnlyException(name_);
 	if (isFull())
@@ -279,6 +279,8 @@ void Channel::disableTopicRestriction() { topicRestricted_ = false; }
  */
 void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
+	if (!isConnected(socketUser))
+		throw UserNotInChannelException(UserManager::getInstance().getUserNickname(socketUser), name_);
 	if (isTopicRestricted() && !isOperator(socketUser))
 		throw ChannelPrivilegesNeeded(name_);
 	topic_ = newTopic;

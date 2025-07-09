@@ -3,7 +3,7 @@
 #include "Tester.hpp"
 
 #include "Channel.hpp"
-#include "BadChanMaskException.hpp"
+#include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
@@ -77,8 +77,8 @@ public:
 
 		chan.setPassword("secret");
 
-		Tester::assertThrows<BadChanMaskException>([&]() {chan.connectUser(9);});
-		Tester::assertThrows<BadChanMaskException>([&]() {chan.connectUser(9, "wrongpass");});
+		Tester::assertThrows<BadChanKeyException>([&]() {chan.connectUser(9);});
+		Tester::assertThrows<BadChanKeyException>([&]() {chan.connectUser(9, "wrongpass");});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(9, "secret");});
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(9);});
 
