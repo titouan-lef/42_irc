@@ -11,4 +11,5 @@ public:
 	~NickCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;
+	void parsingNickname(const std::string& Nickname) const;
 };
