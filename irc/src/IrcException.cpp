@@ -8,10 +8,10 @@
 #include "UserManager.hpp"
 
 IrcException::IrcException(const int code, const std::vector<std::string> &arg, const std::string &trailing):
-	code_(code), arg_(arg), trailing_(trailing) {}
+	arg_(arg), code_(code), trailing_(trailing) {}
 
 IrcException::IrcException(const int code, const std::string &trailing):
-	code_(code), arg_(std::vector<std::string>()), trailing_(trailing) {}
+	arg_(std::vector<std::string>()), code_(code), trailing_(trailing) {}
 
 IrcException::~IrcException() throw() {}
 
@@ -98,14 +98,22 @@ ErroneUsNicknameException::ErroneUsNicknameException(const std::string& nickname
 NicknameInUseException::NicknameInUseException(const std::string& nickname):
 	IrcException(433, std::vector<std::string>(1, nickname), "Nickname is already in use") {}
 
-UserNotInChannelException::UserNotInChannelException(const std::vector<std::string>& arg):
-	IrcException(441, arg, "They aren't on that channel") {}
+UserNotInChannelException::UserNotInChannelException(const std::string& nickname, const std::string& channelName):
+	IrcException(441, "They aren't on that channel")
+{
+	arg_.push_back(nickname);
+	arg_.push_back(channelName);
+}
 
 NotOnChannelException::NotOnChannelException(const std::string& channelName):
 	IrcException(442, std::vector<std::string>(1, channelName), "You're not on that channel") {}
 
-UserOnChannelException::UserOnChannelException(const std::vector<std::string>& arg):
-	IrcException(443, arg, "is already on channel") {}
+UserOnChannelException::UserOnChannelException(const std::string& username, const std::string& channelName):
+	IrcException(443, "is already on channel")
+{
+	arg_.push_back(username);
+	arg_.push_back(channelName);
+}
 
 NotRegisteredException::NotRegisteredException():
 	IrcException(451, std::vector<std::string>(1, User::getDefaultNickname()), "You have not registered") {}

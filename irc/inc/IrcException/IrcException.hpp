@@ -15,10 +15,12 @@ public:
 
 	void sendError(const int receiverSocket) const;
 
+protected:
+	std::vector<std::string> arg_;
+
 private:
 	void displayError(const int receiverSocket) const;
 
 	const int code_;
-	const std::vector<std::string> arg_;
 	const std::string trailing_;
 };

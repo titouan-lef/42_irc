@@ -9,5 +9,5 @@ class UserOnChannelException: public IrcException
 public:
 	virtual ~UserOnChannelException() throw() {}
 
-	UserOnChannelException(const std::vector<std::string>& arg);
+	UserOnChannelException(const std::string& username, const std::string& channelName);
 };

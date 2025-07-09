@@ -150,11 +150,8 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) cons
 		throw NoSuchNickException(option.argument);
 	if (!channel.isConnected(targetSocket))
 	{
-		std::vector<std::string> arg;
 		std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
-		arg.push_back(nickname);
-		arg.push_back(channel.getName());
-		throw UserNotInChannelException(arg);
+		throw UserNotInChannelException(nickname, channel.getName());
 	}
 	if (option.isAddFlag)
 	{

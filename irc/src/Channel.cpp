@@ -81,11 +81,8 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 {
 	if (isConnected(socketNewUser))
 	{
-		std::string nickname = UserManager::getInstance().getUserNickname(socketNewUser);
-		std::vector<std::string> arg;
-		arg.push_back(nickname);
-		arg.push_back(name_);
-		throw UserOnChannelException(arg);
+		std::string username = UserManager::getInstance().getUser(socketNewUser).getUsername();
+		throw UserOnChannelException(username, name_);
 	}
 	if (isPasswordProtected() && password != password_)
 		throw BadChanMaskException(name_);
@@ -111,10 +108,8 @@ int Channel::disconnectUser(const int socketUser, const std::string& message)
 {
 	if (!isConnected(socketUser))
 	{
-		std::vector<std::string> arg;
-		arg.push_back(UserManager::getInstance().getUserNickname(socketUser));
-		arg.push_back(name_);
-		throw UserNotInChannelException(arg);
+		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
+		throw UserNotInChannelException(nickname, name_);
 	} /** @todo FIX: wrong socket to throw exception */
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
@@ -139,10 +134,8 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 		throw ChannelPrivilegesNeeded(name_);
 	if (isConnected(invitedSocket))
 	{
-		std::vector<std::string> args;
-		args.push_back(UserManager::getInstance().getUser(invitedSocket).getUsername());
-		args.push_back(name_);
-		throw UserOnChannelException(args);
+		const std::string username = UserManager::getInstance().getUser(invitedSocket).getUsername();
+		throw UserOnChannelException(username, name_);
 	}
 	socketInvitedUsers_.insert(invitedSocket);
 }
