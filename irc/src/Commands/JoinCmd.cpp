@@ -1,7 +1,5 @@
 #include "JoinCmd.hpp"
-
-#include <sstream>
-
+#include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"

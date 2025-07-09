@@ -1,11 +1,10 @@
 #include "ListCmd.hpp"
-
+#include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 
 void ListCmd::execute(const Command& cmd, const int socket) const
 {
-
 	if (cmd.arg.empty())
 	{
 		ChanServ::getInstance().listAllChannels(socket);

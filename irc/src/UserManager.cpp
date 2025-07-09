@@ -8,6 +8,9 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 
+#define INACTIVITY_TIMEOUT 360
+#define INACTIVITY_PING_LIMIT 240
+
 UserManager::UserManager() {}
 
 /**
@@ -46,10 +49,14 @@ UserManager& UserManager::getInstance()
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
 	User newUser;
+	Activity userActivity;
+	userActivity.timeLastActivity = time(NULL);
+	userActivity.pingSend = false;
 	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
 	userList_.push_back(newUser);
 	pollfdList_.push_back(newPollfd);
 	addressList_.push_back(clientAddr);
+	lastActivities_.push_back(userActivity);
 	MsgServ::getInstance().addNewBuffer();
 }
 
@@ -70,6 +77,27 @@ void UserManager::listenClients()
 			executeCommandsClient(i);
 			if (i >= userList_.size()) /** @todo better management quit */
 				break;
+		}
+	}
+}
+
+void UserManager::checkActivities()
+{
+	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
+	{
+		Activity& user = lastActivities_.at(i);
+		time_t elapsed = time(NULL) - user.timeLastActivity;
+		if (elapsed > INACTIVITY_PING_LIMIT && !user.pingSend)
+		{
+			int socket = pollfdList_.at(i).fd;
+			MsgServ::getInstance().sendMessageReply(socket, socket, "PING", std::vector<std::string>(1, "ircserv"));
+			user.pingSend = true;
+			continue;
+		}
+		if (elapsed > INACTIVITY_TIMEOUT)
+		{
+			closeConnection(i);
+			continue;;
 		}
 	}
 }
@@ -236,6 +264,19 @@ const std::string UserManager::getUserPrefix(const int userSocket) const
 	return User::getDefaultPrefix(); /** @todo not better option */
 }
 
+void UserManager::updateLastActivity(const int userSocket)
+{
+	size_t index = getIndex(userSocket);
+	if (!lastActivities_.at(index).pingSend)
+		lastActivities_.at(index).timeLastActivity = time(NULL);
+}
+
+void UserManager::validatePongResponse(const int userSocket)
+{
+	size_t index = getIndex(userSocket);
+	lastActivities_.at(index).pingSend = false;
+}
+
 /**
  * @brief Checks if the server socket has data available to read.
  *
@@ -297,7 +338,6 @@ void UserManager::closeConnection(const int index)
 		struct sockaddr_in addr = addressList_.at(index);
 		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 	}
-	addressList_.erase(addressList_.begin() + index);
 	close(pollfdList_.at(index).fd);
 	deleteUser(index);
 }
@@ -315,6 +355,8 @@ void UserManager::deleteUser(const int index)
 		return; // or throw std::out_of_range("Invalid index in deleteUser");
 	pollfdList_.erase(pollfdList_.begin() + index);
 	userList_.erase(userList_.begin() + index);
+	addressList_.erase(addressList_.begin() + index);
+	lastActivities_.erase(lastActivities_.begin() + index);
 	MsgServ::getInstance().removeBuffer(index);
 }
 
@@ -324,9 +366,9 @@ void UserManager::deleteUser(const int index)
  * 
  * @param index The index of socket user, -1 if is not found;
  */
-int UserManager::getIndex(const int userSocket)
+size_t UserManager::getIndex(const int userSocket)
 {
-	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	for (size_t i = 1; i < pollfdList_.size(); ++i)
 	{
 		if (pollfdList_.at(i).fd == userSocket)
 			return i;

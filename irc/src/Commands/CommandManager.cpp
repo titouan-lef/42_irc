@@ -1,5 +1,5 @@
 #include "CommandManager.hpp"
-
+#include "UserManager.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -63,6 +63,7 @@ CommandManager& CommandManager::getInstance()
 */
 void CommandManager::interpretData(const std::string& recv, const int senderSocket)
 {
+	UserManager::getInstance().updateLastActivity(senderSocket);
 	Command cmd = parserCmd(recv);
 	commands_[cmd.name]->execute(cmd, senderSocket);
 }

@@ -479,7 +479,7 @@ void Channel::sendMessageToAllUsers(const int senderSocket, const Command& cmd)
 	{
 		if (senderSocket == socketConnectedUsers_.at(i))
 			continue ;
-		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i),  cmd.name, cmd.arg, cmd.trailing);
+		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i), cmd.name, cmd.arg, cmd.trailing);
 	}
 }
 

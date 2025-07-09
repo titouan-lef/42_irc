@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <poll.h>
+#include <ctime>
 
 #include "User.hpp"
 
@@ -26,6 +27,7 @@ public:
 
 	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
 	void listenClients();
+	void checkActivities();
 	int reiceveFromClient(int i);
 	void executeCommandsClient(int i);
 	int findUserSocket(std::string nickname);
@@ -38,8 +40,17 @@ public:
 	User& getUser(const int userSocket);
 	const std::string getUserNickname(const int userSocket) const;
 	const std::string getUserPrefix(const int userSocket) const;
+	void updateLastActivity(const int userSocket);
+	void validatePongResponse(const int userSocket);
 
 private:
+
+	struct Activity
+	{
+		time_t timeLastActivity;
+		bool pingSend;
+	};
+
 	UserManager();
 	UserManager(const UserManager& other);
 	UserManager& operator=(const UserManager& other);
@@ -47,11 +58,12 @@ private:
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
 	void deleteUser(const int index);
-	int getIndex(const int userSocket);
+	size_t getIndex(const int userSocket);
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;
 	std::vector<struct sockaddr_in> addressList_;
+	std::vector<Activity> lastActivities_;
 
 	friend class CommandTester; /** @todo remove before push */
 	friend class ModeCmdTester; /** @todo remove before push */

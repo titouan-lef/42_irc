@@ -157,18 +157,17 @@ void Server::parsePasswordChar(const unsigned char c)
 void Server::onEvent()
 {
 	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
-	if (poll_count == 0)
-		return; // Timeout, no events, loop again
-	if (poll_count > 0)
-	{
-		manageEvent();
-		return;
-	}
-	if (errno != EINTR)// Interrupted by something else that a signal /** @todo keep because of errno not allowed in correction ?? */
+	if (poll_count < 0)// Interrupted by something else that a signal /** @todo keep because of errno not allowed in correction ?? */
 	{
 		running_ = false;
-		std::cerr << "Error: poll" << std::endl;
+		if (errno != EINTR)
+			std::cerr << "Error: poll" << std::endl;
+		return;
 	}
+	UserManager::getInstance().checkActivities();
+	if (poll_count > 0)
+		manageEvent();
+
 }
 
 void Server::manageEvent()

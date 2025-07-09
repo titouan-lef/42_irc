@@ -1,4 +1,5 @@
 #include "TopicCmd.hpp"
+#include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 
