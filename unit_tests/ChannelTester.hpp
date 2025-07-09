@@ -3,6 +3,7 @@
 #include "Tester.hpp"
 
 #include "Channel.hpp"
+#include "UserNotInChannelException.hpp"
 #include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
@@ -93,6 +94,7 @@ public:
 
 		Channel chan("secure", 10);
 
+		Tester::assertThrows<UserNotInChannelException>([&]() {chan.setTopic("This is a test!", 11);});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 		Tester::assertDoNotThrows([&]() {chan.setTopic("This is a test!", 11);});
 		Tester::assertExpectedEqualsActual(std::string("This is a test!"), chan.topic_);

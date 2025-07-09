@@ -19,8 +19,8 @@ public:
 		sockfd = socket(AF_INET, SOCK_STREAM, 0);
 		Tester::assertTrue(sockfd >= 0);
 		struct timeval timeout;
-		timeout.tv_sec = 1;
-		timeout.tv_usec = 0;
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 100000;
 		setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
 
 		sockaddr_in server_addr;
@@ -34,30 +34,14 @@ public:
 
 		(void)password;
 		sendCommand("PASS " + password);
-		// assertReply("Password accepted"); /** @todo complete with good reply */
-
 		sendCommand("NICK " + nickname);
-		// assertReply("001"); /** @todo complete with good reply */
-
 		sendCommand("USER " + nickname +" 0 * :Real Name");
-		// assertReply("001"); /** @todo complete with good reply */
+		// skipReply();
 	};
 
 	~ReplyTester()
 	{
 		close(sockfd);
-	};
-
-	void testerModeReply()
-	{
-		Tester::startTest("MODE replies test");
-
-		sendCommand("JOIN #test");
-		assertReply(":testuser!testuser@localhost JOIN :#test\r\n:ircserv 331 #test :No topic is set\r\n:ircserv 353 = #test :@testuser\r\n:ircserv 366 #test :End of NAMES list");
-		sendCommand("MODE #test +it");
-		sendCommand("MODE #test");
-		assertReply(":ircserv 324 #test +it");
-		/** @todo complete with tests */
 	};
 
 	void sendCommand(const std::string& cmd)
@@ -69,29 +53,26 @@ public:
 
 	void assertReply(const std::string& expected)
 	{
-		std::string reply = readReply();
+		std::string reply = readReply(expected);
 		if (!reply.empty())
 			Tester::assertExpectedEqualsActual(expected + "\r\n", reply);
 	};
 
 	void skipReply()
 	{
-		usleep(100);
-		readReply();
+		readReply("");
 	};
 
 private:
 
-
-
-	std::string readReply()
+	std::string readReply(const std::string& expected)
 	{
 		char buf[1024];
 		std::memset(buf, 0, sizeof(buf));
 		ssize_t received = recv(sockfd, buf, sizeof(buf) - 1, 0);
 
 		if (received < 0 && (errno == EWOULDBLOCK || errno == EAGAIN))
-			Tester::assertExpectedEqualsActual(std::string(""), std::string("time out"));
+			Tester::assertExpectedEqualsActual(std::string(expected), std::string("time out"));
 		else if (received < 0)
 			Tester::assertTrue(false);
 

@@ -113,7 +113,7 @@ std::string MsgServ::formatMsg(const Message &msg)
 		if (!msg.arg.at(i).empty())
 			reply += " " + msg.arg.at(i);
 	}
-	if (msg.trailing != "")
+	if (!msg.trailing.empty())
 		reply += " :" + msg.trailing; 
 	reply += "\r\n";
 	return reply;

@@ -27,7 +27,7 @@ private:
 	void addOptionInList(const Command& cmd, std::vector<Option>& optionList, argIterator& it) const;
 	void checkOptionAndAddArg(const Command& cmd, argIterator& it, Option& option) const;
 	const std::string defineOptionArg(const Command& cmd, argIterator& it) const;
-	void executeModeOptions(Channel& channel, const std::vector<Option>& options) const;
+	void executeModeOptions(const int socket, Channel& channel, const std::vector<Option>& options) const;
 	void executeModeOption(Channel& channel, const Option& option) const;
 
 	void inviteMode(Channel& channel, const Option& option) const;
