@@ -109,7 +109,10 @@ std::string MsgServ::formatMsg(const Message &msg)
 {
 	std::string reply = ":" + msg.senderPrefix + " " + msg.commandId;
 	for (std::size_t i = 0; i < msg.arg.size(); ++i)
-		reply += " " + msg.arg.at(i);
+	{
+		if (!msg.arg.at(i).empty())
+			reply += " " + msg.arg.at(i);
+	}
 	if (msg.trailing != "")
 		reply += " :" + msg.trailing; 
 	reply += "\r\n";
