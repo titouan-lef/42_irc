@@ -17,4 +17,5 @@ void ListCmd::execute(const Command& cmd, const int socket) const
 	{
 		ChanServ::getInstance().findChannel(channels.at(i)).sendChannelSummary(socket);
 	}
+	MsgServ::getInstance().sendNumericReply(socket, 323, "End of LIST");
 }
