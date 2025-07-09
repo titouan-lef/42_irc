@@ -19,6 +19,8 @@ void ModeCmd::execute(const Command& cmd, const int socket) const
 		throw NeedMoreParamsException(cmd.name);
 	std::string channelName = cmd.arg.at(0);
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
+	if (!channel.isConnected(socket))
+		throw UserNotInChannelException(UserManager::getInstance().getUserNickname(socket), channel.getName());
 	if (!channel.isOperator(socket))
 		throw ChannelPrivilegesNeeded(channel.getName());
 	if (cmd.arg.size() == 1)
@@ -27,7 +29,7 @@ void ModeCmd::execute(const Command& cmd, const int socket) const
 		return;
 	}
 	std::vector<Option> options = parseCommand(cmd);
-	executeModeOptions(channel, options);
+	executeModeOptions(socket, channel, options);
 }
 
 std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd) const
@@ -76,7 +78,7 @@ const std::string ModeCmd::defineOptionArg(const Command& cmd, argIterator& it) 
 	return *it;
 }
 
-void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Option>& options) const
+void ModeCmd::executeModeOptions(const int socket, Channel& channel, const std::vector<ModeCmd::Option>& options) const
 {
 	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
 	{
@@ -86,7 +88,7 @@ void ModeCmd::executeModeOptions(Channel& channel, const std::vector<ModeCmd::Op
 		}
 		catch(const IrcException& e)
 		{
-			std::cerr << e.what() << '\n';
+			e.sendError(socket);
 		}
 	}
 }
