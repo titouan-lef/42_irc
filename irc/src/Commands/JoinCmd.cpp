@@ -3,20 +3,29 @@
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
+#define MAX_ARGS 2
+#define MIN_ARGS 1
 
 void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	if (cmd.arg.empty() || cmd.arg.size() > 2 || !cmd.trailing.empty())
-		throw NeedMoreParamsException(cmd.name);
-	if (cmd.arg.size() == 1 && cmd.arg.at(0) == "0")
-	{
-		ChanServ::getInstance().quitAllChannels(senderSocket);
-		return ;
-	}
-	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
+	size_t nbArgs = getNbArgs(cmd);
+	std::string lastParam = getLastParam(cmd, MIN_ARGS, MAX_ARGS);
+	std::vector<std::string> channels;
 	std::vector<std::string> passwords;
-	if (cmd.arg.size() == 2)
-		passwords = split(cmd.arg.at(1), ',');
+	if (nbArgs == 1)
+	{
+		if (lastParam == "0")
+		{
+			ChanServ::getInstance().quitAllChannels(senderSocket);
+			return ;
+		}
+		channels = split(lastParam, ',');
+	}
+	else
+	{
+		channels = split(cmd.arg.at(0), ',');
+		passwords = split(lastParam, ',');
+	}
 
 	size_t j = 0;
 	for (size_t i = 0; i < channels.size(); ++i)

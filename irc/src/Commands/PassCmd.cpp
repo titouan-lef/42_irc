@@ -6,27 +6,15 @@
 #include "Server.hpp"
 #include "UserManager.hpp"
 
+#define ARG_REQUIERED 1
+
 void PassCmd::execute(const Command& cmd, const int socket) const
 {
-	const int argsMax = 1;
-
 	User& user = UserManager::getInstance().getUser(socket);
 	if (user.isConnected())
 		throw AlreadyRegistredException();
-	if (cmd.trailing.empty())
-	{
-		if (cmd.arg.size() != argsMax) /** @todo check is correct exception*/
-			throw NeedMoreParamsException(cmd.name);
-		if (!Server::getInstance().isCorrectPassword(cmd.arg.at(0))) 
+	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
+	if (!Server::getInstance().isCorrectPassword(lastParam))
 			throw PasswordMismatchException();
-		user.validConnection();
-	}
-	else
-	{
-		if (cmd.arg.size() != 0) /** @todo check is correct exception*/
-			throw NeedMoreParamsException(cmd.name);
-		if (!Server::getInstance().isCorrectPassword(cmd.trailing))
-			throw PasswordMismatchException();
-		user.validConnection();
-	}
+	user.validConnection();
 }

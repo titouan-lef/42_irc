@@ -34,9 +34,6 @@ public:
 		cmd = {"JOIN", "", {"#test", "#test2", "#test3"}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
 
-		cmd = {"JOIN", "trailing", {"#test"}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {join.execute(cmd ,1);});
-
 		cmd = {"JOIN", "", {"test"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,1);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});

@@ -8,46 +8,34 @@
 #include "UserManager.hpp"
 
 #define MAX_NICK_LENGTH 9
-#define MAX_ARGS 1
+#define ARG_REQUIERED 1
 
 void NickCmd::execute(const Command& cmd, const int socket) const
 {
 	User &user = UserManager::getInstance().getUser(socket);
 	if (!user.isConnected())
 		throw PasswordMismatchException();
-	std::string Nickname;
-	if (cmd.trailing.empty())
-	{
-		if (cmd.arg.size() != MAX_ARGS)
-			throw NeedMoreParamsException(cmd.name);
-		Nickname = cmd.arg.at(0);
-	}
-	else
-	{
-		if (cmd.arg.size() != 0)
-			throw NeedMoreParamsException(cmd.name);
-		Nickname = cmd.trailing;
-	}
-	NickCmd::parsingNickname(Nickname);
-	if (UserManager::getInstance().findUserSocket(Nickname) != -1)
-		throw NicknameInUseException(Nickname);
-	user.setNickname(Nickname);
+	std::string nickname = getLastParam(cmd, ARG_REQUIERED);
+	NickCmd::parsingNickname(nickname);
+	if (UserManager::getInstance().findUserSocket(nickname) != -1)
+		throw NicknameInUseException(nickname);
+	user.setNickname(nickname);
 }
 
-void NickCmd::parsingNickname(const std::string& Nickname) const
+void NickCmd::parsingNickname(const std::string& nickname) const
 {
-	if (Nickname.empty())
+	if (nickname.empty())
 		throw NoNicknameGivenException();
-	if (Nickname.length() > MAX_NICK_LENGTH)
-		throw ErroneUsNicknameException(Nickname);
+	if (nickname.length() > MAX_NICK_LENGTH)
+		throw ErroneUsNicknameException(nickname);
 	std::string specials = "_[]\\`^{}|";
-	unsigned char c = Nickname[0];
+	unsigned char c = nickname[0];
 	if ((!isalpha(c)) && specials.find(c) == std::string::npos)
-		throw ErroneUsNicknameException(Nickname);
-	for (size_t i = 1; i < Nickname.length(); ++i)
+		throw ErroneUsNicknameException(nickname);
+	for (size_t i = 1; i < nickname.length(); ++i)
 	{
-		c = Nickname[i];
+		c = nickname[i];
 		if ((!isalnum(c)) && specials.find(c) == std::string::npos && c != '-')
-			throw ErroneUsNicknameException(Nickname);
+			throw ErroneUsNicknameException(nickname);
 	}
 }
