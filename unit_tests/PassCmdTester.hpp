@@ -32,7 +32,7 @@ public:
 		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
 
 		cmd = {"PASS", "", {"pass", "pass2"}};
-		Tester::assertThrows<PasswordMismatchException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
 
 		cmd = {"PASS", "hello", {"pass"}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
