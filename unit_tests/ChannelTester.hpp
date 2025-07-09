@@ -34,7 +34,7 @@ public:
 		Tester::assertFalse(chan.isInviteRestricted());
 		Tester::assertFalse(chan.isTopicRestricted());
 		Tester::assertTrue(chan.isConnected(10));
-		Tester::assertTrue(chan.isModerator(10));
+		Tester::assertTrue(chan.isOperator(10));
 	};
 
 	void testConnection()
@@ -95,14 +95,14 @@ public:
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 		Tester::assertDoNotThrows([&]() {chan.setTopic("This is a test!", 11);});
-		Tester::assertExpectedEqualsActual(std::string("This is a test!"), chan.getTopic());
+		Tester::assertExpectedEqualsActual(std::string("This is a test!"), chan.topic_);
 		chan.enableTopicRestriction();
 		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {chan.setTopic("Changing topic error", 11);});
 		Tester::assertDoNotThrows([&]() {chan.setTopic("Changing topic good", 10);});
-		Tester::assertExpectedEqualsActual(std::string("Changing topic good"), chan.getTopic());
+		Tester::assertExpectedEqualsActual(std::string("Changing topic good"), chan.topic_);
 		chan.disableTopicRestriction();
 		Tester::assertDoNotThrows([&]() {chan.setTopic("This is a test2!", 11);});
-		Tester::assertExpectedEqualsActual(std::string("This is a test2!"), chan.getTopic());
+		Tester::assertExpectedEqualsActual(std::string("This is a test2!"), chan.topic_);
 	};
 
 	void testUserLimit()

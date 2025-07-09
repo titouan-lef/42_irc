@@ -53,19 +53,19 @@ public:
 		TopicCmd mode;
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
-		Tester::assertFalse(chan.isModerator(10));
-		Tester::assertFalse(chan.isModerator(11));
+		Tester::assertFalse(chan.isOperator(10));
+		Tester::assertFalse(chan.isOperator(11));
 
 		Command cmd = {"TOPIC", "", {"#test"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 
 		cmd = {"MODE", ":New topic is set", {"#test"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
-		Tester::assertExpectedEqualsActual(std::string("New topic is set"), chan.getTopic());
+		Tester::assertExpectedEqualsActual(std::string("New topic is set"), chan.topic_);
 
 		cmd = {"MODE", ":", {"#test"}};
 		Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
-		Tester::assertExpectedEqualsActual(std::string(""), chan.getTopic());
+		Tester::assertExpectedEqualsActual(std::string(""), chan.topic_);
 
 		ChanServ::getInstance().quitAllChannels(10);
 	};

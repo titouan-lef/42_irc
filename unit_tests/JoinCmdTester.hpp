@@ -53,16 +53,16 @@ public:
 		Command cmd = {"JOIN", "", {"#join"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 
 		cmd = {"JOIN", "", {"#join,#chan"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isOperator(10));
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", cmd, 10);});
@@ -88,23 +88,23 @@ public:
 		cmd = {"JOIN", "", {"#join", "password"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isModerator(10));
+		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 10);});
 
 		cmd = {"JOIN", "", {"#join,#chan"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", cmd, 10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#chan");});
 
 		cmd = {"JOIN", "", {"#join,#chan", "password"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isModerator(10));
+		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isOperator(10));
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 10);});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", cmd, 10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#chan");});
@@ -112,9 +112,9 @@ public:
 		cmd = {"JOIN", "", {"#chan,#join", "password"}};
 		Tester::assertDoNotThrows([&]() {join.execute(cmd ,10);});
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isModerator(10));
+		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isOperator(10));
 		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isModerator(10));
+		Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isOperator(10));
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", cmd, 10);});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", cmd, 10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#chan");});
