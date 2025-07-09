@@ -31,7 +31,7 @@ Channel& ChanServ::findOrCreateChannel(std::string name, const int socketUser)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
 	{
-		if (it->getName() == name)
+		if (it->is(name))
 			return *it;
 	}
 	return builtNewChannel(name, socketUser);
@@ -41,7 +41,7 @@ Channel& ChanServ::findChannel(std::string name)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
 	{
-		if (it->getName() == name)
+		if (it->is(name))
 			return *it;
 	}
 	throw NoSuchChannelException(name);
@@ -90,7 +90,7 @@ void ChanServ::logOut(const std::string &channelName, const Command& cmd, const 
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
-		if (channels_.at(i).getName() == channelName)
+		if (channels_.at(i).is(channelName))
 		{
 			logOut(i, cmd, loggedOutSocket);
 			return;
@@ -129,7 +129,7 @@ void ChanServ::deleteChannel(const std::string& name)
 {
 	for (std::vector<Channel>::iterator it = channels_.begin(); it != channels_.end(); ++it)
 	{
-		if (it->getName() == name)
+		if (it->is(name))
 		{
 			channels_.erase(it);
 			break;
@@ -144,7 +144,7 @@ void ChanServ::deleteChannel(const int index)
 
 void ChanServ::logOut(const size_t index, const Command& cmd, const int loggedOutSocket)
 {
-	channels_.at(index).sendMessageToAllUsers(loggedOutSocket, cmd);
+	channels_.at(index).sendMessageToAllUsers(loggedOutSocket, cmd.name, cmd.arg, cmd.trailing);
 	if(channels_.at(index).disconnectUser(loggedOutSocket) == -1)
 		deleteChannel(index);
 	/** @todo send all message for  */

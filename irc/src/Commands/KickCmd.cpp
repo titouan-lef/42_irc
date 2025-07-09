@@ -26,7 +26,7 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 			int chanNumber = i;
 			if (i > channels.size())
 				chanNumber = 0;
-			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber)).isModerator(senderSocket))
+			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber)).isOperator(senderSocket))
 				throw ChannelPrivilegesNeeded(channels.at(chanNumber));
 			if (socketKicked < 0)
 				throw NoSuchNickException(users.at(i));

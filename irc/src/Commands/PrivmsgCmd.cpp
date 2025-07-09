@@ -27,7 +27,7 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 		if (ChanServ::getInstance().isValidChannelName(target.at(i)))
 		{
 			Channel chanTmp = ChanServ::getInstance().findChannel(target.at(i));
-			chanTmp.sendMessageToAllUsers(senderSocket, truncateCmd);
+			chanTmp.sendMessageToAllUsers(senderSocket, truncateCmd.name, truncateCmd.arg, truncateCmd.trailing);
 		}
 		else
 		{

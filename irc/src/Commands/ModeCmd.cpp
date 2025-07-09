@@ -19,7 +19,7 @@ void ModeCmd::execute(const Command& cmd, const int socket) const
 		throw NeedMoreParamsException(cmd.name);
 	std::string channelName = cmd.arg.at(0);
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
-	if (!channel.isModerator(socket))
+	if (!channel.isOperator(socket))
 		throw ChannelPrivilegesNeeded(channel.getName());
 	if (cmd.arg.size() == 1)
 	{
@@ -148,19 +148,20 @@ void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) cons
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
 	if (targetSocket == -1)
 		throw NoSuchNickException(option.argument);
+	if (!channel.isConnected(targetSocket))
+	{
+		std::vector<std::string> arg;
+		std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
+		arg.push_back(nickname);
+		arg.push_back(channel.getName());
+		throw UserNotInChannelException(arg);
+	}
 	if (option.isAddFlag)
 	{
-		if (channel.addNewModerator(targetSocket) < 0)
-		{
-			std::vector<std::string> arg;
-			std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
-			arg.push_back(nickname);
-			arg.push_back(channel.getName());
-			throw UserNotInChannelException(arg);
-		}
+		channel.addNewOperator(targetSocket);
 		return ;
 	}
-	channel.removeModerator(targetSocket);
+	channel.removeOperator(targetSocket);
 }
 
 void ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option) const
