@@ -8,6 +8,6 @@
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
-	const int invatedSocket = UserManager::getInstance().findUserSocket(cmd.arg.at(0));
-	ChanServ::getInstance().findChannel(lastParam).inviteUser(invatedSocket, senderSocket);
+	const int invitedSocket = UserManager::getInstance().findUserSocket(cmd.arg.at(0));
+	ChanServ::getInstance().findChannel(lastParam).inviteUser(invitedSocket, senderSocket);
 }
