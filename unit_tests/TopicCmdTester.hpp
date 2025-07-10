@@ -19,6 +19,7 @@ public:
 		Channel& chan = ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
 		testPermission(chan);
 		testTopic(chan);
+		ChanServ::getInstance().quitAllChannels(1);
 	};
 
 	void testPermission(Channel& chan)
@@ -26,7 +27,6 @@ public:
 		Tester::startTest("TOPIC permission tests");
 
 		TopicCmd topic;
-		(void)chan;
 
 		Command cmd = {"TOPIC", "", {}};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {topic.execute(cmd ,1);});
@@ -57,21 +57,19 @@ public:
 	{
 		Tester::startTest("TOPIC managment tests");
 		{
-			TopicCmd mode;
+			TopicCmd topic;
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
-
 			Tester::assertFalse(chan.isOperator(10));
-			Tester::assertFalse(chan.isOperator(11));
 
 			Command cmd = {"TOPIC", "", {"#test"}};
-			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 
-			cmd = {"MODE", ":New topic is set", {"#test"}};
-			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			cmd = {"TOPIC", ":New topic is set", {"#test"}};
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(std::string("New topic is set"), chan.topic_);
 
-			cmd = {"MODE", ":", {"#test"}};
-			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			cmd = {"TOPIC", ":", {"#test"}};
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(std::string(""), chan.topic_);
 
 			ChanServ::getInstance().quitAllChannels(10);
