@@ -22,7 +22,8 @@ Command ACommand::truncateTrailing(const Command& cmd) const
 	Command newCmd;
 	newCmd.name = cmd.name;
 	newCmd.arg = cmd.arg;
-	newCmd.trailing = cmd.trailing.substr(1);
+	if (!cmd.trailing.empty())
+		newCmd.trailing = cmd.trailing.substr(1);
 	return (newCmd);
 }
 
