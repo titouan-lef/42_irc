@@ -1,5 +1,4 @@
 #include "PassCmd.hpp"
-
 #include "PasswordMismatchException.hpp"
 #include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"

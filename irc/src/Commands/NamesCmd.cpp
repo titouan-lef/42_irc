@@ -3,16 +3,17 @@
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 
+#define ARG_REQUIERED 1
+
 void NamesCmd::execute(const Command& cmd, const int socket) const
 {
-	if (cmd.arg.size() == 0)
+	if (getNbArgs(cmd) == 0)
 	{
 		ChanServ::getInstance().namesAllChannels(socket);
 		return;
 	}
-	if (cmd.arg.size() > 1)
-		throw NeedMoreParamsException(cmd.name);
-	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
+	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
+	std::vector<std::string> channels = split(lastParam, ',');
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		ChanServ::getInstance().findChannel(channels.at(i)).sendActualUsers(socket);

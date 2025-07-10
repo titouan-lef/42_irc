@@ -8,8 +8,6 @@
 #include "TooManyTargetsException.hpp"
 #include "NoRecipientException.hpp"
 
-#define MAX_TARGET 4
-
 void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	if (cmd.arg.size() > 1)
