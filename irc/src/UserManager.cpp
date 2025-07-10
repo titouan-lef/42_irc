@@ -258,6 +258,23 @@ const std::string UserManager::getUserNickname(const int userSocket) const
 }
 
 /**
+ * @brief Retrieves the nickname of the user associated with the given socket.
+ *
+ * @param socket The socket descriptor of the user.
+ * 
+ * @return A reference to the nickname string. Returns a default nickname if not found.
+ */
+const std::string UserManager::getUserName(const int userSocket) const
+{
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	{
+		if (pollfdList_.at(i).fd == userSocket)
+			return userList_.at(i).getUsername();
+	}
+	return User::getDefaultNickname(); /** @todo not better option */
+}
+
+/**
  * @brief Retrieves the full IRC prefix (nickname!user@host) for the given socket.
  *
  * @param socket The socket descriptor of the user.

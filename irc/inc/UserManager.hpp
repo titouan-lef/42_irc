@@ -42,6 +42,7 @@ public:
 	int getNbUserEvent() const;
 	User& getUser(const int userSocket);
 	const std::string getUserNickname(const int userSocket) const;
+	const std::string getUserName(const int userSocket) const;
 	const std::string getUserPrefix(const int userSocket) const;
 	void updateLastActivity(const int userSocket);
 	void validatePongResponse(const int userSocket);
