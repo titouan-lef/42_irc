@@ -11,6 +11,7 @@ class CommandTester; /** @todo remove before push */
 class PrivMsgTester; /** @todo remove before push */
 class ModeCmdTester; /** @todo remove before push */
 class TopicCmdTester; /** @todo remove before push */
+class InviteCmdTester; /** @todo remove before push */
 class PassCmdTester; /** @todo remove before push */
 class NickCmdTester; /** @todo remove before push */
 class UserCmdTester; /** @todo remove before push */
@@ -27,6 +28,7 @@ public:
 	void initUserManager(const int serverSocket, const struct sockaddr_in& serverAddr);
 
 	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
+	bool isNickUsed(const std::string& nickname);
 	void listenClients();
 	void checkActivities();
 	int reiceveFromClient(int i);
@@ -70,6 +72,7 @@ private:
 	friend class PrivMsgTester; /** @todo remove before push */
 	friend class ModeCmdTester; /** @todo remove before push */
 	friend class TopicCmdTester; /** @todo remove before push */
+	friend class InviteCmdTester; /** @todo remove before push */
 	friend class PassCmdTester; /** @todo remove before push */
 	friend class NickCmdTester; /** @todo remove before push */
 	friend class UserCmdTester; /** @todo remove before push */

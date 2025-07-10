@@ -7,6 +7,7 @@
 #include "UserManagerTester.hpp"
 #include "ModeCmdTester.hpp"
 #include "TopicCmdTester.hpp"
+#include "InviteCmdTester.hpp"
 #include "PassCmdTester.hpp"
 #include "NickCmdTester.hpp"
 #include "UserCmdTester.hpp"
@@ -63,6 +64,10 @@ int main()
 	{
 		TopicCmdTester test;
 		test.testerTopicCmd();
+	}
+	{
+		InviteCmdTester test;
+		test.testerInviteCmd();
 	}
 	{
 		KickCmdTester test;
