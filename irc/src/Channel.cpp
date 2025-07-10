@@ -97,6 +97,7 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 	/** @todo send message to all user about new connection (refacto needed) */
 }
 
+
 /**
  * @brief Removes a user from the list of connected users by nickname.
  *
@@ -110,10 +111,34 @@ int Channel::disconnectUser(const int socketUser, const std::string& message)
 	{
 		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
 		throw UserNotInChannelException(nickname, name_);
-	} /** @todo FIX: wrong socket to throw exception */
+	}
+	managePartMessage(socketUser, message);
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
-	managePartMessage(socketUser, message);
+	if (socketConnectedUsers_.size() == 0)
+		return -1;
+	return 0;
+}
+
+
+/**
+ * @brief Removes a user from the list of connected users by nickname.
+ *
+ * @param nickname The nickname of the user to disconnect.
+ *
+ * @throws NoSuchNickException If no user with the given nickname is found in the channel.
+ */
+int Channel::disconnectUser(const int socketUser, const int senderSocket, const std::string& message)
+{
+	if (!isConnected(socketUser))
+	{
+		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
+		throw UserNotInChannelException(nickname, name_);
+	}
+	std::string username = UserManager::getInstance().getUserName(socketUser);
+	manageKickMessage(senderSocket, username, message);
+	removeOperator(socketUser);
+	removeConnectedUser(socketUser);
 	if (socketConnectedUsers_.size() == 0)
 		return -1;
 	return 0;
@@ -293,15 +318,23 @@ void Channel::manageJoinMessage(const int socketNewUser) const
 	sendActualUsers(socketNewUser);
 }
 
-void Channel::managePartMessage(const int socketUser, const std::string& message) const
+void Channel::managePartMessage(const int socketUser, const std::string &message) const
 {
 	manageCmdMessage(socketUser, "PART", std::vector<std::string>(1, name_), message);
 }
 
-void Channel::manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const
+void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string &message) const
 {
-	sendMessageToAllUsers(socketUser, cmdName, arg, trailing);
-	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmdName, arg, trailing);
+	std::vector<std::string> arg;
+	arg.push_back(name_);
+	arg.push_back(username);
+	manageCmdMessage(socketUser, "KICK", arg, message);
+}
+
+void Channel::manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &message) const
+{
+	sendMessageToAllUsers(socketUser, cmdName, arg, message);
+	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmdName, arg, message);
 }
 
 /**

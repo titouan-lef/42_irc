@@ -76,23 +76,33 @@ void ChanServ::listAllChannels(const int socketUser)
  */
 void ChanServ::quitAllChannels(const int loggedOutSocket, const std::string& msg)
 {
-	Command cmd;
-	cmd.name = "QUIT";
-	cmd.trailing = msg;
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).isConnected(loggedOutSocket))
-			logOut(i, cmd, loggedOutSocket);
+			logOut(i, loggedOutSocket, loggedOutSocket, msg);
 	}
 }
 
-void ChanServ::logOut(const std::string &channelName, const Command& cmd, const int loggedOutSocket)
+void ChanServ::logOut(const std::string& channelName, const int loggedOutSocket, const std::string& message)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).is(channelName))
 		{
-			logOut(i, cmd, loggedOutSocket);
+			logOut(i, loggedOutSocket, message);
+			return;
+		}
+	}
+	throw NoSuchChannelException(channelName);
+}
+
+void ChanServ::logOut(const std::string &channelName, const int loggedOutSocket, const int senderSocket, const std::string& message)
+{
+	for (int i = channels_.size() - 1; i >= 0; --i)
+	{
+		if (channels_.at(i).is(channelName))
+		{
+			logOut(i, loggedOutSocket, senderSocket, message);
 			return;
 		}
 	}
@@ -142,10 +152,14 @@ void ChanServ::deleteChannel(const int index)
 	channels_.erase(channels_.begin() + index);
 }
 
-void ChanServ::logOut(const size_t index, const Command& cmd, const int loggedOutSocket)
+void ChanServ::logOut(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	channels_.at(index).sendMessageToAllUsers(loggedOutSocket, cmd.name, cmd.arg, cmd.trailing);
-	if(channels_.at(index).disconnectUser(loggedOutSocket) == -1)
+	if(channels_.at(index).disconnectUser(loggedOutSocket, senderSocket, message) == -1)
 		deleteChannel(index);
-	/** @todo send all message for  */
+}
+
+void ChanServ::logOut(const size_t index, const int loggedOutSocket, const std::string& message)
+{
+	if(channels_.at(index).disconnectUser(loggedOutSocket, message) == -1)
+		deleteChannel(index);
 }
