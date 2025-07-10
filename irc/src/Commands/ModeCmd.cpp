@@ -148,8 +148,6 @@ void ModeCmd::passwordMode(Channel& channel, const ModeCmd::Option& option) cons
 void ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) const
 {
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
-	if (targetSocket == -1)
-		throw NoSuchNickException(option.argument);
 	if (!channel.isConnected(targetSocket))
 	{
 		std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);

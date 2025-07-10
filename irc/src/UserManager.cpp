@@ -4,6 +4,7 @@
 #include "CommandManager.hpp"
 #include "IrcException.hpp"
 #include "ClientDisconnectedException.hpp"
+#include "NoSuchNickException.hpp"
 #include <unistd.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -58,6 +59,16 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 	addressList_.push_back(clientAddr);
 	lastActivities_.push_back(userActivity);
 	MsgServ::getInstance().addNewBuffer();
+}
+
+bool UserManager::isNickUsed(const std::string &nickname)
+{
+	for (std::size_t i = 1; i < userList_.size(); ++i)
+	{
+		if (userList_.at(i).is(nickname))
+			return true;
+	}
+	return false;
 }
 
 /**
@@ -157,8 +168,7 @@ void UserManager::executeCommandsClient(int i)
  * @param nickname The nickname of the user to find.
  * 
  * @return The socket descriptor if found, or -1 if no matching user exists.
- * 
- * @note You must throw NoSuchNickException if return -1.
+
  */
 int UserManager::findUserSocket(std::string nickname)
 {
@@ -167,7 +177,7 @@ int UserManager::findUserSocket(std::string nickname)
 		if (userList_.at(i).is(nickname))
 			return pollfdList_.at(i).fd;
 	}
-	return -1;
+	throw NoSuchNickException(nickname);
 }
 
 /**
@@ -227,7 +237,7 @@ User& UserManager::getUser(const int userSocket)
 		if (pollfdList_.at(i).fd == userSocket)
 			return userList_.at(i);
 	}
-	return userList_.at(0);/** @todo not better option */
+	throw NoSuchNickException(UserManager::getInstance().getUserNickname(userSocket));
 }
 
 /**

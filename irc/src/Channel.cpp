@@ -134,7 +134,7 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 		throw ChannelPrivilegesNeeded(name_);
 	if (isConnected(invitedSocket))
 	{
-		const std::string username = UserManager::getInstance().getUser(invitedSocket).getUsername();
+		const std::string username = UserManager::getInstance().getUserNickname(invitedSocket);
 		throw UserOnChannelException(username, name_);
 	}
 	socketInvitedUsers_.insert(invitedSocket);

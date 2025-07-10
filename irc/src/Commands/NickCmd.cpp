@@ -17,7 +17,7 @@ void NickCmd::execute(const Command& cmd, const int socket) const
 		throw PasswordMismatchException();
 	std::string nickname = getLastParam(cmd, ARG_REQUIERED);
 	NickCmd::parsingNickname(nickname);
-	if (UserManager::getInstance().findUserSocket(nickname) != -1)
+	if (UserManager::getInstance().isNickUsed(nickname))
 		throw NicknameInUseException(nickname);
 	user.setNickname(nickname);
 }

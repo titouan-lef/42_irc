@@ -32,8 +32,6 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 		else
 		{
 			int receiverSocket = UserManager::getInstance().findUserSocket(target.at(i));
-			if (receiverSocket == -1)
-				throw NoSuchNickException(truncateCmd.arg.at(i));
 			MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, truncateCmd.name, truncateCmd.arg, truncateCmd.trailing);
 		}
 	}
