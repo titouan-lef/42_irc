@@ -23,7 +23,7 @@ public:
 	void sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
-	int disconnectUser(const int socketUser, const std::string& message = "");
+	int disconnectUser(const int socketUser, const std::string &cmdName = "", const std::string& message = "");
 	int disconnectUser(const int socketUser, const int senderSocket, const std::string& message = "");
 	void inviteUser(int invitedSocket, int socketSender);
 
@@ -52,7 +52,6 @@ public:
 
 private:
 	void manageJoinMessage(const int socketNewUser) const;
-	void managePartMessage(const int socketUser, const std::string &meaasge) const;
 	void manageKickMessage(const int socketUser, const std::string &username, const std::string &meaasge) const;
 	void manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 

@@ -105,14 +105,14 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
  *
  * @throws NoSuchNickException If no user with the given nickname is found in the channel.
  */
-int Channel::disconnectUser(const int socketUser, const std::string& message)
+int Channel::disconnectUser(const int socketUser, const std::string& cmdName, const std::string& message)
 {
 	if (!isConnected(socketUser))
 	{
 		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
 		throw UserNotInChannelException(nickname, name_);
 	}
-	managePartMessage(socketUser, message);
+	manageCmdMessage(socketUser, cmdName, std::vector<std::string>(1, name_), message);
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
 	if (socketConnectedUsers_.size() == 0)
@@ -316,11 +316,6 @@ void Channel::manageJoinMessage(const int socketNewUser) const
 	manageCmdMessage(socketNewUser, "JOIN", std::vector<std::string>(), name_);
 	sendActualTopic(socketNewUser);
 	sendActualUsers(socketNewUser);
-}
-
-void Channel::managePartMessage(const int socketUser, const std::string &message) const
-{
-	manageCmdMessage(socketUser, "PART", std::vector<std::string>(1, name_), message);
 }
 
 void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string &message) const

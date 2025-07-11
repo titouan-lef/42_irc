@@ -31,7 +31,7 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 				throw ChannelPrivilegesNeeded(channels.at(chanNumber));
 			if (socketKicked < 0)
 				throw NoSuchNickException(users.at(i));
-			ChanServ::getInstance().logOut(channels.at(chanNumber), socketKicked, senderSocket, message);
+			ChanServ::getInstance().kick(channels.at(chanNumber), socketKicked, senderSocket, message);
 		}
 		catch (const IrcException& e)
 		{

@@ -79,30 +79,30 @@ void ChanServ::quitAllChannels(const int loggedOutSocket, const std::string& msg
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).isConnected(loggedOutSocket))
-			logOut(i, loggedOutSocket, loggedOutSocket, msg);
+			logOut(i, loggedOutSocket, "QUIT", msg);
 	}
 }
 
-void ChanServ::logOut(const std::string& channelName, const int loggedOutSocket, const std::string& message)
+void ChanServ::logOut(const std::string& channelName, const int loggedOutSocket, const std::string& cmdName, const std::string& message)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).is(channelName))
 		{
-			logOut(i, loggedOutSocket, message);
+			logOut(i, loggedOutSocket, cmdName, message);
 			return;
 		}
 	}
 	throw NoSuchChannelException(channelName);
 }
 
-void ChanServ::logOut(const std::string &channelName, const int loggedOutSocket, const int senderSocket, const std::string& message)
+void ChanServ::kick(const std::string &channelName, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).is(channelName))
 		{
-			logOut(i, loggedOutSocket, senderSocket, message);
+			kick(i, loggedOutSocket, senderSocket, message);
 			return;
 		}
 	}
@@ -152,14 +152,15 @@ void ChanServ::deleteChannel(const int index)
 	channels_.erase(channels_.begin() + index);
 }
 
-void ChanServ::logOut(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
+
+void ChanServ::logOut(const size_t index, const int loggedOutSocket, const std::string& cmdName, const std::string& message)
 {
-	if(channels_.at(index).disconnectUser(loggedOutSocket, senderSocket, message) == -1)
+	if(channels_.at(index).disconnectUser(loggedOutSocket, cmdName, message) == -1)
 		deleteChannel(index);
 }
 
-void ChanServ::logOut(const size_t index, const int loggedOutSocket, const std::string& message)
+void ChanServ::kick(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	if(channels_.at(index).disconnectUser(loggedOutSocket, message) == -1)
+	if(channels_.at(index).disconnectUser(loggedOutSocket, senderSocket, message) == -1)
 		deleteChannel(index);
 }
