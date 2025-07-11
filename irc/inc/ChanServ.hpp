@@ -15,8 +15,9 @@ public:
 	void deleteChannel(const std::string& name);
 	void namesAllChannels(const int socketUser);
 	void listAllChannels(const int socketUser);
-	void quitAllChannels(const int loggedOutSocket, const std::string& msg = "");
-	void logOut(const std::string& channelName, const int loggedOutSocket, const std::string& cmdName = "", const std::string& message = "");
+	void partAllChannels(const int loggedOutSocket, const std::string& msg = "");
+	void quit(const int loggedOutSocket, const std::string& msg = "");
+	void part(const std::string& channelName, const int loggedOutSocket, const std::string& message = "");
 	void kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message = "");
 	bool isValidChannelName(const std::string& channelName) const;
 
@@ -24,10 +25,12 @@ private:
 
 	ChanServ();
 	// ~ChanServ();
-	void deleteChannel(const int index);
+	size_t findChannelIndex(std::string channelName);
 	Channel& builtNewChannel(std::string name, const int socketModerator);
-	void logOut(const size_t index, const int loggedOutSocket, const std::string& cmdName = "", const std::string& message = "");
+	void deleteChannel(const int index);
+	void part(const size_t index, const int loggedOutSocket, const std::string& message = "");
 	void kick(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message = "");
+	void logOut(const size_t index, const int loggedOutSocket);
 
 	std::vector<Channel> channels_;
 

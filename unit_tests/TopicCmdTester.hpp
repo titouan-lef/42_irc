@@ -19,7 +19,7 @@ public:
 		Channel& chan = ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
 		testPermission(chan);
 		testTopic(chan);
-		ChanServ::getInstance().quitAllChannels(1);
+		ChanServ::getInstance().partAllChannels(1);
 	};
 
 	void testPermission(Channel& chan)
@@ -50,7 +50,7 @@ public:
 		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {topic.execute(cmd ,10);});
 		chan.disableTopicRestriction();
 
-		ChanServ::getInstance().quitAllChannels(10);
+		ChanServ::getInstance().partAllChannels(10);
 	};
 
 	void testTopic(Channel& chan)
@@ -72,7 +72,7 @@ public:
 			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(std::string(""), chan.topic_);
 
-			ChanServ::getInstance().quitAllChannels(10);
+			ChanServ::getInstance().partAllChannels(10);
 		}
 		Tester::startTest("TOPIC managment reply tests");
 		{

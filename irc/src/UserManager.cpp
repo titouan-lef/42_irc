@@ -1,3 +1,4 @@
+#include "Server.hpp"
 #include "UserManager.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
@@ -49,6 +50,12 @@ UserManager& UserManager::getInstance()
  */
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
+	for (std::size_t i = 0; i < pollfdList_.size(); i++) /** Protection for tester @todo remove before push */
+	{
+		if (pollfdList_.at(i).fd == clientSocket)
+			throw std::runtime_error("fd already register");
+	}
+
 	User newUser;
 	Activity userActivity;
 	userActivity.timeLastActivity = time(NULL);
@@ -356,16 +363,19 @@ bool UserManager::hasDataToRead(const int index) const
 void UserManager::closeConnection(const int index)
 {
 	int socket = pollfdList_.at(index).fd;
-	ChanServ::getInstance().quitAllChannels(socket);
-	User user = userList_.at(index);
-	if (user.isNickRegister())
-		std::cout << user.getNickname() + " disconnected" << std::endl;
-	else if (index != 0)
+	ChanServ::getInstance().quit(socket);
+	if (Server::getInstance().isUp())
 	{
-		struct sockaddr_in addr = addressList_.at(index);
-		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
+		User user = userList_.at(index);
+		if (user.isNickRegister())
+			std::cout << user.getNickname() + " disconnected" << std::endl;
+		else if (index != 0)
+		{
+			struct sockaddr_in addr = addressList_.at(index);
+			std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
+		}
+		close(pollfdList_.at(index).fd);
 	}
-	close(pollfdList_.at(index).fd);
 	deleteUser(index);
 }
 
@@ -379,7 +389,7 @@ void UserManager::closeConnection(const int index)
 void UserManager::deleteUser(const int index)
 {
 	if (index <= 0 || index >= static_cast<int>(userList_.size()))
-		return; // or throw std::out_of_range("Invalid index in deleteUser");
+		return; /** @todo or throw std::out_of_range("Invalid index in deleteUser"); */
 	pollfdList_.erase(pollfdList_.begin() + index);
 	userList_.erase(userList_.begin() + index);
 	addressList_.erase(addressList_.begin() + index);

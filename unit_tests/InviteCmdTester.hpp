@@ -16,7 +16,7 @@ public:
 		Channel& chan = ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
 		testPermission(chan);
 		testInvite(chan);
-		ChanServ::getInstance().quitAllChannels(1);
+		ChanServ::getInstance().partAllChannels(1);
 	};
 
 	void testPermission(Channel& chan)
@@ -50,7 +50,7 @@ public:
 		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd ,1);});
 
 		UserManager::getInstance().deleteUser(1);
-		ChanServ::getInstance().quitAllChannels(10);
+		ChanServ::getInstance().partAllChannels(10);
 	};
 
 	void testInvite(Channel& chan)
@@ -69,7 +69,7 @@ public:
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 			UserManager::getInstance().deleteUser(1);
-			ChanServ::getInstance().quitAllChannels(10);
+			ChanServ::getInstance().partAllChannels(10);
 		}
 		Tester::startTest("INVITE managment reply tests");
 		{

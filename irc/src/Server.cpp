@@ -179,6 +179,6 @@ void Server::manageEvent()
 	}
 	catch(const std::exception& e)
 	{
-		e.what();
+		e.what(); /** @todo why is it alone ? */
 	}
 }

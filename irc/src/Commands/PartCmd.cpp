@@ -16,7 +16,7 @@ void PartCmd::execute(const Command& cmd, const int socket) const
 	{
 		try
 		{
-			ChanServ::getInstance().logOut(channels.at(i), socket, cmd.name, message);
+			ChanServ::getInstance().part(channels.at(i), socket, message);
 		}
 		catch (const IrcException& e)
 		{

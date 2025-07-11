@@ -90,7 +90,7 @@ public:
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 		}
-		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#join", 1);});
+		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#join", 1);});
 		{
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findOrCreateChannel("#join", 10);});
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findOrCreateChannel("#chan", 10).connectUser(10);});
@@ -101,7 +101,7 @@ public:
 			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,1);});
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 		}
-		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().logOut("#chan", 1);});
+		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#chan", 1);});
 		UserManager::getInstance().deleteUser(1);
 	};
 
@@ -166,12 +166,13 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #join");
-			user2.sendCommand("JOIN #join");
 			user2.sendCommand("JOIN #chan");
+			user2.sendCommand("JOIN #join");
 			user1.sendCommand("JOIN #chan");
 			usleep(50000);
-			user1.skipReply();
 			user2.skipReply();
+			user1.skipReply();
+
 			user2.sendCommand("KICK #join,#chan user1,user1");
 			usleep(50000);
 			user2.assertReply(":ircserv 482 #join :You're not channel operator\r\n:user2!user2@localhost KICK #chan user1 :Kicked by user2");

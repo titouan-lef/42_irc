@@ -16,7 +16,7 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 	{
 		if (lastParam == "0")
 		{
-			ChanServ::getInstance().quitAllChannels(senderSocket);
+			ChanServ::getInstance().partAllChannels(senderSocket);
 			return ;
 		}
 		channels = split(lastParam, ',');

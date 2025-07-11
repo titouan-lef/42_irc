@@ -97,7 +97,6 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 	/** @todo send message to all user about new connection (refacto needed) */
 }
 
-
 /**
  * @brief Removes a user from the list of connected users by nickname.
  *
@@ -105,43 +104,18 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
  *
  * @throws NoSuchNickException If no user with the given nickname is found in the channel.
  */
-int Channel::disconnectUser(const int socketUser, const std::string& cmdName, const std::string& message)
+bool Channel::disconnectUser(const int socketUser)
 {
 	if (!isConnected(socketUser))
 	{
 		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
 		throw UserNotInChannelException(nickname, name_);
 	}
-	manageCmdMessage(socketUser, cmdName, std::vector<std::string>(1, name_), message);
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
-	if (socketConnectedUsers_.size() == 0)
-		return -1;
-	return 0;
-}
-
-
-/**
- * @brief Removes a user from the list of connected users by nickname.
- *
- * @param nickname The nickname of the user to disconnect.
- *
- * @throws NoSuchNickException If no user with the given nickname is found in the channel.
- */
-int Channel::disconnectUser(const int socketUser, const int senderSocket, const std::string& message)
-{
-	if (!isConnected(socketUser))
-	{
-		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
-		throw UserNotInChannelException(nickname, name_);
-	}
-	std::string username = UserManager::getInstance().getUserName(socketUser);
-	manageKickMessage(senderSocket, username, message);
-	removeOperator(socketUser);
-	removeConnectedUser(socketUser);
-	if (socketConnectedUsers_.size() == 0)
-		return -1;
-	return 0;
+	if (socketConnectedUsers_.empty())
+		return true;
+	return false;
 }
 
 /**
@@ -163,6 +137,19 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 		throw UserOnChannelException(username, name_);
 	}
 	socketInvitedUsers_.insert(invitedSocket);
+}
+
+void Channel::managePartMessage(const int socketUser, const std::string &message) const
+{
+	manageCmdMessage(socketUser, "PART", std::vector<std::string>(1, name_), message);
+}
+
+void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string &message) const
+{
+	std::vector<std::string> arg;
+	arg.push_back(name_);
+	arg.push_back(username);
+	manageCmdMessage(socketUser, "KICK", arg, message);
 }
 
 /**
@@ -208,6 +195,14 @@ bool Channel::is(const std::string& name) const { return name_ == name; }
  * @return True if the user is a operator, false otherwise.
  */
 bool Channel::isConnected(const int socketUser) const { return findUser(socketConnectedUsers_, socketUser) != socketConnectedUsers_.end(); }
+
+void Channel::insertConnectedUsers(std::set<int>& list)
+{
+	for (std::size_t i = 0; i < socketConnectedUsers_.size(); ++i)
+	{
+		list.insert(socketConnectedUsers_.at(i));
+	}
+}
 
 /**
  * @brief Checks if a user is a channel operator by nickname.
@@ -316,14 +311,6 @@ void Channel::manageJoinMessage(const int socketNewUser) const
 	manageCmdMessage(socketNewUser, "JOIN", std::vector<std::string>(), name_);
 	sendActualTopic(socketNewUser);
 	sendActualUsers(socketNewUser);
-}
-
-void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string &message) const
-{
-	std::vector<std::string> arg;
-	arg.push_back(name_);
-	arg.push_back(username);
-	manageCmdMessage(socketUser, "KICK", arg, message);
 }
 
 void Channel::manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &message) const

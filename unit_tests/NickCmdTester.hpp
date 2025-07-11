@@ -52,6 +52,7 @@ public:
 		Tester::assertThrows<NicknameInUseException>([&]() {nick.execute(cmd ,10);});\
 
 		UserManager::getInstance().deleteUser(1);
+		UserManager::getInstance().deleteUser(1);
 	};
 
 	void testValidNickname()

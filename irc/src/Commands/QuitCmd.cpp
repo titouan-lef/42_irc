@@ -13,6 +13,6 @@ void QuitCmd::execute(const Command& cmd, const int senderSocket) const
 	std::string msg;
 	if (!cmd.trailing.empty())
 		msg = cmd.trailing.substr(1);
-	ChanServ::getInstance().quitAllChannels(senderSocket, msg);
+	ChanServ::getInstance().quit(senderSocket, msg);
 	UserManager::getInstance().closeConnectionBySocket(senderSocket);
 }

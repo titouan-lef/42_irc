@@ -1,5 +1,4 @@
 #include "ChanServ.hpp"
-
 #include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
 
@@ -74,39 +73,43 @@ void ChanServ::listAllChannels(const int socketUser)
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::quitAllChannels(const int loggedOutSocket, const std::string& msg)
+void ChanServ::partAllChannels(const int loggedOutSocket, const std::string& msg)
 {
 	for (int i = channels_.size() - 1; i >= 0; --i)
 	{
 		if (channels_.at(i).isConnected(loggedOutSocket))
-			logOut(i, loggedOutSocket, "QUIT", msg);
+			part(i, loggedOutSocket, msg); /** @todo no channel name in the quit message */
 	}
 }
 
-void ChanServ::logOut(const std::string& channelName, const int loggedOutSocket, const std::string& cmdName, const std::string& message)
+void ChanServ::quit(const int loggedOutSocket, const std::string &msg)
 {
-	for (int i = channels_.size() - 1; i >= 0; --i)
+	std::set<int> socketTargets;
+
+	for (int i =  channels_.size()- 1; i >= 0 ; --i)
 	{
-		if (channels_.at(i).is(channelName))
+		if (channels_.at(i).isConnected(loggedOutSocket))
 		{
-			logOut(i, loggedOutSocket, cmdName, message);
-			return;
+			channels_.at(i).insertConnectedUsers(socketTargets);
+			logOut(i, loggedOutSocket);
 		}
 	}
-	throw NoSuchChannelException(channelName);
+	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
+	{
+		MsgServ::getInstance().sendMessageReply(loggedOutSocket, *it, "QUIT", std::vector<std::string>(), msg);
+	}
+}
+
+void ChanServ::part(const std::string& channelName, const int loggedOutSocket, const std::string& message)
+{ 
+	size_t index = findChannelIndex(channelName);
+	part(index, loggedOutSocket, message);
 }
 
 void ChanServ::kick(const std::string &channelName, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	for (int i = channels_.size() - 1; i >= 0; --i)
-	{
-		if (channels_.at(i).is(channelName))
-		{
-			kick(i, loggedOutSocket, senderSocket, message);
-			return;
-		}
-	}
-	throw NoSuchChannelException(channelName);
+	size_t index = findChannelIndex(channelName);
+	kick(index, loggedOutSocket, senderSocket, message);
 }
 
 bool ChanServ::isValidChannelName(const std::string& channelName) const
@@ -147,20 +150,38 @@ void ChanServ::deleteChannel(const std::string& name)
 	}
 }
 
+size_t ChanServ::findChannelIndex(std::string channelName)
+{
+	for (size_t i = 0 ; i < channels_.size(); ++i)
+	{
+		if (channels_.at(i).is(channelName))
+			return i;
+	}
+	throw NoSuchChannelException(channelName);
+}
+
 void ChanServ::deleteChannel(const int index)
 {
 	channels_.erase(channels_.begin() + index);
 }
 
-
-void ChanServ::logOut(const size_t index, const int loggedOutSocket, const std::string& cmdName, const std::string& message)
+void ChanServ::part(const size_t index, const int loggedOutSocket, const std::string &message)
 {
-	if(channels_.at(index).disconnectUser(loggedOutSocket, cmdName, message) == -1)
-		deleteChannel(index);
+	channels_.at(index).managePartMessage(loggedOutSocket, message);
+	logOut(index, loggedOutSocket);
 }
 
 void ChanServ::kick(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	if(channels_.at(index).disconnectUser(loggedOutSocket, senderSocket, message) == -1)
+	std::string username = UserManager::getInstance().getUserName(loggedOutSocket);
+	channels_.at(index).manageKickMessage(senderSocket, username, message);
+	logOut(index, loggedOutSocket);
+}
+
+void ChanServ::logOut(const size_t index, const int loggedOutSocket)
+{
+	Channel& chan = channels_.at(index);
+	bool channelEmpty = chan.disconnectUser(loggedOutSocket);
+	if (channelEmpty)
 		deleteChannel(index);
 }

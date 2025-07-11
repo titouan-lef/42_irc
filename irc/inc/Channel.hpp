@@ -23,9 +23,11 @@ public:
 	void sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
-	int disconnectUser(const int socketUser, const std::string &cmdName = "", const std::string& message = "");
-	int disconnectUser(const int socketUser, const int senderSocket, const std::string& message = "");
+	bool disconnectUser(const int socketUser);
 	void inviteUser(int invitedSocket, int socketSender);
+
+	void managePartMessage(const int socketUser, const std::string &message) const;
+	void manageKickMessage(const int senderSocket, const std::string &username, const std::string &message) const;
 
 	void addNewOperator(const int socketNewOperator);
 	void removeOperator(const int socketUser);
@@ -34,6 +36,7 @@ public:
 	bool is(const std::string& name) const;
 
 	bool isConnected(const int socketUser) const;
+	void insertConnectedUsers(std::set<int>& list);
 	bool isOperator(const int socketUser) const;
 
 	bool isPasswordProtected() const;
@@ -52,7 +55,6 @@ public:
 
 private:
 	void manageJoinMessage(const int socketNewUser) const;
-	void manageKickMessage(const int socketUser, const std::string &username, const std::string &meaasge) const;
 	void manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 
 	/** @todo void sendNumericToAllUsers(const Command& cmd); */

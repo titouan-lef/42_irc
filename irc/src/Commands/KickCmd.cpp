@@ -21,7 +21,6 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 		message = "Kicked by " + UserManager::getInstance().getUserNickname(senderSocket);
 	for (size_t i = 0; i < users.size(); ++i)
 	{
-		int socketKicked = UserManager::getInstance().findUserSocket(users.at(i));
 		try
 		{
 			int chanNumber = i;
@@ -29,8 +28,7 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 				chanNumber = 0;
 			if (!ChanServ::getInstance().findChannel(channels.at(chanNumber)).isOperator(senderSocket))
 				throw ChannelPrivilegesNeeded(channels.at(chanNumber));
-			if (socketKicked < 0)
-				throw NoSuchNickException(users.at(i));
+			int socketKicked = UserManager::getInstance().findUserSocket(users.at(i));
 			ChanServ::getInstance().kick(channels.at(chanNumber), socketKicked, senderSocket, message);
 		}
 		catch (const IrcException& e)

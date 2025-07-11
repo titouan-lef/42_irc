@@ -13,6 +13,7 @@
 #include "UserCmdTester.hpp"
 #include "JoinCmdTester.hpp"
 #include "PartCmdTester.hpp"
+#include "QuitCmdTester.hpp"
 #include "KickCmdTester.hpp"
 #include "PrivMsgTester.hpp"
 
@@ -60,6 +61,10 @@ int main()
 	{
 		PartCmdTester test;
 		test.testerPartCmd();
+	}
+	{
+		QuitCmdTester test;
+		test.testerQuitCmd();
 	}
 	{
 		TopicCmdTester test;

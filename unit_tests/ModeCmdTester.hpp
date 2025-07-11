@@ -58,7 +58,7 @@ public:
 			cmd = {"MODE", "", {"#test", "+"}};
 			Tester::assertThrows<UnknownModeException>([&]() {mode.execute(cmd ,1);});
 
-			ChanServ::getInstance().quitAllChannels(10);
+			ChanServ::getInstance().partAllChannels(10);
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -243,25 +243,6 @@ public:
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 		}
 		Tester::startTest("MODE invite reply tests");
-		// { INVITE TESTER
-		// 	ReplyTester user1(4343, "password", "user1");
-
-		// 	user1.sendCommand("INVITE #test");
-		// 	user1.assertReply(":ircserv 461 INVITE :Not enough parameters");
-		// }
-		// {
-		// 	ReplyTester user1(4343, "password", "user1");
-
-		// 	user1.sendCommand("INVITE user2 #test");
-		// 	user1.assertReply(":ircserv 403 #test :No such channel");
-		// }
-		// {
-		// 	ReplyTester user1(4343, "password", "user1");
-		// 	ReplyTester user2(4343, "password", "user2");
-
-		// 	user1.sendCommand("INVITE user2 #test");
-		// 	user1.assertReply(":ircserv 403 #test :No such channel");
-		// }
 		{
 			ReplyTester user1(4343, "password", "user1");
 			ReplyTester user2(4343, "password", "user2");
