@@ -21,6 +21,7 @@ public:
 		testPermission();
 		testJoinChannels();
 		testJoinPasswords();
+		testReply();
 	};
 
 	void testPermission()
@@ -120,5 +121,82 @@ public:
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#join", 1);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 		UserManager::getInstance().deleteUser(1);
+	};
+
+	void testReply()
+	{
+		Tester::startTest("JOIN reply");
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN");
+			user1.assertReply(":ircserv 461 JOIN :Not enough parameters");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1 #chan2 #chan3");
+			user1.assertReply(":ircserv 461 JOIN :Not enough parameters");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1 #chan2 :#chan3");
+			user1.assertReply(":ircserv 461 JOIN :Not enough parameters");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1 #mdp :trailing");
+			user1.assertReply(":ircserv 461 JOIN :Not enough parameters");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1");
+			user1.assertReply(":user1!user1@localhost JOIN :#chan1\r\n:ircserv 331 #chan1 :No topic is set\r\n:ircserv 353 = #chan1 :@user1\r\n:ircserv 366 #chan1 :End of NAMES list");
+			
+			user1.sendCommand("PART #chan1");
+			user1.assertReply(":user1!user1@localhost PART #chan1");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1 #mdp");
+			user1.assertReply(":user1!user1@localhost JOIN :#chan1\r\n:ircserv 331 #chan1 :No topic is set\r\n:ircserv 353 = #chan1 :@user1\r\n:ircserv 366 #chan1 :End of NAMES list");
+			
+			user1.sendCommand("PART #chan1");
+			user1.assertReply(":user1!user1@localhost PART #chan1");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN :#chan1");
+			user1.assertReply(":user1!user1@localhost JOIN :#chan1\r\n:ircserv 331 #chan1 :No topic is set\r\n:ircserv 353 = #chan1 :@user1\r\n:ircserv 366 #chan1 :End of NAMES list");
+			
+			user1.sendCommand("PART #chan1");
+			user1.assertReply(":user1!user1@localhost PART #chan1");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1,#chan2");
+			user1.assertReply(
+				std::string(":user1!user1@localhost JOIN :#chan1\r\n") +
+				":ircserv 331 #chan1 :No topic is set\r\n" + 
+				":ircserv 353 = #chan1 :@user1\r\n" + 
+				":ircserv 366 #chan1 :End of NAMES list\r\n" +
+				":user1!user1@localhost JOIN :#chan2\r\n" +
+				":ircserv 331 #chan2 :No topic is set\r\n" + 
+				":ircserv 353 = #chan2 :@user1\r\n" + 
+				":ircserv 366 #chan2 :End of NAMES list"
+			);
+			
+			user1.sendCommand("PART #chan1");
+			user1.assertReply(":user1!user1@localhost PART #chan1");
+			
+			user1.sendCommand("PART #chan2");
+			user1.assertReply(":user1!user1@localhost PART #chan2");
+		}
 	};
 };
