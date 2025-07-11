@@ -16,6 +16,7 @@
 #include "QuitCmdTester.hpp"
 #include "KickCmdTester.hpp"
 #include "PrivMsgTester.hpp"
+#include "ListCmdTester.hpp"
 
 void testerUser();
 
@@ -85,5 +86,9 @@ int main()
 	{
 		PrivMsgTester test;
 		test.testerPrivMsg();
+	}
+	{
+		ListCmdTester test;
+		test.testerListCmd();
 	}
 }

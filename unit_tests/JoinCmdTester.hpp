@@ -12,6 +12,7 @@
 #include "UnknownModeException.hpp"
 #include "ChannelIsFullException.hpp"
 
+/**test cmd : JOIN 0 */
 class JoinCmdTester
 {
 public:

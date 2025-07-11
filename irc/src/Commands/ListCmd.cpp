@@ -16,7 +16,15 @@ void ListCmd::execute(const Command& cmd, const int socket) const
 	std::vector<std::string> channels = split(lastParam, ',');
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
-		ChanServ::getInstance().findChannel(channels.at(i)).sendChannelSummary(socket);
+		try
+		{
+			ChanServ::getInstance().findChannel(channels.at(i)).sendChannelSummary(socket);
+		}
+		catch(const IrcException& e)
+		{
+			e.sendError(socket);
+		}
+		
 	}
 	MsgServ::getInstance().sendNumericReply(socket, 323, "End of LIST");
 }

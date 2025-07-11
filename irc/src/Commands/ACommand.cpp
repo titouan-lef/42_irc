@@ -63,7 +63,7 @@ size_t ACommand::getNbArgs(const Command& cmd) const
 {
 	size_t nbArgs = 0;
 	nbArgs = cmd.arg.size();
-	if (!cmd.trailing.empty())
+	if (!cmd.trailing.empty() && cmd.trailing != ":")
 		nbArgs++;
 	return nbArgs;
 }
