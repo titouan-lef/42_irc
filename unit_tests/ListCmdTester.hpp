@@ -20,7 +20,7 @@ public:
 
 	void testParsing()
 	{
-		Tester::startTest("List test parsing");
+		Tester::startTest("LIST test parsing");
 
 		ListCmd list;
 
@@ -39,7 +39,7 @@ public:
 	}
 	void testListAllChan()
 	{
-		Tester::startTest("List all channel");
+		Tester::startTest("LIST all channel");
 		{
 			ReplyTester user1(4343, "password", "user1");
 			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
@@ -69,7 +69,7 @@ public:
 	}
 	void testListChan()
 	{
-		Tester::startTest("List selection channel");
+		Tester::startTest("LIST selection channel");
 
 		ReplyTester user1(4343, "password", "user1");
 
@@ -87,7 +87,7 @@ public:
 	}
 	void testListChanWithMultipleUser()
 	{
-		Tester::startTest("List selection channel with multiple user");
+		Tester::startTest("LIST selection channel with multiple user");
 
 		ReplyTester user1(4343, "password", "user1");
 		ReplyTester user2(4343, "password", "user2");
