@@ -20,7 +20,7 @@ public:
 	{
 		testPermission();
 		testPartChannels();
-		/** test with messages */
+		testPartReply();/** test with messages */
 	};
 
 	void testPermission()
@@ -75,5 +75,83 @@ public:
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#join", 1);});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#chan", 1);});
 		UserManager::getInstance().deleteUser(1);
+	};
+
+	void testPartReply()
+	{
+		Tester::startTest("Part channels Reply");
+
+		{	
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+			ReplyTester user3(4343, "password", "user3");
+
+			user1.sendCommand("JOIN #CHAN1,#CHAN2");
+			user2.sendCommand("JOIN #CHAN1");
+			user3.sendCommand("JOIN #CHAN2");
+			usleep(50000);
+			user1.skipReply();
+			user2.skipReply();
+			user3.skipReply();
+
+			user2.sendCommand("PART #CHAN1 :salut !");
+			usleep(50000);
+			user1.assertReply(":user2!user2@localhost PART #CHAN1 :salut !");
+			user2.assertReply(":user2!user2@localhost PART #CHAN1 :salut !");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+			ReplyTester user3(4343, "password", "user3");
+
+			user1.sendCommand("JOIN #CHAN1,#CHAN2");
+			user2.sendCommand("JOIN #CHAN1");
+			user3.sendCommand("JOIN #CHAN2");
+			usleep(50000);
+			user1.skipReply();
+			user2.skipReply();
+			user3.skipReply();
+
+			user3.sendCommand("PART #CHAN1 :salut !");
+			usleep(50000);
+			user3.assertReply(":ircserv 441 user3 #CHAN1 :They aren't on that channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+			ReplyTester user3(4343, "password", "user3");
+
+			user1.sendCommand("JOIN #CHAN1,#CHAN2");
+			user2.sendCommand("JOIN #CHAN1");
+			user3.sendCommand("JOIN #CHAN2");
+			usleep(50000);
+			user1.skipReply();
+			user2.skipReply();
+			user3.skipReply();
+
+			user1.sendCommand("PART #CHAN1,#CHAN2 :salut !");
+			usleep(50000);
+			user1.assertReply(":user1!user1@localhost PART #CHAN1 :salut !\r\n:user1!user1@localhost PART #CHAN2 :salut !");
+			user2.assertReply(":user1!user1@localhost PART #CHAN1 :salut !");
+			user3.assertReply(":user1!user1@localhost PART #CHAN2 :salut !");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #CHAN1");
+			user2.sendCommand("JOIN #CHAN2");
+			usleep(50000);
+			user1.skipReply();
+			user2.skipReply();
+
+			user1.sendCommand("PART #CHAN1 :salut !");
+			usleep(50000);
+			user1.assertReply(":user1!user1@localhost PART #CHAN1 :salut !");
+			
+			user2.sendCommand("LIST");
+			usleep(50000);
+			user2.assertReply(":ircserv 322 #CHAN2 1\r\n:ircserv 323 :End of LIST");
+		}
 	};
 };

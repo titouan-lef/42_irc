@@ -150,6 +150,9 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 
 void Channel::managePartMessage(const int socketUser, const std::string &message) const
 {
+	std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
+	if (!isConnected(socketUser))
+		throw UserNotInChannelException(nickname, name_);
 	manageCmdMessage(socketUser, "PART", std::vector<std::string>(1, name_), message);
 }
 
