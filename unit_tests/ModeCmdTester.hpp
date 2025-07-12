@@ -345,6 +345,8 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test +t");
 
 			user1.sendCommand("TOPIC #test :Changing topic");
+			user1.assertReply(":user1!user1@localhost TOPIC #test :Changing topic");
+
 			user1.sendCommand("LIST #test");
 			user1.assertReply(":ircserv 322 user1 #test 1 :Changing topic");
 		}
