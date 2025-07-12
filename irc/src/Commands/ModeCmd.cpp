@@ -1,7 +1,5 @@
-#include "ModeCmd.hpp"
-
 #include <cstdlib>
-
+#include "ModeCmd.hpp"
 #include "UserManager.hpp"
 #include <ChanServ.hpp>
 #include "NeedMoreParamsException.hpp"
@@ -12,8 +10,7 @@
 #include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 
-
-void ModeCmd::execute(const Command& cmd, const int socket) const
+void ModeCmd::execute(const Command& cmd, const int socket) const /* @todo accepte and apply any vadlid parts of the command "+oo Bob" apply the firt one and throw an error */
 {
 	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(cmd.name);
@@ -29,8 +26,30 @@ void ModeCmd::execute(const Command& cmd, const int socket) const
 		return;
 	}
 	std::vector<Option> options = parseCommand(cmd);
-	executeModeOptions(socket, channel, options);
+	options = executeModeOptions(socket, channel, options);
+	std::string msg = builtBroadcastMsg(options);
+	channel.sendChangedModes(socket, msg);
 }
+
+std::string ModeCmd::builtBroadcastMsg(const std::vector<ModeCmd::Option>& appliedOptions) const
+{
+	std::string options;
+	std::string args;
+	std::vector<Option>::const_iterator it = appliedOptions.begin();
+
+	if (it->isAddFlag)
+		options += "+";
+	else
+		options += "-";
+	for (; it < appliedOptions.end(); ++it)
+	{
+		options += it->flag;
+		if (!it->argument.empty())
+			args += " " + it->argument;
+	}
+	return options + args;
+}
+
 
 std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd) const
 {
@@ -52,7 +71,7 @@ void ModeCmd::addOptionInList(const Command &cmd, std::vector<Option> &optionLis
 	const bool isAddFlag = (flag[0] == '+');
 	for (std::size_t i = 1; flag[i] != '\0'; ++i)
 	{
-		Option option = {flag[i], isAddFlag, ""};
+		Option option = {flag[i], isAddFlag, ""}; /** @todo try catch */
 		checkOptionAndAddArg(cmd, it, option);
 		optionList.push_back(option);
 	}
@@ -78,19 +97,22 @@ const std::string ModeCmd::defineOptionArg(const Command& cmd, argIterator& it) 
 	return *it;
 }
 
-void ModeCmd::executeModeOptions(const int socket, Channel& channel, const std::vector<ModeCmd::Option>& options) const
+std::vector<ModeCmd::Option> ModeCmd::executeModeOptions(const int socket, Channel& channel, const std::vector<ModeCmd::Option>& options) const
 {
+	std::vector<ModeCmd::Option> result;
 	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
 	{
 		try
 		{
 			executeModeOption(channel, *it);
+			result.push_back(*it);
 		}
 		catch(const IrcException& e)
 		{
 			e.sendError(socket);
 		}
 	}
+	return result;
 }
 
 void ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option) const

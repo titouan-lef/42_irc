@@ -144,7 +144,7 @@ public:
 			user1.skipReply();
 			user2.skipReply();
 			user2.sendCommand("KICK #join user1");
-			user2.assertReply(":ircserv 482 #join :You're not channel operator");
+			user2.assertReply(":ircserv 482 user2 #join :You're not channel operator");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -159,7 +159,7 @@ public:
 			user2.skipReply();
 			user2.sendCommand("KICK #join,#chan user1,user1");
 			usleep(50000);
-			user2.assertReply(":ircserv 482 #join :You're not channel operator\r\n:ircserv 482 #chan :You're not channel operator");
+			user2.assertReply(":ircserv 482 user2 #join :You're not channel operator\r\n:ircserv 482 user2 #chan :You're not channel operator");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -175,7 +175,7 @@ public:
 
 			user2.sendCommand("KICK #join,#chan user1,user1");
 			usleep(50000);
-			user2.assertReply(":ircserv 482 #join :You're not channel operator\r\n:user2!user2@localhost KICK #chan user1 :Kicked by user2");
+			user2.assertReply(":ircserv 482 user2 #join :You're not channel operator\r\n:user2!user2@localhost KICK #chan user1 :Kicked by user2");
 			user1.assertReply(":user2!user2@localhost KICK #chan user1 :Kicked by user2");
 		}
 		{

@@ -42,7 +42,16 @@ void Channel::sendActualUsers(const int socket) const
 	arg.push_back(name_);
 	MsgServ::getInstance().sendNumericReply(socket, 353, arg, builtUsersString());
 
-	MsgServ::getInstance().sendNumericReply(socket, 366, std::vector<std::string>(1, name_), "End of NAMES list");
+	arg.erase(arg.begin());
+	MsgServ::getInstance().sendNumericReply(socket, 366, arg, "End of NAMES list");
+}
+
+void Channel::sendChangedModes(const int socket, const std::string& options) const
+{
+	std::vector<std::string> arg;
+	arg.push_back(name_);
+	arg.push_back(options);
+	manageCmdMessage(socket, "MODE", arg, "");
 }
 
 void Channel::sendActualModes(const int socket) const

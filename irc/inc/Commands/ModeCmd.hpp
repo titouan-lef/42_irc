@@ -27,8 +27,9 @@ private:
 	void addOptionInList(const Command& cmd, std::vector<Option>& optionList, argIterator& it) const;
 	void checkOptionAndAddArg(const Command& cmd, argIterator& it, Option& option) const;
 	const std::string defineOptionArg(const Command& cmd, argIterator& it) const;
-	void executeModeOptions(const int socket, Channel& channel, const std::vector<Option>& options) const;
+	std::vector<ModeCmd::Option> executeModeOptions(const int socket, Channel& channel, const std::vector<Option>& options) const;
 	void executeModeOption(Channel& channel, const Option& option) const;
+	std::string builtBroadcastMsg(const std::vector<ModeCmd::Option>& appliedOptions) const;
 
 	void inviteMode(Channel& channel, const Option& option) const;
 	void topicMode(Channel& channel, const Option& option) const;

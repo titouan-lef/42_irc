@@ -70,8 +70,12 @@ void MsgServ::sendNumericReply(const int receiverSocket, const int code, const s
 
 void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg, const std::string &trailing)
 {
+	std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
+	std::vector<std::string> newArg;
+	newArg.push_back(nickname);
+	newArg.insert(newArg.end(), arg.begin(), arg.end());
 	std::string commandId = convertCodeToCommandId(code);
-	Message msg = {receiverSocket, "ircserv", commandId, arg, trailing};
+	Message msg = {receiverSocket, "ircserv", commandId, newArg, trailing};
 	sendReply(msg);
 }
 

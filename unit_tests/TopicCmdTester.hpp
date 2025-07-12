@@ -79,13 +79,13 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("TOPIC");
-			user1.assertReply(":ircserv 461 TOPIC :Not enough parameters");
+			user1.assertReply(":ircserv 461 user1 TOPIC :Not enough parameters");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("TOPIC #test :Changing topic");
-			user1.assertReply(":ircserv 403 #test :No such channel");
+			user1.assertReply(":ircserv 403 user1 #test :No such channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -95,7 +95,26 @@ public:
 			user1.skipReply();
 
 			user2.sendCommand("TOPIC #test :Changing topic");
-			user2.assertReply(":ircserv 441 user2 #test :They aren't on that channel");
+			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReply();
+
+			user1.sendCommand("TOPIC #test :Changing topic");
+			// user1.skipReply();
+
+			user1.sendCommand("LIST #test");
+			usleep(90000);
+			user1.assertReply(":ircserv 322 user1 #test 1 :Changing topic\r\n:ircserv 323 user1 :End of LIST");
+
+			user1.sendCommand("TOPIC #test :");
+
+			user1.sendCommand("LIST #test");
+			usleep(90000);
+			user1.assertReply(":ircserv 322 user1 #test 1\r\n:ircserv 323 user1 :End of LIST");
 		}
 	};
 };

@@ -49,7 +49,7 @@ public:
 			user1.skipReply();
 			user1.sendCommand("QUIT");
 			user2.sendCommand("PRIVMSG #test :Hello everyone");
-			user2.assertReply(":ircserv 403 #test :No such channel");
+			user2.assertReply(":ircserv 403 user2 #test :No such channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");

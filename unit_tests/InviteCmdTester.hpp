@@ -76,19 +76,19 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("INVITE");
-			user1.assertReply(":ircserv 461 INVITE :Not enough parameters");
+			user1.assertReply(":ircserv 461 user1 INVITE :Not enough parameters");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("INVITE user2 #test");
-			user1.assertReply(":ircserv 401 user2 :No such nick/channel");
+			user1.assertReply(":ircserv 401 user1 user2 :No such nick/channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("INVITE user1 #test");
-			user1.assertReply(":ircserv 403 #test :No such channel");
+			user1.assertReply(":ircserv 403 user1 #test :No such channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -99,16 +99,16 @@ public:
 			user1.skipReply();
 
 			user2.sendCommand("JOIN #test");
-			user2.assertReply(":ircserv 473 #test :You're not invited to join this channel");
+			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
 
 			user1.sendCommand("INVITE user2 #test");
 			usleep(50000);
 			user2.sendCommand("JOIN #test");
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 #test :No topic is set\r\n:ircserv 353 = #test :@user1 user2\r\n:ircserv 366 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
 			user1.skipReply();
 
 			user1.sendCommand("INVITE user2 #test");
-			user1.assertReply(":ircserv 443 user2 #test :is already on channel");
+			user1.assertReply(":ircserv 443 user1 user2 #test :is already on channel");
 		}
 	};
 };

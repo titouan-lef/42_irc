@@ -19,6 +19,7 @@ public:
 	void sendChannelSummary(const int socket) const;
 	void sendActualTopic(const int socket) const;
 	void sendActualUsers(const int socket) const;
+	void sendChangedModes(const int socket, const std::string& options) const;
 	void sendActualModes(const int socket) const;
 	void sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 

@@ -47,10 +47,10 @@ public:
 			user1.skipReply();
 			user1.sendCommand("LIST :");
 			usleep(50000);
-			user1.assertReply(":ircserv 322 #CHAN1 1\r\n:ircserv 322 #CHAN2 1\r\n:ircserv 322 #CHAN3 1\r\n:ircserv 323 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1\r\n:ircserv 322 user1 #CHAN2 1\r\n:ircserv 322 user1 #CHAN3 1\r\n:ircserv 323 user1 :End of LIST");
 			user1.sendCommand("LIST");
 			usleep(50000);
-			user1.assertReply(":ircserv 322 #CHAN1 1\r\n:ircserv 322 #CHAN2 1\r\n:ircserv 322 #CHAN3 1\r\n:ircserv 323 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1\r\n:ircserv 322 user1 #CHAN2 1\r\n:ircserv 322 user1 #CHAN3 1\r\n:ircserv 323 user1 :End of LIST");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -61,10 +61,10 @@ public:
 			user1.skipReply();
 			user1.sendCommand("LIST :");
 			usleep(50000);
-			user1.assertReply(":ircserv 322 #CHAN1 1\r\n:ircserv 322 #CHAN2 1\r\n:ircserv 322 #CHAN3 1\r\n:ircserv 323 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1\r\n:ircserv 322 user1 #CHAN2 1\r\n:ircserv 322 user1 #CHAN3 1\r\n:ircserv 323 user1 :End of LIST");
 			user1.sendCommand("LIST");
 			usleep(50000);
-			user1.assertReply(":ircserv 322 #CHAN1 1\r\n:ircserv 322 #CHAN2 1\r\n:ircserv 322 #CHAN3 1\r\n:ircserv 323 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1\r\n:ircserv 322 user1 #CHAN2 1\r\n:ircserv 322 user1 #CHAN3 1\r\n:ircserv 323 user1 :End of LIST");
 		}
 	}
 	void testListChan()
@@ -75,7 +75,7 @@ public:
 
 		user1.sendCommand("LIST #CHAN1");
 		usleep(50000);
-		user1.assertReply(":ircserv 403 #CHAN1 :No such channel\r\n:ircserv 323 :End of LIST");
+		user1.assertReply(":ircserv 403 user1 #CHAN1 :No such channel\r\n:ircserv 323 user1 :End of LIST");
 
 		user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
 		usleep(50000);
@@ -83,7 +83,7 @@ public:
 
 		user1.sendCommand("LIST #CHAN1,#CHAN3");
 		usleep(50000);
-		user1.assertReply(":ircserv 322 #CHAN1 1\r\n:ircserv 322 #CHAN3 1\r\n:ircserv 323 :End of LIST");
+		user1.assertReply(":ircserv 322 user1 #CHAN1 1\r\n:ircserv 322 user1 #CHAN3 1\r\n:ircserv 323 user1 :End of LIST");
 	}
 	void testListChanWithMultipleUser()
 	{
@@ -107,10 +107,10 @@ public:
 
 		user1.sendCommand("LIST #CHAN1,#CHAN3");
 		usleep(50000);
-		user1.assertReply(":ircserv 322 #CHAN1 4\r\n:ircserv 322 #CHAN3 4\r\n:ircserv 323 :End of LIST");
+		user1.assertReply(":ircserv 322 user1 #CHAN1 4\r\n:ircserv 322 user1 #CHAN3 4\r\n:ircserv 323 user1 :End of LIST");
 
 		user1.sendCommand("LIST #CHAN2");
 		usleep(50000);
-		user1.assertReply(":ircserv 322 #CHAN2 5\r\n:ircserv 323 :End of LIST");
+		user1.assertReply(":ircserv 322 user1 #CHAN2 5\r\n:ircserv 323 user1 :End of LIST");
 	}
 };
