@@ -173,9 +173,12 @@ void Channel::manageKickMessage(const int socketUser, const std::string &usernam
  * 
  * @note You must throw UserNotInChannelException if it returns -1.
  */
-void Channel::addNewOperator(const int socketNewOperator)
+bool Channel::addNewOperator(const int socketNewOperator)
 {
+	if (isOperator(socketNewOperator))
+		return false;
 	socketOperators_.push_back(socketNewOperator);
+	return true;
 }
 
 /**
@@ -185,9 +188,10 @@ void Channel::addNewOperator(const int socketNewOperator)
  *
  * @throws NoSuchNickException if no operator with the given nickname is found.
  */
-void Channel::removeOperator(const int socketUser)
+bool Channel::removeOperator(const int socketUser)
 {
 	eraseUser(socketOperators_, socketUser);
+	return true;
 }
 
 /**
@@ -235,21 +239,39 @@ bool Channel::isPasswordProtected() const { return !password_.empty(); }
 /**
  * @brief Disables the channel password.
  */
-void Channel::disablePassword() { password_.clear(); }
+bool Channel::disablePassword(const std::string& password)
+{
+	if (password != password_)
+		return false;
+	password_.clear();
+	return true;
+}
 
 /**
  * @brief Sets a new password for the channel.
  *
  * @param newPassword The new password to protect the channel.
  */
-void  Channel::setPassword(const std::string& newPassword) { password_ = newPassword; }
+bool  Channel::setPassword(const std::string& newPassword)
+{
+	if (isPasswordProtected())
+		return false;
+	password_ = newPassword;
+	return true;
+}
 
 /**
  * @brief Disables the user limit on the channel.
  *
- * Sets the maximum user count to -1, meaning no limit.
+ * Sets the maximum user count to 0, meaning no limit.
  */
-void Channel::disableLimitNbUsers() { nbMaxUsers_ = 0; }
+bool Channel::disableLimitNbUsers()
+{
+	if (nbMaxUsers_ == 0)
+		return false;
+	nbMaxUsers_ = 0;
+	return true;
+}
 
 /**
  * @brief Sets the maximum number of users allowed in the channel.
@@ -260,12 +282,14 @@ void Channel::disableLimitNbUsers() { nbMaxUsers_ = 0; }
  * 
  * @warning you need to throw InvalidModeParamException if it returns 1.
  */
-int Channel::setLimitNbUsers(size_t nbUserMax)
+bool Channel::setLimitNbUsers(size_t nbUserMax)
 {
+	if (nbMaxUsers_ != 0)
+		return false;
 	if (nbUserMax <= 0)
-		return 1;
+		return false;
 	nbMaxUsers_ = nbUserMax;
-	return 0;
+	return true;
 }
 
 /**
@@ -274,7 +298,13 @@ int Channel::setLimitNbUsers(size_t nbUserMax)
  * @note This function should be called by the MODE command.
  *	   Ensure the user has operator privileges before applying this mode.
  */
-void Channel::enableInviteRestriction() { inviteRestricted_ = true; }
+bool Channel::enableInviteRestriction()
+{
+	if (isInviteRestricted())
+		return false;
+	inviteRestricted_ = true;
+	return true;
+}
 
 /**
  * @brief Allow all users to join the channel.
@@ -282,7 +312,13 @@ void Channel::enableInviteRestriction() { inviteRestricted_ = true; }
  * @note This function should be called by the MODE command.
  *	   Ensure the user has operator privileges before applying this mode.
  */
-void Channel::disableInviteRestriction() { inviteRestricted_ = false; }
+bool Channel::disableInviteRestriction()
+{
+	if (!isInviteRestricted())
+		return false;
+	inviteRestricted_ = false;
+	return true;
+}
 
 /**
  * @brief Restrict topic changes to channel operators only.
@@ -290,7 +326,13 @@ void Channel::disableInviteRestriction() { inviteRestricted_ = false; }
  * @note This function should be called by the MODE command.
  *	   Ensure the user has operator privileges before applying this mode.
  */
-void Channel::enableTopicRestriction() { topicRestricted_ = true; }
+bool Channel::enableTopicRestriction()
+{
+	if (isTopicRestricted())
+		return false;
+	topicRestricted_ = true;
+	return true;
+}
 
 /**
  * @brief Allow all users to change the channel topic.
@@ -298,7 +340,13 @@ void Channel::enableTopicRestriction() { topicRestricted_ = true; }
  * @note This function should be called by the MODE command.
  *	   Ensure the user has operator privileges before applying this mode.
  */
-void Channel::disableTopicRestriction() { topicRestricted_ = false; }
+bool Channel::disableTopicRestriction()
+{
+	if (!isTopicRestricted())
+		return false;
+	topicRestricted_ = false;
+	return true;
+}
 
 /**
  * @brief Sets the channel's topic to a new value.

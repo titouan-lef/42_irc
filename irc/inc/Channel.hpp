@@ -31,8 +31,8 @@ public:
 	void managePartMessage(const int socketUser, const std::string &message) const;
 	void manageKickMessage(const int senderSocket, const std::string &username, const std::string &message) const;
 
-	void addNewOperator(const int socketNewOperator);
-	void removeOperator(const int socketUser);
+	bool addNewOperator(const int socketNewOperator);
+	bool removeOperator(const int socketUser);
 
 	const std::string& getName() const; /** @todo getters inprivate */
 	bool is(const std::string& name) const;
@@ -42,17 +42,17 @@ public:
 	bool isOperator(const int socketUser) const;
 
 	bool isPasswordProtected() const;
-	void disablePassword();
-	void setPassword(const std::string& newPassword);
+	bool disablePassword(const std::string& password);
+	bool setPassword(const std::string& newPassword);
 
-	void disableLimitNbUsers();
-	int setLimitNbUsers(std::size_t nbUserMax);
+	bool disableLimitNbUsers();
+	bool setLimitNbUsers(std::size_t nbUserMax);
 
-	void enableInviteRestriction();
-	void disableInviteRestriction();
+	bool enableInviteRestriction();
+	bool disableInviteRestriction();
 
-	void enableTopicRestriction();
-	void disableTopicRestriction();
+	bool enableTopicRestriction();
+	bool disableTopicRestriction();
 	void setTopic(const std::string& newTopic, const int socketUser);
 
 private:
