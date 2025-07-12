@@ -104,13 +104,23 @@ public:
 			user1.skipReply();
 
 			user1.sendCommand("TOPIC #test :Changing topic");
-			// user1.skipReply();
+			user1.assertReply(":user1!user1@localhost TOPIC #test :Changing topic");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReply();
+
+			user1.sendCommand("TOPIC #test :Changing topic");
+			user1.assertReply(":user1!user1@localhost TOPIC #test :Changing topic");
 
 			user1.sendCommand("LIST #test");
 			usleep(90000);
 			user1.assertReply(":ircserv 322 user1 #test 1 :Changing topic\r\n:ircserv 323 user1 :End of LIST");
 
 			user1.sendCommand("TOPIC #test :");
+			user1.assertReply(":user1!user1@localhost TOPIC #test");
 
 			user1.sendCommand("LIST #test");
 			usleep(90000);

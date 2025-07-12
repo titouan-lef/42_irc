@@ -22,6 +22,7 @@ public:
 	void sendChangedModes(const int socket, const std::string& options) const;
 	void sendActualModes(const int socket) const;
 	void sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
+	void manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
 	bool disconnectUser(const int socketUser);
@@ -56,9 +57,7 @@ public:
 
 private:
 	void manageJoinMessage(const int socketNewUser) const;
-	void manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
 
-	/** @todo void sendNumericToAllUsers(const Command& cmd); */
 	const std::string builtUsersString() const;
 	const std::string builtOptionString() const;
 

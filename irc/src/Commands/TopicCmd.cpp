@@ -14,5 +14,8 @@ void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 		return;
 	}
 	channel.setTopic(cmd.trailing.substr(1), senderSocket);
-	/** @todo send message to all users */
+	std::string trailing;
+	if (!cmd.trailing.empty())
+		trailing = cmd.trailing.substr(1);
+	channel.manageCmdMessage(senderSocket, cmd.name, cmd.arg, trailing);
 }
