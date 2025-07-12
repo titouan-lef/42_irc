@@ -20,6 +20,7 @@ public:
 		testPermission();
 		testValidNickname();
 		testInvalidNickname();
+		testNickReply();
 	};
 
 	void testPermission()
@@ -99,5 +100,58 @@ public:
 		}
 
 		UserManager::getInstance().deleteUser(1);
+	};
+
+	void testNickReply()
+	{
+		Tester::startTest("NICK reply test");
+
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("NICK user2");
+			user1.assertReply(":user1!user1@localhost NICK user2");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("NICK user2");
+			user1.assertReply(":ircserv 433 user1 user2 :Nickname is already in use");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("NICK user2 error");
+			user1.assertReply(":ircserv 461 user1 NICK :Not enough parameters");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user2.sendCommand("JOIN #test");
+			user2.skipReply();
+			user1.skipReply();
+			user1.sendCommand("NICK user3");
+			user1.assertReply(":user1!user1@localhost NICK user3");
+			user2.assertReply(":user1!user1@localhost NICK user3");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #join");
+			user1.sendCommand("JOIN #chan");
+			user2.sendCommand("JOIN #join");
+			user2.sendCommand("JOIN #chan");
+			usleep(50000);
+			user2.skipReply();
+			user1.skipReply();
+			user1.sendCommand("NICK user3");
+			user1.assertReply(":user1!user1@localhost NICK user3");
+			user2.assertReply(":user1!user1@localhost NICK user3");
+			// user2.assertReply("time out");
+		}
 	};
 };

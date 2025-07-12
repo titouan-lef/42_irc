@@ -16,6 +16,7 @@ public:
 	void namesAllChannels(const int socketUser);
 	void listAllChannels(const int socketUser);
 	void partAllChannels(const int loggedOutSocket, const std::string& msg = "");
+	void sendBroacastToLinkedUsers(const int loggedOutSocket, const Command& cmd);
 	void quit(const int loggedOutSocket, const std::string& msg = "");
 	void part(const std::string& channelName, const int loggedOutSocket, const std::string& message = "");
 	void kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message = "");

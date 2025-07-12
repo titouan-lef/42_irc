@@ -82,11 +82,27 @@ void ChanServ::partAllChannels(const int loggedOutSocket, const std::string& msg
 	}
 }
 
-void ChanServ::quit(const int loggedOutSocket, const std::string &msg)
+void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const Command& cmd)
 {
 	std::set<int> socketTargets;
 
-	for (int i =  channels_.size()- 1; i >= 0 ; --i)
+	socketTargets.insert(socketUser);
+	for (int i = channels_.size()- 1; i >= 0 ; --i)
+	{
+		if (channels_.at(i).isConnected(socketUser))
+			channels_.at(i).insertConnectedUsers(socketTargets);
+	}
+	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
+	{
+		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmd.name, cmd.arg, cmd.trailing);
+	}
+}
+
+void ChanServ::quit(const int loggedOutSocket, const std::string& msg)
+{
+	std::set<int> socketTargets;
+
+	for (int i = channels_.size()- 1; i >= 0 ; --i)
 	{
 		if (channels_.at(i).isConnected(loggedOutSocket))
 		{

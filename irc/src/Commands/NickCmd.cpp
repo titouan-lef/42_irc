@@ -1,5 +1,5 @@
 #include "NickCmd.hpp"
-
+#include "ChanServ.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"
@@ -19,6 +19,11 @@ void NickCmd::execute(const Command& cmd, const int socket) const
 	NickCmd::parsingNickname(nickname);
 	if (UserManager::getInstance().isNickUsed(nickname))
 		throw NicknameInUseException(nickname);
+	if (user.isNickRegister())
+	{
+		Command reply = truncateTrailing(cmd);
+		ChanServ::getInstance().sendBroacastToLinkedUsers(socket, reply);
+	}
 	user.setNickname(nickname);
 }
 
