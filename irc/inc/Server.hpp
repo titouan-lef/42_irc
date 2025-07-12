@@ -14,8 +14,9 @@ public:
 
 	static Server& getInstance();
 
-	bool isCorrectPassword(std::string password);
-	bool isUp();
+	const std::string& getCreationDate() const;
+	bool isCorrectPassword(const std::string& password) const;
+	bool isUp() const;
 	int up(std::string port,std::string password);
 	void stop();
 
@@ -28,19 +29,21 @@ private:
 
 	void run();
 	void initServerConnection(std::string port,std::string password);
+	std::string getDate() const;
 	int createSocket();
 	void defineSocketOption(int serverSocket);
 	struct sockaddr_in createAddress(int port);
 	void bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr);
 	void defineSocketOnlistening(int serverSocket);
 	int parsePort(const std::string& port);
-	void definePassword(std::string password);
+	void definePassword(const std::string& password);
 	void parsePassword(const std::string& password);
 	void parsePasswordChar(const unsigned char c);
 	void onEvent();
 	void manageEvent();
 	void closeServerConnection();
 
+	std::string	creationDate_;
 	std::string	password_;
 	bool running_;
 

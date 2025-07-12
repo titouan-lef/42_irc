@@ -18,6 +18,8 @@ Server& Server::getInstance()
 	return instance;
 }
 
+const std::string &Server::getCreationDate() const { return creationDate_; }
+
 void Server::initServerConnection(std::string port,std::string password)
 {
 	int portNumber = parsePort(port);
@@ -29,20 +31,32 @@ void Server::initServerConnection(std::string port,std::string password)
 	defineSocketOnlistening(serverSocket);
 	UserManager::getInstance().initUserManager(serverSocket, serverAddr);
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
-} 
+}
+std::string Server::getDate() const
+{
 
-void Server::definePassword(std::string password)
+	std::time_t now = std::time(NULL);
+	char* dt = std::ctime(&now);
+	if (dt)
+	{
+		std::string date(dt);
+		return date.substr(0, date.length() - 1);
+	}
+	return "";
+}
+
+void Server::definePassword(const std::string& password)
 {
 	parsePassword(password);
 	password_ = password;
 }
 
-bool Server::isCorrectPassword(std::string password)
+bool Server::isCorrectPassword(const std::string& password) const
 {
 	return (password_ == password);
 }
 
-bool Server::isUp()
+bool Server::isUp() const
 {
 	return running_;
 }
@@ -83,6 +97,7 @@ void Server::stop()
 
 Server::Server(): running_(false)
 {
+	creationDate_ = getDate();
 	// Initialize pollfd for listening socket
 }
 

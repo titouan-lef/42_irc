@@ -1,5 +1,5 @@
 #include "UserCmd.hpp"
-
+#include "Server.hpp"
 #include "User.hpp"
 #include "UserManager.hpp"
 #include "PasswordMismatchException.hpp"
@@ -24,6 +24,25 @@ void UserCmd::execute(const Command& cmd, const int senderSocket) const
 		throw AlreadyRegistredException();
 	user.setUsername(cmd.arg.at(0));
 	user.setRealName(cmd.trailing);
+	sendHandshakeValidation(senderSocket);
+}
+
+void UserCmd::sendHandshakeValidation(const int socket) const
+{
+	std::string prefix = UserManager::getInstance().getUserPrefix(socket);
+	MsgServ::getInstance().sendNumericReply(socket, 1, std::vector<std::string>(), "Welcome to the Internet Relay Network " + prefix);
+
+	MsgServ::getInstance().sendNumericReply(socket, 2, std::vector<std::string>(), "Your host is ircserv, running version 1.0");
+
+	std::string date = Server::getInstance().getCreationDate();
+	MsgServ::getInstance().sendNumericReply(socket, 3, std::vector<std::string>(), "This server was created the " + date);
+
+	std::vector<std::string> arg;
+	arg.push_back("ircserv");
+	arg.push_back("1.0");
+	arg.push_back("-");
+	arg.push_back("itkol");
+	MsgServ::getInstance().sendNumericReply(socket, 4, arg);
 }
 
 /** @todo tcheck  */

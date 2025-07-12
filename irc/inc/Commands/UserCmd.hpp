@@ -13,6 +13,7 @@ public:
 	void execute(const Command& cmd, const int senderSocket) const;
 
 private:
+	void sendHandshakeValidation( const int socket) const;
 	bool validUsername(std::string username) const;
 	bool validParam(const std::vector<std::string>&  param) const;
 };

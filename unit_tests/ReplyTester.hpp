@@ -36,7 +36,8 @@ public:
 		sendCommand("PASS " + password);
 		sendCommand("NICK " + nickname);
 		sendCommand("USER " + nickname +" 0 * :Real Name");
-		// skipReply();
+		usleep(50000);
+		skipReply();
 	};
 
 	~ReplyTester()
