@@ -39,6 +39,6 @@ void Tester::resetColorText()
 void Tester::printSuccess()
 {
 	setColorText(colorSuccess);
-	std::cout << subNum << ".OK ";
+	std::cout << subNum << ".OK " << std::flush;
 	resetColorText();
 }

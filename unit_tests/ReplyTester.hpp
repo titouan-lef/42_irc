@@ -36,8 +36,7 @@ public:
 		sendCommand("PASS " + password);
 		sendCommand("NICK " + nickname);
 		sendCommand("USER " + nickname +" 0 * :Real Name");
-		usleep(50000);
-		skipReply();
+		skipReplies(4);
 	};
 
 	~ReplyTester()
@@ -48,37 +47,65 @@ public:
 	void sendCommand(const std::string& cmd)
 	{
 		std::string fullCmd = cmd + "\r\n";
-		/** ssize_t sent = */ send(sockfd_, fullCmd.c_str(), fullCmd.length(), MSG_NOSIGNAL);
-		// Tester::assertExpectedEqualsActual(sent, (ssize_t)fullCmd.length());
+		size_t totalSent = 0;
+		while (totalSent < fullCmd.length())
+		{
+			ssize_t n = send(sockfd_, fullCmd.c_str() + totalSent, fullCmd.length() - totalSent, MSG_NOSIGNAL);
+			if (n <= 0)
+				return;
+			totalSent += n;
+		}
 	};
 
 	void assertReply(const std::string& expected)
 	{
 		std::string reply = readReply(expected);
 		if (!reply.empty())
-			Tester::assertExpectedEqualsActual(expected + "\r\n", reply);
+			Tester::assertExpectedEqualsActual(expected, reply);
 	};
 
-	void skipReply()
+	void skipReplies(size_t number)
 	{
-		readReply("");
+		for (size_t i = 0; i < number; ++i)
+			readReply("");
 	};
 
 private:
 
 	std::string readReply(const std::string& expected)
 	{
-		char buf[1024];
-		std::memset(buf, 0, sizeof(buf));
-		ssize_t received = recv(sockfd_, buf, sizeof(buf) - 1, 0);
+		if (buffer_.empty())
+		{
+			char buf[1024];
+			std::memset(buf, 0, sizeof(buf));
+			ssize_t received = recv(sockfd_, buf, sizeof(buf) - 1, 0);
+	
+			if (received < 0 && (errno == EWOULDBLOCK || errno == EAGAIN))
+				Tester::assertExpectedEqualsActual(std::string(expected), std::string("time out"));
+			else if (received < 0)
+				Tester::assertTrue(false);
+			buffer_ += buf;
+		}
+		return getCommand();
+	}
 
-		if (received < 0 && (errno == EWOULDBLOCK || errno == EAGAIN))
-			Tester::assertExpectedEqualsActual(std::string(expected), std::string("time out"));
-		else if (received < 0)
-			Tester::assertTrue(false);
-
-		return std::string(buf);
+	std::string getCommand()
+	{
+		size_t pos = buffer_.find("\r\n");
+		if (pos == std::string::npos)
+		{
+			pos = buffer_.find("\n");
+			if (pos == std::string::npos)
+				return "";
+			std::string command = buffer_.substr(0, pos);
+			buffer_ = buffer_.substr(pos + 1);
+			return command;
+		}
+		std::string command = buffer_.substr(0, pos);
+		buffer_ = buffer_.substr(pos + 2);
+		return command;
 	}
 
 	int sockfd_;
+	std::string buffer_;
 };

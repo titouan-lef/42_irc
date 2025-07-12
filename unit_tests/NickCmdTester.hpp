@@ -131,8 +131,8 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user2.skipReply();
-			user1.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("NICK user3");
 			user1.assertReply(":user1!user1@localhost NICK user3");
 			user2.assertReply(":user1!user1@localhost NICK user3");
@@ -145,13 +145,11 @@ public:
 			user1.sendCommand("JOIN #chan");
 			user2.sendCommand("JOIN #join");
 			user2.sendCommand("JOIN #chan");
-			usleep(50000);
-			user2.skipReply();
-			user1.skipReply();
+			user2.skipReplies(8);
+			user1.skipReplies(10);
 			user1.sendCommand("NICK user3");
 			user1.assertReply(":user1!user1@localhost NICK user3");
 			user2.assertReply(":user1!user1@localhost NICK user3");
-			// user2.assertReply("time out");
 		}
 	};
 };

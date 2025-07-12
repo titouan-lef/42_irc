@@ -46,7 +46,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 	
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("QUIT");
 			user2.sendCommand("PRIVMSG #test :Hello everyone");
 			user2.assertReply(":ircserv 403 user2 #test :No such channel");
@@ -57,9 +57,8 @@ public:
 	
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			usleep(50000);
-			user2.skipReply();
-			user1.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("QUIT");
 			user2.assertReply(":user1!user1@localhost QUIT");
 		}
@@ -69,9 +68,8 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			usleep(50000);
-			user2.skipReply();
-			user1.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("QUIT :Bye");
 			user2.assertReply(":user1!user1@localhost QUIT :Bye");
 		}
@@ -83,10 +81,9 @@ public:
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
 			user3.sendCommand("JOIN #test");
-			usleep(50000);
-			user3.skipReply();
-			user2.skipReply();
-			user1.skipReply();
+			user3.skipReplies(4);
+			user2.skipReplies(5);
+			user1.skipReplies(6);
 			user1.sendCommand("QUIT :Bye bye");
 			user2.assertReply(":user1!user1@localhost QUIT :Bye bye");
 			user3.assertReply(":user1!user1@localhost QUIT :Bye bye");
@@ -99,9 +96,8 @@ public:
 			user2.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #chan");
 			user1.sendCommand("JOIN #chan");
-			usleep(50000);
-			user2.skipReply();
-			user1.skipReply();
+			user2.skipReplies(9);
+			user1.skipReplies(9);
 			user1.sendCommand("QUIT :Bye bye");
 			user2.assertReply(":user1!user1@localhost QUIT :Bye bye");
 		}

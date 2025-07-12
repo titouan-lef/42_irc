@@ -71,7 +71,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user2.sendCommand("MODE #test");
 			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
 		}
@@ -81,8 +81,8 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user1.skipReplies(4);
+			user2.skipReplies(4);
 			user2.sendCommand("MODE #test");
 			user2.assertReply(":ircserv 482 user2 #test :You're not channel operator");
 		}
@@ -138,7 +138,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +o");
 			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
 		}
@@ -146,7 +146,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +o Bob");
 			user1.assertReply(":ircserv 401 user1 Bob :No such nick/channel");
 		}
@@ -154,7 +154,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +oo Bob");
 			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
 		}
@@ -162,7 +162,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test -o user1");
 			user1.assertReply(":user1!user1@localhost MODE #test -o user1");
 			user1.sendCommand("MODE #test +o user1");
@@ -173,7 +173,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +o user2");
 			user1.assertReply(":ircserv 441 user1 user2 #test :They aren't on that channel");
 		}
@@ -183,8 +183,8 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("MODE #test +o user2");
 			user1.assertReply(":user1!user1@localhost MODE #test +o user2");
 			user2.sendCommand("MODE #test -o user1");
@@ -198,8 +198,8 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("MODE #test +oo user2 user3");
 			user1.assertReply(":ircserv 401 user1 user3 :No such nick/channel");
 		}
@@ -209,11 +209,11 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user1.sendCommand("MODE #test -oo user1 user3");
-			usleep(50000);
-			user1.assertReply(":ircserv 401 user1 user3 :No such nick/channel\r\n:user1!user1@localhost MODE #test -o user1");
+			user1.assertReply(":ircserv 401 user1 user3 :No such nick/channel");
+			user1.assertReply(":user1!user1@localhost MODE #test -o user1");
 
 			user1.sendCommand("MODE #test +o user2");
 			user1.assertReply(":ircserv 482 user1 #test :You're not channel operator");
@@ -250,7 +250,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +i");
 			user1.assertReply(":user1!user1@localhost MODE #test +i");
 
@@ -265,7 +265,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +i");
 			user1.assertReply(":user1!user1@localhost MODE #test +i");
 
@@ -274,14 +274,17 @@ public:
 
 			user1.sendCommand("INVITE user2 #test");
 			user2.sendCommand("JOIN #test");
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 			user1.sendCommand("MODE #test +i");
 			user1.assertReply(":user1!user1@localhost MODE #test +i");
 
@@ -290,12 +293,15 @@ public:
 
 			user1.sendCommand("INVITE user2 #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user1.skipReplies(1);
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 
 			user2.sendCommand("PART #test");
-			user1.skipReply();
-			user2.skipReply();
+			user1.skipReplies(1);
+			user2.skipReplies(1);
 
 			user1.sendCommand("MODE #test -i");
 			user1.assertReply(":user1!user1@localhost MODE #test -i");
@@ -304,8 +310,10 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test");
 
 			user2.sendCommand("JOIN #test");
-			usleep(9000);
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 		}
 	};
 
@@ -336,7 +344,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +t");
 			user1.assertReply(":user1!user1@localhost MODE #test +t");
@@ -355,7 +363,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +t");
 			user1.assertReply(":user1!user1@localhost MODE #test +t");
@@ -367,8 +375,7 @@ public:
 			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
 
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user2.skipReplies(4);
 
 			user2.sendCommand("TOPIC #test :Changing topic");
 			user2.assertReply(":ircserv 482 user2 #test :You're not channel operator");
@@ -381,7 +388,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +t");
 			user1.assertReply(":user1!user1@localhost MODE #test +t");
@@ -390,8 +397,7 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test +t");
 
 			user2.sendCommand("JOIN #test");
-			user1.skipReply();
-			user2.skipReply();
+			user2.skipReplies(4);
 
 			user2.sendCommand("TOPIC #test :Changing topic");
 			user2.assertReply(":ircserv 482 user2 #test :You're not channel operator");
@@ -434,7 +440,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +k password");
 			user1.assertReply(":user1!user1@localhost MODE #test +k password");
@@ -450,7 +456,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +k password");
 			user1.assertReply(":user1!user1@localhost MODE #test +k password");
@@ -462,12 +468,15 @@ public:
 			user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
 
 			user2.sendCommand("JOIN #test password");
-			usleep(50000);
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
+			user1.skipReplies(1);
 
 			user2.sendCommand("PART #test");
 			user2.assertReply(":user2!user2@localhost PART #test");
-			user1.skipReply();
+			user1.skipReplies(1);
 
 			user1.sendCommand("MODE #test -k");
 			user1.assertReply(":user1!user1@localhost MODE #test -k");
@@ -476,8 +485,10 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test");
 
 			user2.sendCommand("JOIN #test");
-			usleep(50000);
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 		}
 	};
 
@@ -515,7 +526,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("MODE #test +l 1");
 			user1.assertReply(":user1!user1@localhost MODE #test +l 1");
@@ -533,8 +544,10 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test");
 
 			user2.sendCommand("JOIN #test password");
-			usleep(50000);
-			user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 		}
 	};
 
@@ -546,7 +559,7 @@ public:
 		ReplyTester user2(4343, "password", "user2");
 
 		user1.sendCommand("JOIN #test");
-		user1.skipReply();
+		user1.skipReplies(4);
 		user1.sendCommand("MODE #test +it");
 		user1.assertReply(":user1!user1@localhost MODE #test +it");
 
@@ -582,6 +595,9 @@ public:
 		user1.assertReply(":ircserv 324 user1 #test +ikt");
 
 		user2.sendCommand("JOIN #test password");
-		user2.assertReply(":user2!user2@localhost JOIN :#test\r\n:ircserv 331 user2 #test :No topic is set\r\n:ircserv 353 user2 = #test :@user1 user2\r\n:ircserv 366 user2 #test :End of NAMES list");
+		user2.assertReply(":user2!user2@localhost JOIN :#test");
+		user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+		user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+		user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 	};
 };

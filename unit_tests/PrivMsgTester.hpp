@@ -75,17 +75,16 @@ private :
 
 		user1.sendCommand("JOIN #CHAN1");
 		user3.sendCommand("JOIN #CHAN1");
-		usleep(50000);
-		user3.skipReply();
-		user1.skipReply();
+		user3.skipReplies(4);
+		user1.skipReplies(5);
 		user2.sendCommand("PRIVMSG #CHAN1 : Hello world !");
 		user1.assertReply(":user2!user2@localhost PRIVMSG #CHAN1 : Hello world !");
 		user3.assertReply(":user2!user2@localhost PRIVMSG #CHAN1 : Hello world !");
 
 		user2.sendCommand("JOIN #CHAN1");
-		user2.skipReply();
-		user3.skipReply();
-		user1.skipReply();
+		user2.skipReplies(4);
+		user3.skipReplies(1);
+		user1.skipReplies(1);
 		user2.sendCommand("PRIVMSG #CHAN1 : Hello world !");
 		user1.assertReply(":user2!user2@localhost PRIVMSG #CHAN1 : Hello world !");
 		user3.assertReply(":user2!user2@localhost PRIVMSG #CHAN1 : Hello world !");

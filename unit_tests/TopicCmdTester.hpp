@@ -92,7 +92,7 @@ public:
 			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user2.sendCommand("TOPIC #test :Changing topic");
 			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
@@ -101,7 +101,7 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("TOPIC #test :Changing topic");
 			user1.assertReply(":user1!user1@localhost TOPIC #test :Changing topic");
@@ -110,21 +110,21 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReply();
+			user1.skipReplies(4);
 
 			user1.sendCommand("TOPIC #test :Changing topic");
 			user1.assertReply(":user1!user1@localhost TOPIC #test :Changing topic");
 
 			user1.sendCommand("LIST #test");
-			usleep(90000);
-			user1.assertReply(":ircserv 322 user1 #test 1 :Changing topic\r\n:ircserv 323 user1 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #test 1 :Changing topic");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
 
 			user1.sendCommand("TOPIC #test :");
 			user1.assertReply(":user1!user1@localhost TOPIC #test");
 
 			user1.sendCommand("LIST #test");
-			usleep(90000);
-			user1.assertReply(":ircserv 322 user1 #test 1\r\n:ircserv 323 user1 :End of LIST");
+			user1.assertReply(":ircserv 322 user1 #test 1");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
 		}
 	};
 };
