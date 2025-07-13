@@ -102,6 +102,7 @@ public:
 			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
 
 			user1.sendCommand("INVITE user2 #test");
+			user2.assertReply(":user1!user1@localhost INVITE user2 #test");
 			user2.sendCommand("JOIN #test");
 			user2.assertReply(":user2!user2@localhost JOIN :#test");
 			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
