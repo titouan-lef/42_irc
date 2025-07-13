@@ -24,6 +24,8 @@ public:
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& cmdName, const std::vector<std::string>& arg,
 		const std::string& trailing = "");
 
+	void sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing);
+
 	void addNewBuffer();
 	bool isCommandReady(int buffer_index) const;
 	int completeMsg(int buffer_index, const std::string &msg);

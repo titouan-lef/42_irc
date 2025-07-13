@@ -91,6 +91,13 @@ void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket,
 	sendReply(msg);
 }
 
+void MsgServ::sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing)
+{
+	std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
+	Message msg = {receiverSocket, serviceName, "NOTICE", std::vector<std::string>(1, nickname), trailing};
+	sendReply(msg);
+}
+
 void MsgServ::sendReply(const Message &msg)
 {
 	std::string reply = formatMsg(msg);

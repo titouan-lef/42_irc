@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <set>
 #include <poll.h>
 #include <ctime>
 
@@ -26,6 +27,9 @@ public:
 	static UserManager& getInstance();
 
 	void initUserManager(const int serverSocket, const struct sockaddr_in& serverAddr);
+
+	bool isServiceName(const std::string& name);
+	void sendCommandToService(const int senderSocket, const std::string& name, const std::string& message);
 
 	void addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr);
 	bool isNickUsed(const std::string& nickname);
@@ -68,6 +72,7 @@ private:
 	std::vector<struct pollfd> pollfdList_;
 	std::vector<struct sockaddr_in> addressList_;
 	std::vector<Activity> lastActivities_;
+	std::set<std::string> serviceNames_;
 
 	friend class CommandTester; /** @todo remove before push */
 	friend class PrivMsgTester; /** @todo remove before push */

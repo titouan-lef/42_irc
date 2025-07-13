@@ -13,7 +13,10 @@
 #define INACTIVITY_TIMEOUT 360
 #define INACTIVITY_PING_LIMIT 240
 
-UserManager::UserManager() {}
+UserManager::UserManager()
+{
+	serviceNames_.insert("ChanServ");
+}
 
 /**
  * @brief Initializes the user manager by adding the server as the first user.
@@ -75,7 +78,23 @@ bool UserManager::isNickUsed(const std::string &nickname)
 		if (userList_.at(i).is(nickname))
 			return true;
 	}
+	return isServiceName(nickname);
+}
+
+bool UserManager::isServiceName(const std::string &name)
+{
+	for (std::set<std::string>::iterator it = serviceNames_.begin(); it != serviceNames_.end(); ++it)
+	{
+		if (*it == name)
+			return true;
+	}
 	return false;
+}
+
+void UserManager::sendCommandToService(const int senderSocket, const std::string &name, const std::string &message)
+{
+	if (name == "ChanServ")
+		ChanServ::getInstance().receiveCommand(senderSocket, message);
 }
 
 /**
