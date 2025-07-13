@@ -71,17 +71,12 @@ std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int
 void ModeCmd::addOptionInList(const Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
 {
 	const std::string& flags = *it;
-	int isAddFlag = -1;
+	bool isAddFlag = true;
 	for (std::size_t i = 0; i < flags.length(); ++i)
 	{
 		if (flags[i] == '+' || flags[i] == '-')
-		{
 			isAddFlag = (flags[i] == '+');
-			continue;
-		}
-		if (isAddFlag == -1)
-			continue; /** @todo throw UnknownModeException ou pas*/
-		try
+		else try
 		{
 			Option option = {flags[i], isAddFlag, ""};
 			checkOptionAndAddArg(cmd, it, option);

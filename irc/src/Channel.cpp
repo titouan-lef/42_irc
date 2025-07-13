@@ -190,6 +190,8 @@ bool Channel::addNewOperator(const int socketNewOperator)
  */
 bool Channel::removeOperator(const int socketUser)
 {
+	if (!isOperator(socketUser))
+		return false;
 	eraseUser(socketOperators_, socketUser);
 	return true;
 }
@@ -411,18 +413,25 @@ const std::string Channel::builtUsersString() const
 const std::string Channel::builtOptionString() const
 {
 	std::string options;
+	std::string args;
 
 	if (isInviteRestricted())
 		options += "i";
 	if (isPasswordProtected())
+	{
 		options += "k";
+		args += " " + password_;
+	}
 	if (isTopicRestricted())
 		options += "t";
 	if (nbMaxUsers_ != 0)
-		options += "l " + sizeToStr(nbMaxUsers_);
+	{
+		options += "l";
+		args += " " + sizeToStr(nbMaxUsers_);
+	}
 	if (!options.empty())
 		options = "+" + options;
-	return options;
+	return options + args;
 }
 
 const std::string Channel::sizeToStr(const std::size_t nb) const

@@ -52,12 +52,6 @@ public:
 			cmd = {"MODE", "", {"test"}};
 			Tester::assertThrows<NoSuchChannelException>([&]() {mode.execute(cmd ,1);});
 
-			cmd = {"MODE", "", {"#test", "++o"}};
-			Tester::assertThrows<UnknownModeException>([&]() {mode.execute(cmd ,1);});
-
-			cmd = {"MODE", "", {"#test", "+"}};
-			Tester::assertThrows<UnknownModeException>([&]() {mode.execute(cmd ,1);});
-
 			ChanServ::getInstance().partAllChannels(10);
 		}
 		{
@@ -81,10 +75,45 @@ public:
 
 			user1.sendCommand("JOIN #test");
 			user2.sendCommand("JOIN #test");
-			user1.skipReplies(4);
 			user2.skipReplies(4);
+			user1.skipReplies(5);
 			user2.sendCommand("MODE #test");
 			user2.assertReply(":ircserv 482 user2 #test :You're not channel operator");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test +++");
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test +e");
+			user1.assertReply(":ircserv 472 user1 e :is unknown mode char to me");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test e");
+			user1.assertReply(":ircserv 472 user1 e :is unknown mode char to me");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test e++++i-z");
+			user1.assertReply(":ircserv 472 user1 e :is unknown mode char to me");
+			user1.assertReply(":ircserv 472 user1 z :is unknown mode char to me");
+			user1.assertReply(":user1!user1@localhost MODE #test +i");
 		}
 	};
 
@@ -111,7 +140,15 @@ public:
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isOperator(10));
 
-			cmd = {"MODE", "", {"#test", "+oo", "Alice", "Bob"}};
+			cmd = {"MODE", "", {"#test", "o", "Alice"}};
+			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			Tester::assertTrue(chan.isOperator(10));
+
+			cmd = {"MODE", "", {"#test", "--o", "Alice"}};
+			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			Tester::assertFalse(chan.isOperator(10));
+
+			cmd = {"MODE", "", {"#test", "++oo", "Alice", "Bob"}};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isOperator(10));
 			Tester::assertTrue(chan.isOperator(11));
@@ -120,13 +157,6 @@ public:
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isOperator(10));
 			Tester::assertFalse(chan.isOperator(11));
-
-			cmd = {"MODE", "", {"#test", "+o"}};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
-			cmd = {"MODE", "", {"#test", "+oo", "Alice"}};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
-			cmd = {"MODE", "", {"#test", "-oo", "Alice"}};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(11);});
@@ -152,11 +182,29 @@ public:
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
 
 			user1.sendCommand("JOIN #test");
-			user1.skipReplies(4);
-			user1.sendCommand("MODE #test +oo Bob");
+			user2.sendCommand("JOIN #test");
+			user2.skipReplies(4);
+			user1.skipReplies(5);
+			user1.sendCommand("MODE #test +oo user2");
 			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
+			user1.assertReply(":user1!user1@localhost MODE #test +o user2");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+			ReplyTester user3(4343, "password", "user3");
+
+			user1.sendCommand("JOIN #test");
+			user2.sendCommand("JOIN #test");
+			user3.sendCommand("JOIN #test");
+			user3.skipReplies(4);
+			user2.skipReplies(5);
+			user1.skipReplies(6);
+			user1.sendCommand("MODE #test +++o---o user2 user3");
+			user1.assertReply(":user1!user1@localhost MODE #test +o user2");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -202,6 +250,7 @@ public:
 			user1.skipReplies(5);
 			user1.sendCommand("MODE #test +oo user2 user3");
 			user1.assertReply(":ircserv 401 user1 user3 :No such nick/channel");
+			user1.assertReply(":user1!user1@localhost MODE #test +o user2");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -259,6 +308,90 @@ public:
 
 			user2.sendCommand("JOIN #test");
 			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test +++++++i");
+			user1.assertReply(":user1!user1@localhost MODE #test +i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +i");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test i");
+			user1.assertReply(":user1!user1@localhost MODE #test +i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +i");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test i");
+			user1.assertReply(":user1!user1@localhost MODE #test +i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +i");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
+
+			user1.sendCommand("MODE #test -i");
+			user1.assertReply(":user1!user1@localhost MODE #test -i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+			user1.sendCommand("MODE #test i");
+			user1.assertReply(":user1!user1@localhost MODE #test +i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +i");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
+
+			user1.sendCommand("MODE #test ---------------i");
+			user1.assertReply(":user1!user1@localhost MODE #test -i");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test");
+
+			user2.sendCommand("JOIN #test");
+			user2.assertReply(":user2!user2@localhost JOIN :#test");
+			user2.assertReply(":ircserv 331 user2 #test :No topic is set");
+			user2.assertReply(":ircserv 353 user2 = #test :@user1 user2");
+			user2.assertReply(":ircserv 366 user2 #test :End of NAMES list");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -346,6 +479,30 @@ public:
 			user1.sendCommand("JOIN #test");
 			user1.skipReplies(4);
 
+			user1.sendCommand("MODE #test +ttttttt");
+			user1.assertReply(":user1!user1@localhost MODE #test +t");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +t");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
+			user1.sendCommand("MODE #test ttttttt--------ttttttt");
+			user1.assertReply(":user1!user1@localhost MODE #test +t-t");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
 			user1.sendCommand("MODE #test +t");
 			user1.assertReply(":user1!user1@localhost MODE #test +t");
 
@@ -415,11 +572,9 @@ public:
 			ModeCmd mode;
 
 			Tester::assertFalse(chan.isPasswordProtected());
-			Command cmd = {"MODE", "", {"#test", "+k"}};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 			Tester::assertFalse(chan.isPasswordProtected());
-			cmd = {"MODE", "", {"#test", "+k", "password"}};
+			Command cmd = {"MODE", "", {"#test", "+k", "password"}};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isPasswordProtected());
 
@@ -430,7 +585,12 @@ public:
 
 			cmd = {"MODE", "", {"#test", "-k"}};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
+			Tester::assertTrue(chan.isPasswordProtected());
+
+			cmd = {"MODE", "", {"#test", "-k", "password"}};
+			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isPasswordProtected());
+
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 		}
@@ -446,7 +606,7 @@ public:
 			user1.assertReply(":user1!user1@localhost MODE #test +k password");
 
 			user1.sendCommand("MODE #test");
-			user1.assertReply(":ircserv 324 user1 #test +k");
+			user1.assertReply(":ircserv 324 user1 #test +k password");
 
 			user2.sendCommand("JOIN #test");
 			user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
@@ -462,7 +622,7 @@ public:
 			user1.assertReply(":user1!user1@localhost MODE #test +k password");
 
 			user1.sendCommand("MODE #test");
-			user1.assertReply(":ircserv 324 user1 #test +k");
+			user1.assertReply(":ircserv 324 user1 #test +k password");
 
 			user2.sendCommand("JOIN #test");
 			user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
@@ -479,7 +639,13 @@ public:
 			user1.skipReplies(1);
 
 			user1.sendCommand("MODE #test -k");
-			user1.assertReply(":user1!user1@localhost MODE #test -k");
+			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
+
+			user1.sendCommand("MODE #test");
+			user1.assertReply(":ircserv 324 user1 #test +k password");
+
+			user1.sendCommand("MODE #test -k password");
+			user1.assertReply(":user1!user1@localhost MODE #test -k password");
 
 			user1.sendCommand("MODE #test");
 			user1.assertReply(":ircserv 324 user1 #test");
@@ -500,11 +666,11 @@ public:
 			ModeCmd mode;
 
 			Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, (std::size_t)0);
-			Command cmd = {"MODE", "", {"#test", "+l"}};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
+			// Command cmd = {"MODE", "", {"#test", "+l"}};
+			// Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 			Tester::assertFalse(chan.isPasswordProtected());
-			cmd = {"MODE", "", {"#test", "+l", "2"}};
+			Command cmd = {"MODE", "", {"#test", "+l", "2"}};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, (std::size_t)2);
 
@@ -519,8 +685,28 @@ public:
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(11);});
 		}
+		Tester::startTest("MODE limit relply test");
 		{
-			Tester::startTest("MODE limit relply test");
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
+			user1.sendCommand("MODE #test +l 0");
+			user1.assertReply(":ircserv 696 user1 #test l 0 :Invalid parameter for mode");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
+			user1.sendCommand("MODE #test +la");
+			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
+		}
+		{
 			
 			ReplyTester user1(4343, "password", "user1");
 			ReplyTester user2(4343, "password", "user2");
@@ -570,13 +756,13 @@ public:
 		user1.assertReply(":user1!user1@localhost MODE #test +k password");
 
 		user1.sendCommand("MODE #test");
-		user1.assertReply(":ircserv 324 user1 #test +ikt");
+		user1.assertReply(":ircserv 324 user1 #test +ikt password");
 
 		user1.sendCommand("MODE #test +l 1");
 		user1.assertReply(":user1!user1@localhost MODE #test +l 1");
 
 		user1.sendCommand("MODE #test");
-		user1.assertReply(":ircserv 324 user1 #test +iktl 1");
+		user1.assertReply(":ircserv 324 user1 #test +iktl password 1");
 
 		user2.sendCommand("JOIN #test");
 		user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
@@ -592,7 +778,7 @@ public:
 		user1.assertReply(":user1!user1@localhost MODE #test -l");
 
 		user1.sendCommand("MODE #test");
-		user1.assertReply(":ircserv 324 user1 #test +ikt");
+		user1.assertReply(":ircserv 324 user1 #test +ikt password");
 
 		user2.sendCommand("JOIN #test password");
 		user2.assertReply(":user2!user2@localhost JOIN :#test");

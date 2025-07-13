@@ -83,7 +83,7 @@ public:
 		Tester::assertDoNotThrows([&]() {chan.connectUser(9, "secret");});
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(9);});
 
-		chan.disablePassword();
+		chan.disablePassword("secret");
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(9, "secret");});
 	};
