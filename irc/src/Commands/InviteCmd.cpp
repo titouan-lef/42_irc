@@ -5,6 +5,16 @@
 
 #define ARG_REQUIERED 2
 
+/**
+ * @brief Executes the INVITE command to invite a user to a channel.
+ *
+ * This function handles the logic for inviting a user to a channel.
+ * finds the socket associated with the user to be invited, and then instructs
+ * the channel service to invite the user to the specified channel.
+ *
+ * @param cmd The command object containing the invite request and its arguments.
+ * @param senderSocket The socket descriptor of the user sending the invite.
+ */
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	
