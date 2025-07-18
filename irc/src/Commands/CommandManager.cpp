@@ -15,7 +15,7 @@
 #include "QuitCmd.hpp"
 #include "TopicCmd.hpp"
 #include "UserCmd.hpp"
-#include "UnknowCmdException.hpp"
+#include "UnknownCmdException.hpp"
 #include "NotRegisteredException.hpp"
 #include "PasswordMismatchException.hpp"
 
@@ -87,13 +87,13 @@ void CommandManager::interpretData(const std::string& recv, const int senderSock
 * often used for messages with spaces (e.g., a message in PRIVMSG)
 *
 * If the command is not recognized (i.e., not present in 'commands_'),
-* an 'UnknowCmdException' exception is thrown.
+* an 'UnknownCmdException' exception is thrown.
 *
 * @param recv The raw command sent by the client (e.g., "PRIVMSG #channel :Hello all").
 *
 * @return An 'Command' structure containing the parsed command.
 *
-* @throws UnknowCmdException if the command is not registered in 'commands_'.
+* @throws UnknownCmdException if the command is not registered in 'commands_'.
 */
 Command CommandManager::parserCmd(const std::string& recv) const
 {
@@ -108,7 +108,7 @@ std::size_t CommandManager::createCmdName(const std::string& recv, std::string& 
 {
 	std::size_t startNextParam = delimitParameter(recv, 0, cmdName);
 	if (cmdNotExist(cmdName))
-		throw UnknowCmdException(cmdName);
+		throw UnknownCmdException(cmdName);
 	return startNextParam;
 }
 

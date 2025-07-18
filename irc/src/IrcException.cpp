@@ -50,7 +50,7 @@ void IrcException::displayError(const int receiverSocket) const
 #include "SendException.hpp"
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
-#include "UnknowCmdException.hpp"
+#include "UnknownCmdException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
@@ -86,8 +86,8 @@ NoRecipientException::NoRecipientException(const std::string& commandName):
 NoTextToSendException::NoTextToSendException():
 	IrcException(412, "No text to send") {}
 
-UnknowCmdException::UnknowCmdException(const std::string& commandName): 
-	IrcException(421, std::vector<std::string>(1, commandName), "Unknow command") {}
+UnknownCmdException::UnknownCmdException(const std::string& commandName): 
+	IrcException(421, std::vector<std::string>(1, commandName), "Unknown command") {}
 
 NoNicknameGivenException::NoNicknameGivenException():
 	IrcException(431, "No nickname given") {}
