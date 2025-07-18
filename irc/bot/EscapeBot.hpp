@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "Msg.hpp"
 
 class EscapeBot
 {
@@ -21,6 +22,13 @@ private:
 	int parsePort(const std::string& port);
 	void sendCommand(const std::string& cmd);
 	std::string listenToServer();
+
+	void interpretMsg(const std::string& recvMsg);
+	void parseMsg(const std::string& recvMsg, Msg& message);
+	std::string extractNickname(const std::string& recvMsg);
+	std::string extractServer(const std::string& recvMsg);
+	void extractRequest(const std::string& recvMsg, Msg& message);
+	void msgExec(Msg& message);
 
 	int socketBot_;
 	bool running_;

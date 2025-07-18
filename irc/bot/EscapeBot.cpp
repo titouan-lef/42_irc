@@ -50,8 +50,9 @@ void EscapeBot::run()
 	running_ = true;
 	while (running_)
 	{
-		std::string test = listenToServer();
-		std::cout << test << std::endl;
+		std::string recvMsg = listenToServer();
+		std::cout << recvMsg << std::endl;
+		interpretMsg(recvMsg);
 	}
 }
 
@@ -124,3 +125,71 @@ void EscapeBot::stop()
 	running_ = false;
 	std::cout << std::endl << "Shutting down EscapeBot..." << std::endl;
 }
+
+/********************************************* interpreteur msg ************************************************/
+void EscapeBot::interpretMsg(const std::string& recvMsg)
+{
+	Msg message;
+	EscapeBot::parseMsg(recvMsg, message);
+	std::cout << message.nickSender_ << " | "
+	<<  message.cmd_ << " | "
+	<<  message.restOfMsg_ << std::endl;
+	EscapeBot::msgExec(message);
+}
+
+void EscapeBot::EscapeBot::parseMsg(const std::string& recvMsg, Msg& message)
+{
+	if (recvMsg.empty())
+		return ;
+	message.nickSender_ = extractNickname(recvMsg);
+	if (message.nickSender_.empty())
+		return ;
+	extractRequest(recvMsg, message);
+}
+
+std::string EscapeBot::extractNickname(const std::string& recvMsg)
+{
+	std::string nickname;
+	size_t start;
+	start = recvMsg.find(':');
+	if (start == std::string::npos || start == recvMsg.size())
+		return nickname;
+	size_t end;
+	end = recvMsg.find('!');
+	if (end == std::string::npos || end == recvMsg.size())
+		return nickname;
+	nickname = recvMsg.substr(start + 1, end -1);
+	return nickname;
+}
+
+void EscapeBot::extractRequest(const std::string& recvMsg, Msg& message)
+{
+	const char delimiter = ' ';
+	size_t start = recvMsg.find(delimiter, 0);
+	if (start == std::string::npos)
+		return ;
+	++start;
+	size_t end = recvMsg.find(delimiter, start);
+	message.cmd_ = recvMsg.substr(start, end - start);
+	if (end == recvMsg.size())
+		return ;
+	++end;
+	message.restOfMsg_ = recvMsg.substr(end, recvMsg.size() - end);
+}
+
+void EscapeBot::msgExec(Msg& message)
+{
+	if (message.cmd_ == "PING")
+	{
+		sendCommand("PONG " + message.restOfMsg_);
+		return ;
+	}
+	if (!message.cmd_.empty())
+		sendCommand("PRIVMSG "+ message.nickSender_ + " :I have no time for your probleme ! Please send a message to the helper bot");
+}
+/**
+ * 
+ format des message reçu :
+ 
+ :pchalmin1!pchalmin1@localhost PRIVMSG escapeBot :: HELP
+ */
