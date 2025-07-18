@@ -7,7 +7,7 @@
 #include "PrivmsgCmd.hpp"
 #include "UserManager.hpp"
 #include "Server.hpp"
-#include "UnknowCmdException.hpp"
+#include "UnknownCmdException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "PasswordMismatchException.hpp"
 #include "NoSuchNickException.hpp"
