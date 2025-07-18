@@ -20,7 +20,7 @@
 #include "PasswordMismatchException.hpp"
 
 /**
- * @details * This constructor initializes the `commands_` map by inserting the various IRC commands
+ * @details * This constructor initializes the 'commands_' map by inserting the various IRC commands
 * supported by the server. Each command (such as INVITE, JOIN, KICK, etc.)
 * is associated with an instance of an object derived from the base command class.
  */
@@ -49,6 +49,14 @@ CommandManager::~CommandManager()
 		delete it->second;
 }
 
+/**
+ * @brief Returns the singleton instance of CommandManager.
+ *
+ * This method ensures that only one instance of CommandManager exists
+ * throughout the program lifetime.
+ *
+ * @return Reference to the single CommandManager instance.
+ */
 CommandManager& CommandManager::getInstance()
 {
 	static CommandManager instance;
@@ -73,19 +81,19 @@ void CommandManager::interpretData(const std::string& recv, const int senderSock
 *
 * This function takes a command line received from a client (as a string),
 * and breaks it into several parts:
-* - `cmd.name`: the main command ("JOIN", "NICK", etc.)
-* - `cmd.arg`: a space-separated list of arguments
-* - `cmd.trailing`: the "free" data at the end of the command, preceded by a `:`,
+* - 'cmd.name': the main command ("JOIN", "NICK", etc.)
+* - 'cmd.arg': a space-separated list of arguments
+* - 'cmd.trailing': the "free" data at the end of the command, preceded by a ':',
 * often used for messages with spaces (e.g., a message in PRIVMSG)
 *
-* If the command is not recognized (i.e., not present in `commands_`),
-* an `UnknowCmdException` exception is thrown.
+* If the command is not recognized (i.e., not present in 'commands_'),
+* an 'UnknowCmdException' exception is thrown.
 *
 * @param recv The raw command sent by the client (e.g., "PRIVMSG #channel :Hello all").
 *
-* @return An `Command` structure containing the parsed command.
+* @return An 'Command' structure containing the parsed command.
 *
-* @throws UnknowCmdException if the command is not registered in `commands_`.
+* @throws UnknowCmdException if the command is not registered in 'commands_'.
 */
 Command CommandManager::parserCmd(const std::string& recv) const
 {
@@ -95,6 +103,7 @@ Command CommandManager::parserCmd(const std::string& recv) const
 	return (cmd);
 }
 
+
 std::size_t CommandManager::createCmdName(const std::string& recv, std::string& cmdName) const
 {
 	std::size_t startNextParam = delimitParameter(recv, 0, cmdName);
@@ -103,6 +112,15 @@ std::size_t CommandManager::createCmdName(const std::string& recv, std::string& 
 	return startNextParam;
 }
 
+/**
+ * @brief Checks whether a command does not exist or has an empty name.
+ * This function returns 'true' if the command name is an empty string
+ * or if no command with the given name is found in the 'commands_' container.
+ *
+ * @param cmdName The name of the command to check.
+ *
+ * @return 'true' if the command is invalid or not found, 'false' otherwise.
+ */
 bool CommandManager::cmdNotExist(const std::string &cmdName) const
 {
 	return (cmdName.empty() || commands_.find(cmdName) == commands_.end());

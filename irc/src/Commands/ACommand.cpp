@@ -1,6 +1,14 @@
 #include "ACommand.hpp"
 #include "NeedMoreParamsException.hpp"
 
+/**
+ * @brief split the character string with a separator passed as a parameter.
+ * 
+ * @param str  is the string you want to split.
+ * @param delimiter separator.
+ * 
+ * @return a vector of string.
+ */
 std::vector<std::string> ACommand::split(const std::string& str, const char delimiter) const
 {
 	std::vector<std::string> tokens;
@@ -17,6 +25,10 @@ std::vector<std::string> ACommand::split(const std::string& str, const char deli
 	return tokens;
 }
 
+/**
+ * @brief remove ':' of the trailing std::string for the msg or param
+ * @return a new ACommand
+ */
 Command ACommand::truncateTrailing(const Command& cmd) const
 {
 	Command newCmd;
@@ -27,6 +39,15 @@ Command ACommand::truncateTrailing(const Command& cmd) const
 	return (newCmd);
 }
 
+/**
+ * @brief Retrieves the last argument from the command, depending on whether a trailing parameter is present.
+ * Throws an exception if the required number of arguments is not satisfied.
+ * 
+ * @param cmd is a actual command
+ * @param nbArgsRequierd is a number of argument for the command need
+ * @return Last param of the command
+ * @throws NeedMoraParamsException the number requierement of args is not the same
+ */
 std::string ACommand::getLastParam(const Command& cmd, const size_t nbArgsRequiered) const
 {
 	if (cmd.trailing.empty())
@@ -43,6 +64,17 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t nbArgsRequie
 	}
 }
 
+/**
+ * @brief Retrieves the last argument from the command, depending on whether a trailing parameter is present.
+ * Throws an exception if the required number of arguments is not satisfied.
+ * 
+ * @param cmd is a actual command.
+ * @param argsMin is a number min of argument for the command need.
+ * @param argsMin is a number max of argument for the command need.
+ * 
+ * @return Last param of the command
+ * @throws NeedMoraParamsException the number requierement of args is not the same
+ */
 std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, const size_t argsMax) const
 {
 	if (cmd.trailing.empty())
@@ -59,6 +91,13 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, con
 	}
 }
 
+/**
+ * @brief count the number of argument in the command
+ * 
+ * @param cmd is a actual command.
+ * 
+ * @return the number of argument
+ */
 size_t ACommand::getNbArgs(const Command& cmd) const
 {
 	size_t nbArgs = 0;

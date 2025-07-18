@@ -4,7 +4,7 @@
 #include "ChanServ.hpp"
 
 /**
- * @brief Quit the server and send a essage to all channel if is in parameters
+ * @brief Execute Quit command. Quit the server and send a essage to all channel if is in parameters
  * thhis funcion quit all time and throw none error.
  */
 
