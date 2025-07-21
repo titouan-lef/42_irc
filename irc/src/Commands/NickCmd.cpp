@@ -9,37 +9,70 @@
 #include "UserManager.hpp"
 #include "User.hpp"
 
-#define MAX_NICK_LENGTH 9
-#define ARG_REQUIERED 1
-
-void NickCmd::execute(const Command& cmd, const int socket) const
+void NickCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	User &user = UserManager::getInstance().getUser(socket);
-	if (!user.isConnected())
-		throw PasswordMismatchException();
-	std::string nickname = getLastParam(cmd, ARG_REQUIERED);
-	NickCmd::parsingNickname(nickname);
-	if (UserManager::getInstance().isNickUsed(nickname))
-		throw NicknameInUseException(nickname);
-	if (user.isNickRegister())
-		ChanServ::getInstance().sendBroacastToLinkedUsers(socket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
-	user.setNickname(nickname);
+	User& user = UserManager::getInstance().getUser(senderSocket);
+	const std::string nickname = checkCmd(cmd, user);
+	updateUser(cmd, senderSocket, user, nickname);
 }
 
-void NickCmd::parsingNickname(const std::string& nickname) const
+const std::string NickCmd::checkCmd(const Command& cmd, const User& user) const
 {
+	const size_t NB_ARG = 1;
+
+	if (!user.isConnected())
+		throw PasswordMismatchException();
+	const std::string nickname = getLastParam(cmd, NB_ARG);
+	checkNickname(nickname);
+	return nickname;
+}
+
+void NickCmd::checkNickname(const std::string& nickname) const
+{
+	checkNicknameSize(nickname);
+	checkNicknameChar(nickname);
+	if (UserManager::getInstance().isNickUsed(nickname))
+		throw NicknameInUseException(nickname);
+}
+
+void NickCmd::checkNicknameSize(const std::string& nickname) const
+{
+	const size_t MAX_NICK_LENGTH = 9;
+
 	if (nickname.empty())
 		throw NoNicknameGivenException();
 	if (nickname.length() > MAX_NICK_LENGTH)
 		throw ErroneUsNicknameException(nickname);
-	std::string specials = "_[]\\`^{}|";
-	unsigned char c = nickname[0];
-	if ((!isalpha(c)) && specials.find(c) == std::string::npos)
+}
+
+void NickCmd::checkNicknameChar(const std::string& nickname) const
+{
+	if (!isAuthorizedFirstChar(nickname[0]))
 		throw ErroneUsNicknameException(nickname);
 	for (size_t i = 1; i < nickname.length(); ++i)
 	{
-		c = nickname[i];
-		if ((!isalnum(c)) && specials.find(c) == std::string::npos && c != '-')
+		if (!isAuthorizedChar(nickname[i]))
 			throw ErroneUsNicknameException(nickname);
 	}
+}
+
+bool NickCmd::isAuthorizedChar(const unsigned char c) const
+{
+	const unsigned char AUTHORIZED_CHAR = '-';
+
+	return (c == AUTHORIZED_CHAR || isdigit(c) || isAuthorizedFirstChar(c));
+}
+
+bool NickCmd::isAuthorizedFirstChar(const unsigned char c) const
+{
+	const std::string AUTHORIZED_CHAR_LIST = "_[]\\`^{}|";
+
+	return (isalpha(c) || AUTHORIZED_CHAR_LIST.find(c) != std::string::npos);
+}
+
+void NickCmd::updateUser(const Command& cmd, const int senderSocket, User &user, const std::string &nickname) const
+{
+	if (user.isNickRegister())
+		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
+	user.setNickname(nickname);
 }
