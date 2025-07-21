@@ -1,7 +1,8 @@
 #include "ListCmd.hpp"
-#include "UserManager.hpp"
+
+#include "MsgServ.hpp"
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
+#include "IrcException.hpp"
 
 #define ARG_REQUIERED 1
 

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <vector>
 #include <set>
-#include <poll.h>
 #include <ctime>
 
 #include "User.hpp"

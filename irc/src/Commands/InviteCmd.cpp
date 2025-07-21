@@ -1,7 +1,9 @@
 #include "InviteCmd.hpp"
+
+#include "command.hpp"
+#include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
-#include "NeedMoreParamsException.hpp"
 
 #define ARG_REQUIERED 2
 
@@ -17,7 +19,6 @@
  */
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	
 	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
 	const int invitedSocket = UserManager::getInstance().findUserSocket(cmd.arg.at(0));
 	ChanServ::getInstance().findChannel(lastParam).inviteUser(invitedSocket, senderSocket);

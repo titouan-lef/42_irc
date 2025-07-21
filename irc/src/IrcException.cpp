@@ -5,7 +5,7 @@
 #include <sstream>
 
 #include "Server.hpp"
-#include "UserManager.hpp"
+#include "MsgServ.hpp"
 
 IrcException::IrcException(const int code, const std::vector<std::string> &arg, const std::string &trailing):
 	arg_(arg), code_(code), trailing_(trailing) {}
@@ -70,6 +70,8 @@ void IrcException::displayError(const int receiverSocket) const
 #include "NoTextToSendException.hpp"
 #include "TooManyTargetsException.hpp"
 #include "NoRecipientException.hpp"
+
+#include "User.hpp"
 
 NoSuchNickException::NoSuchNickException(const std::string& nickname):
 	IrcException(401, std::vector<std::string>(1, nickname), "No such nick/channel") {}

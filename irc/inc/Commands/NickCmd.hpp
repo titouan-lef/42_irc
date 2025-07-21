@@ -2,7 +2,9 @@
 
 #include "ACommand.hpp"
 
-#include "command.hpp"
+#include <iostream>
+
+struct Command;
 
 class NickCmd : public ACommand
 {

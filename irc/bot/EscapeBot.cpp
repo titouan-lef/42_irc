@@ -1,13 +1,11 @@
 #include "EscapeBot.hpp"
 
-#include <iostream>
 #include <cstring>
-#include <cassert>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdlib>
+
+#include "Msg.hpp"
 
 #define MIN_PORT_VALUE 1023
 #define MAX_PORT_VALUE 65535

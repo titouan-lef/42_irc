@@ -2,7 +2,7 @@
 
 #include "ACommand.hpp"
 
-#include "command.hpp"
+struct Command;
 
 class QuitCmd : public ACommand
 {

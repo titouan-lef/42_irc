@@ -1,4 +1,6 @@
 #include "ACommand.hpp"
+
+#include "command.hpp"
 #include "NeedMoreParamsException.hpp"
 
 /**

@@ -2,6 +2,7 @@
 
 #include "Tester.hpp"
 #include "command.hpp"
+#include "MsgServ.hpp"
 
 #include <iostream>
 

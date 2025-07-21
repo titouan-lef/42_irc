@@ -1,4 +1,7 @@
 #include "UserCmd.hpp"
+
+#include "command.hpp"
+#include "MsgServ.hpp"
 #include "Server.hpp"
 #include "User.hpp"
 #include "UserManager.hpp"
@@ -60,7 +63,7 @@ bool UserCmd::validUsername(std::string username) const
 /**
  * @brief Verifie if the mode are "0" and "*" if is not return false
  */
-bool UserCmd::validParam(const std::vector<std::string>&  param) const
+bool UserCmd::validParam(const std::vector<std::string>& param) const
 {
 	if (param.at(1) != "0")
 		return false;

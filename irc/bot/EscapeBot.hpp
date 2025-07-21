@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
-#include "Msg.hpp"
+#include <iostream>
+
+struct Msg;
 
 class EscapeBot
 {
@@ -32,5 +33,4 @@ private:
 
 	int socketBot_;
 	bool running_;
-
 };

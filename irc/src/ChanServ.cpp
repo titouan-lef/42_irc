@@ -1,4 +1,6 @@
 #include "ChanServ.hpp"
+
+#include "MsgServ.hpp"
 #include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
 

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Service.hpp"
-#include "Channel.hpp"
+
 #include <vector>
+
+#include "Channel.hpp"
 
 class ChanServ: public Service
 {

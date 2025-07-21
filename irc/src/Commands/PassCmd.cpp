@@ -1,9 +1,10 @@
 #include "PassCmd.hpp"
+
 #include "PasswordMismatchException.hpp"
 #include "AlreadyRegistredException.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "Server.hpp"
 #include "UserManager.hpp"
+#include "User.hpp"
 
 #define ARG_REQUIERED 1
 

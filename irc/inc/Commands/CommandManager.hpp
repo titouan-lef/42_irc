@@ -1,9 +1,10 @@
 #pragma once
 
+#include "ACommand.hpp"
+
 #include <iostream>
 #include <map>
 
-#include "ACommand.hpp"
 #include "command.hpp"
 
 class CommandTester; /** @todo remove before push */

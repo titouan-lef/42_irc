@@ -20,7 +20,7 @@ Server& Server::getInstance()
 
 const std::string &Server::getCreationDate() const { return creationDate_; }
 
-void Server::initServerConnection(std::string port,std::string password)
+void Server::initServerConnection(std::string port, std::string password)
 {
 	int portNumber = parsePort(port);
 	definePassword(password);

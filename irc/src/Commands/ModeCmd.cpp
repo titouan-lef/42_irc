@@ -1,10 +1,11 @@
-#include <cstdlib>
 #include "ModeCmd.hpp"
+
+#include <cstdlib>
+
+#include "command.hpp"
 #include "UserManager.hpp"
-#include <ChanServ.hpp>
+#include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
-#include "NoSuchChannelException.hpp"
-#include "NoSuchNickException.hpp"
 #include "UnknownModeException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InvalidModeParamException.hpp"

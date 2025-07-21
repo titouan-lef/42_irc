@@ -1,10 +1,10 @@
 #include "KickCmd.hpp"
 
+#include "command.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
-#include "NoSuchNickException.hpp"
 
 void KickCmd::execute(const Command& cmd, const int senderSocket) const
 {

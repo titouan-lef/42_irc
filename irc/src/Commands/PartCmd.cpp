@@ -1,7 +1,7 @@
 #include "PartCmd.hpp"
 
+#include "command.hpp"
 #include "ChanServ.hpp"
-#include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 
 /**

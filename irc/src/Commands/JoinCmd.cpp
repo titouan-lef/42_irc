@@ -1,8 +1,9 @@
 #include "JoinCmd.hpp"
-#include "UserManager.hpp"
+
+#include "command.hpp"
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "BadChanMaskException.hpp"
+
 #define MAX_ARGS 2
 #define MIN_ARGS 1
 

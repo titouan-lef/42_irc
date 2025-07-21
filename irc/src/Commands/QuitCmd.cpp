@@ -1,5 +1,6 @@
 #include "QuitCmd.hpp"
 
+#include "command.hpp"
 #include "UserManager.hpp"
 #include "ChanServ.hpp"
 

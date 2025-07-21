@@ -1,11 +1,13 @@
 #include "NickCmd.hpp"
+
+#include "command.hpp"
 #include "ChanServ.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
+#include "User.hpp"
 
 #define MAX_NICK_LENGTH 9
 #define ARG_REQUIERED 1

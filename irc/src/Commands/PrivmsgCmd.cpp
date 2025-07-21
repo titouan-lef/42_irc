@@ -1,8 +1,9 @@
 #include "PrivmsgCmd.hpp"
+
+#include "command.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
-#include "NoSuchNickException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "NoTextToSendException.hpp"
 #include "TooManyTargetsException.hpp"

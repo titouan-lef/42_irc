@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IrcException.hpp"
+
 #include <iostream>
 
 class BadChanMaskException: public IrcException

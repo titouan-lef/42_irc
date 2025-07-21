@@ -1,10 +1,9 @@
 #pragma once
 
-#include <iostream>
 #include <exception>
-#include <vector>
 
-#include "MsgServ.hpp"
+#include <iostream>
+#include <vector>
 
 class IrcException : public std::exception
 {

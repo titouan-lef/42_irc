@@ -1,14 +1,17 @@
-#include "Server.hpp"
 #include "UserManager.hpp"
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <poll.h>
+
+#include "Server.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "CommandManager.hpp"
 #include "IrcException.hpp"
 #include "ClientDisconnectedException.hpp"
 #include "NoSuchNickException.hpp"
-#include <unistd.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
 
 #define INACTIVITY_TIMEOUT 360
 #define INACTIVITY_PING_LIMIT 240
@@ -59,12 +62,12 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 			throw std::runtime_error("fd already register");
 	}
 
-	User newUser;
+	//User newUser;
 	Activity userActivity;
 	userActivity.timeLastActivity = time(NULL);
 	userActivity.pingSend = false;
 	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
-	userList_.push_back(newUser);
+	userList_.push_back(User());
 	pollfdList_.push_back(newPollfd);
 	addressList_.push_back(clientAddr);
 	lastActivities_.push_back(userActivity);

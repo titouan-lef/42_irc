@@ -1,7 +1,6 @@
 #include "NamesCmd.hpp"
-#include "UserManager.hpp"
+
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
 
 #define ARG_REQUIERED 1
 

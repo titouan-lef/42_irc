@@ -5,8 +5,6 @@
 #include <iostream>
 #include <vector>
 
-#include "command.hpp"
-
 class MsgServTester;/** @todo remove before push */
 
 class MsgServ: public Service

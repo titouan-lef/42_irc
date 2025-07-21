@@ -2,10 +2,11 @@
 
 #include "ACommand.hpp"
 
+#include <iostream>
 #include <vector>
 
-#include "Channel.hpp"
-#include "command.hpp"
+class Channel;
+struct Command;
 
 class ModeCmd : public ACommand
 {

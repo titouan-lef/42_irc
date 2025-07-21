@@ -1,8 +1,6 @@
 #pragma once
 
 #include "IrcException.hpp"
-#include <iostream>
-#include <vector>
 
 class UnknownModeException: public IrcException
 {

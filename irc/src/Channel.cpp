@@ -1,5 +1,7 @@
 #include "Channel.hpp"
 
+#include "User.hpp"
+#include "MsgServ.hpp"
 #include "UserManager.hpp"
 #include "NoSuchNickException.hpp"
 #include "BadChanKeyException.hpp"

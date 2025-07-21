@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IrcException.hpp"
-#include <iostream>
 
 class AlreadyRegistredException: public IrcException
 {

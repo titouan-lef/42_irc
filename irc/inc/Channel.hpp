@@ -4,8 +4,6 @@
 #include <vector>
 #include <set>
 
-#include "command.hpp"
-
 class ChannelTester; /** @todo remove before push */
 class ModeCmdTester; /** @todo remove before push */
 class TopicCmdTester; /** @todo remove before push */

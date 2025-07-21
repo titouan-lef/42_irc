@@ -1,8 +1,8 @@
 #pragma once
 
 #include "IrcException.hpp"
+
 #include <iostream>
-#include <vector>
 
 class NotOnChannelException: public IrcException
 {

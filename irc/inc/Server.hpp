@@ -28,7 +28,7 @@ private:
 	Server& operator=(const Server& other);
 
 	void run();
-	void initServerConnection(std::string port,std::string password);
+	void initServerConnection(std::string port, std::string password);
 	std::string getDate() const;
 	int createSocket();
 	void defineSocketOption(int serverSocket);

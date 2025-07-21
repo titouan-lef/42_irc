@@ -1,5 +1,7 @@
 #include "PingCmd.hpp"
-#include "UserManager.hpp"
+
+#include "command.hpp"
+#include "MsgServ.hpp"
 #include "NeedMoreParamsException.hpp"
 
 void PingCmd::execute(const Command& cmd, const int senderSocket) const
