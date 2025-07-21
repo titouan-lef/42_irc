@@ -108,7 +108,7 @@ void ChanServ::partAllChannels(const int loggedOutSocket, const std::string &msg
 	}
 }
 
-void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const Command &cmd)
+void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing)
 {
 	std::set<int> socketTargets;
 
@@ -120,7 +120,7 @@ void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const Command &cm
 	}
 	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
 	{
-		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmd.name, cmd.arg, cmd.trailing);
+		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmdName, arg, trailing);
 	}
 }
 

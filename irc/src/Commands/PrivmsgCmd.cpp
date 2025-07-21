@@ -19,20 +19,19 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 	std::vector<std::string>target = split(cmd.arg.at(0), ',');
 	if (target.size() > 4)
 		throw TooManyTargetsException(cmd.arg.at(0));
-	Command truncateCmd = truncateTrailing(cmd);
 	for (size_t i = 0; target.size() > i; i++)
 	{
 		if (ChanServ::getInstance().isValidChannelName(target.at(i)))
 		{
 			Channel chanTmp = ChanServ::getInstance().findChannel(target.at(i));
-			chanTmp.sendMessageToAllUsers(senderSocket, truncateCmd.name, truncateCmd.arg, truncateCmd.trailing);
+			chanTmp.sendMessageToAllUsers(senderSocket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
 		}
 		else if (UserManager::getInstance().isServiceName(target.at(i)))
-			UserManager::getInstance().sendCommandToService(senderSocket, target.at(i), truncateCmd.trailing);
+			UserManager::getInstance().sendCommandToService(senderSocket, target.at(i), truncateTrailing(cmd.trailing));
 		else
 		{
 			int receiverSocket = UserManager::getInstance().findUserSocket(target.at(i));
-			MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, truncateCmd.name, truncateCmd.arg, truncateCmd.trailing);
+			MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
 		}
 	}
 }

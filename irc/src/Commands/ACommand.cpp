@@ -29,14 +29,11 @@ std::vector<std::string> ACommand::split(const std::string& str, const char deli
  * @brief remove ':' of the trailing std::string for the msg or param
  * @return a new ACommand
  */
-Command ACommand::truncateTrailing(const Command& cmd) const
+const std::string ACommand::truncateTrailing(const std::string& trailing) const
 {
-	Command newCmd;
-	newCmd.name = cmd.name;
-	newCmd.arg = cmd.arg;
-	if (!cmd.trailing.empty())
-		newCmd.trailing = cmd.trailing.substr(1);
-	return (newCmd);
+	if (trailing.empty())
+		return trailing;
+	return trailing.substr(1);
 }
 
 /**

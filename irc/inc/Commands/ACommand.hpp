@@ -15,7 +15,7 @@ public:
 protected:
 
 	std::vector<std::string> split(const std::string& str, const char delimiter) const;
-	Command truncateTrailing(const Command& cmd) const;
+	const std::string truncateTrailing(const std::string& trailing) const;
 	std::string getLastParam(const Command& cmd, const size_t nbArgsRequiered) const;
 	std::string getLastParam(const Command& cmd, const size_t argsMin, const size_t argsMax) const;
 	size_t getNbArgs(const Command& cmd) const;

@@ -20,10 +20,7 @@ void NickCmd::execute(const Command& cmd, const int socket) const
 	if (UserManager::getInstance().isNickUsed(nickname))
 		throw NicknameInUseException(nickname);
 	if (user.isNickRegister())
-	{
-		Command reply = truncateTrailing(cmd);
-		ChanServ::getInstance().sendBroacastToLinkedUsers(socket, reply);
-	}
+		ChanServ::getInstance().sendBroacastToLinkedUsers(socket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
 	user.setNickname(nickname);
 }
 
