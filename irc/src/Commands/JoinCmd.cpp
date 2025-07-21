@@ -20,12 +20,12 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 			ChanServ::getInstance().partAllChannels(senderSocket);
 			return ;
 		}
-		channels = split(lastParam, ',');
+		channels = splitTargets(lastParam);
 	}
 	else
 	{
-		channels = split(cmd.arg.at(0), ',');
-		passwords = split(lastParam, ',');
+		channels = splitTargets(cmd.arg.at(0));
+		passwords = splitTargets(lastParam);
 	}
 
 	size_t j = 0;

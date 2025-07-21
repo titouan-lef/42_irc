@@ -11,17 +11,19 @@
  * 
  * @return a vector of string.
  */
-std::vector<std::string> ACommand::split(const std::string& str, const char delimiter) const
+std::vector<std::string> ACommand::splitTargets(const std::string& str) const
 {
+	const char DELIMITER = ',';
+
 	std::vector<std::string> tokens;
 	size_t start = 0;
-	size_t end = str.find(delimiter, start);
+	size_t end = str.find(DELIMITER, start);
 
 	while (end != std::string::npos)
 	{
 		tokens.push_back(str.substr(start, end - start));
 		start = end + 1;
-		end = str.find(delimiter, start);
+		end = str.find(DELIMITER, start);
 	}
 	tokens.push_back(str.substr(start));
 	return tokens;
@@ -59,7 +61,7 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t nbArgsRequie
 	{
 		if (cmd.arg.size() != nbArgsRequiered - 1)
 			throw NeedMoreParamsException(cmd.name);
-		return cmd.trailing.substr(1);
+		return truncateTrailing(cmd.trailing);
 	}
 }
 
@@ -86,7 +88,7 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, con
 	{
 		if (cmd.arg.size() > argsMax - 1 || cmd.arg.size() < argsMin - 1)
 			throw NeedMoreParamsException(cmd.name);
-		return cmd.trailing.substr(1);
+		return truncateTrailing(cmd.trailing);;
 	}
 }
 

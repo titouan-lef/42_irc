@@ -1,8 +1,11 @@
 #include "PartCmd.hpp"
 
+#include <vector>
+
 #include "command.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
+#include "IrcException.hpp"
 
 /**
  * @brief Executes the PART command to remove a user from one or more channels.
@@ -20,23 +23,36 @@
  *
  * @throws NeedMoreParamsException If the command does not contain exactly one argument.
  */
-void PartCmd::execute(const Command& cmd, const int socket) const
+void PartCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	if (cmd.arg.size() != 1)
+	checkCmd(cmd);
+	partChannelOfCmd(cmd, senderSocket);
+}
+
+void PartCmd::checkCmd(const Command& cmd) const
+{
+	const std::size_t NB_ARG = 1;
+
+	if (cmd.arg.size() != NB_ARG)
 		throw NeedMoreParamsException(cmd.name);
-	std::string message;
-	if (!cmd.trailing.empty())
-		message = cmd.trailing.substr(1);
-	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
-	for (size_t i = 0; i < channels.size(); ++i)
+}
+
+void PartCmd::partChannelOfCmd(const Command &cmd, const int senderSocket) const
+{
+	const std::string message = truncateTrailing(cmd.trailing);
+	const std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
+	for (size_t i = 0; i < channelList.size(); ++i)
+		partOneChannel(message, senderSocket, channelList.at(i));
+}
+
+void PartCmd::partOneChannel(const std::string& message, const int senderSocket, const std::string& channelName) const
+{
+	try
 	{
-		try
-		{
-			ChanServ::getInstance().part(channels.at(i), socket, message);
-		}
-		catch (const IrcException& e)
-		{
-			e.sendError(socket);
-		}
+		ChanServ::getInstance().part(channelName, senderSocket, message);
+	}
+	catch (const IrcException& e)
+	{
+		e.sendError(senderSocket);
 	}
 }

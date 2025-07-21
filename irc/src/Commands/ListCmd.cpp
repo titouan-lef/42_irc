@@ -28,7 +28,7 @@ void ListCmd::execute(const Command& cmd, const int socket) const
 		return;
 	}
 	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
-	std::vector<std::string> channels = split(lastParam, ',');
+	std::vector<std::string> channels = splitTargets(lastParam);
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		try

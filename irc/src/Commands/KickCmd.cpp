@@ -10,13 +10,11 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	if (cmd.arg.size() != 2)
 		throw NeedMoreParamsException(cmd.name);
-	std::vector<std::string> channels = split(cmd.arg.at(0), ',');
-	std::vector<std::string> users = split(cmd.arg.at(1), ',');
+	std::vector<std::string> channels = splitTargets(cmd.arg.at(0));
+	std::vector<std::string> users = splitTargets(cmd.arg.at(1));
 	if (channels.size() != 1 && channels.size() != users.size())
 		throw NeedMoreParamsException(cmd.name);
-	std::string message;
-	if (!cmd.trailing.empty())
-		message = cmd.trailing.substr(1);
+	std::string message = truncateTrailing(cmd.trailing);
 	if (message.empty())
 		message = "Kicked by " + UserManager::getInstance().getUserNickname(senderSocket);
 	for (size_t i = 0; i < users.size(); ++i)

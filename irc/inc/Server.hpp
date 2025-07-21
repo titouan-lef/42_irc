@@ -15,7 +15,7 @@ public:
 	static Server& getInstance();
 
 	const std::string& getCreationDate() const;
-	bool isCorrectPassword(const std::string& password) const;
+	bool isInvalidPassword(const std::string& password) const;
 	bool isUp() const;
 	int up(std::string port,std::string password);
 	void stop();

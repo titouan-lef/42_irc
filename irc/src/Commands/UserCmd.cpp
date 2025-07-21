@@ -13,11 +13,20 @@
 void UserCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	User& user = UserManager::getInstance().getUser(senderSocket);
+	checkCmd(cmd, user);
+	UpdateUser(user, cmd.arg.at(0), cmd.trailing);
+	sendHandshakeValidation(senderSocket);
+}
+
+void UserCmd::checkCmd(const Command& cmd, const User& user) const
+{
+	const std::size_t NB_ARG = 3;
+
 	if (!user.isConnected())
 		throw PasswordMismatchException();
 	if (!user.isNickRegister())
 		throw NotRegisteredException();
-	if (cmd.arg.size() != 3 || cmd.trailing.empty())
+	if (cmd.arg.size() != NB_ARG || cmd.trailing.empty())
 		throw NeedMoreParamsException(cmd.name);
 	if (!validParam(cmd.arg))
 		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
@@ -25,31 +34,18 @@ void UserCmd::execute(const Command& cmd, const int senderSocket) const
 		throw NeedMoreParamsException(cmd.name);
 	if (user.isUsernameRegister())
 		throw AlreadyRegistredException();
-	user.setUsername(cmd.arg.at(0));
-	user.setRealName(cmd.trailing);
-	sendHandshakeValidation(senderSocket);
 }
 
-void UserCmd::sendHandshakeValidation(const int socket) const
+/**
+ * @brief Verifie if the mode are "0" and "*" if is not return false
+ */
+bool UserCmd::validParam(const std::vector<std::string>& param) const
 {
-	std::string prefix = UserManager::getInstance().getUserPrefix(socket);
-	MsgServ::getInstance().sendNumericReply(socket, 1, std::vector<std::string>(), "Welcome to the Internet Relay Network " + prefix);
-
-	MsgServ::getInstance().sendNumericReply(socket, 2, std::vector<std::string>(), "Your host is ircserv, running version 1.0");
-
-	std::string date = Server::getInstance().getCreationDate();
-	MsgServ::getInstance().sendNumericReply(socket, 3, std::vector<std::string>(), "This server was created the " + date);
-
-	std::vector<std::string> arg;
-	arg.push_back("ircserv");
-	arg.push_back("1.0");
-	arg.push_back("-");
-	arg.push_back("itkol");
-	MsgServ::getInstance().sendNumericReply(socket, 4, arg);
+	return (param.at(1) == "0" && param.at(2) == "*");
 }
 
 /** @todo tcheck  */
-bool UserCmd::validUsername(std::string username) const
+bool UserCmd::validUsername(const std::string& username) const
 {
 	for (size_t i = 0; i < username.length(); ++i)
 	{
@@ -60,15 +56,32 @@ bool UserCmd::validUsername(std::string username) const
 	return true;
 }
 
-/**
- * @brief Verifie if the mode are "0" and "*" if is not return false
- */
-bool UserCmd::validParam(const std::vector<std::string>& param) const
+void UserCmd::UpdateUser(User& user, const std::string& username, const std::string& realName) const
 {
-	if (param.at(1) != "0")
-		return false;
-	if (param.at(2) != "*")
-		return false;
-	return true;
+	user.setUsername(username);
+	user.setRealName(realName);
+}
+
+void UserCmd::sendHandshakeValidation(const int socket) const
+{
+	const int WELCOME_CODE = 1;
+	const int HOST_CODE = 2;
+	const int DATE_CODE = 3;
+	const int MODE_CODE = 4;
+
+	std::string prefix = UserManager::getInstance().getUserPrefix(socket);
+	MsgServ::getInstance().sendNumericReply(socket, WELCOME_CODE, std::vector<std::string>(), "Welcome to the Internet Relay Network " + prefix);
+
+	MsgServ::getInstance().sendNumericReply(socket, HOST_CODE, std::vector<std::string>(), "Your host is ircserv, running version 1.0");
+
+	std::string date = Server::getInstance().getCreationDate();
+	MsgServ::getInstance().sendNumericReply(socket, DATE_CODE, std::vector<std::string>(), "This server was created the " + date);
+
+	std::vector<std::string> arg;
+	arg.push_back("ircserv");
+	arg.push_back("1.0");
+	arg.push_back("-");
+	arg.push_back("itkol");
+	MsgServ::getInstance().sendNumericReply(socket, MODE_CODE, arg);
 }
 

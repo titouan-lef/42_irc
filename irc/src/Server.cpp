@@ -51,15 +51,9 @@ void Server::definePassword(const std::string& password)
 	password_ = password;
 }
 
-bool Server::isCorrectPassword(const std::string& password) const
-{
-	return (password_ == password);
-}
+bool Server::isInvalidPassword(const std::string& password) const { return (password_ != password); }
 
-bool Server::isUp() const
-{
-	return running_;
-}
+bool Server::isUp() const { return running_; }
 
 void Server::closeServerConnection()
 {

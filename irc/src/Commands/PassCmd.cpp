@@ -6,8 +6,6 @@
 #include "UserManager.hpp"
 #include "User.hpp"
 
-#define ARG_REQUIERED 1
-
 /**
  * @brief Executes the PASS command to authenticate a user with the server password.
  *
@@ -25,13 +23,20 @@
  * @throws AlreadyRegistredException If the user is already registered.
  * @throws PasswordMismatchException If the provided password does not match the server’s password.
  */
-void PassCmd::execute(const Command& cmd, const int socket) const
+void PassCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	User& user = UserManager::getInstance().getUser(socket);
+	User& user = UserManager::getInstance().getUser(senderSocket);
+	checkCmd(cmd, user);
+	user.validConnection();
+}
+
+void PassCmd::checkCmd(const Command& cmd, const User& user) const
+{
+	const size_t NB_ARG = 1;
+
 	if (user.isConnected())
 		throw AlreadyRegistredException();
-	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
-	if (!Server::getInstance().isCorrectPassword(lastParam))
-			throw PasswordMismatchException();
-	user.validConnection();
+	const std::string lastParam = getLastParam(cmd, NB_ARG);
+	if (Server::getInstance().isInvalidPassword(lastParam))
+		throw PasswordMismatchException();
 }
