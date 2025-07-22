@@ -2,8 +2,6 @@
 
 #include "ChanServ.hpp"
 
-#define ARG_REQUIERED 1
-
 /**
  * @brief Executes the NAMES command to list users in specified channels or all channels.
  *
@@ -16,17 +14,33 @@
  * @param cmd The command object containing the NAMES request and its arguments.
  * @param socket The socket descriptor of the user requesting the user lists.
  */
-void NamesCmd::execute(const Command& cmd, const int socket) const
+void NamesCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	if (getNbArgs(cmd) == 0)
-	{
-		ChanServ::getInstance().namesAllChannels(socket);
-		return;
-	}
-	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
-	std::vector<std::string> channels = splitTargets(lastParam);
-	for (size_t i = 0; i < channels.size(); ++i)
-	{
-		ChanServ::getInstance().findChannel(channels.at(i)).sendActualUsers(socket);
-	}
+	const std::size_t NB_ARG_ALL_CHAN = 0;
+
+	if (getNbArgs(cmd) == NB_ARG_ALL_CHAN)
+		sendListUserInEachChannel(senderSocket);
+	else
+		sendListUserInSpecificChannel(cmd, senderSocket);
+}
+
+void NamesCmd::sendListUserInEachChannel(const int senderSocket) const
+{
+	ChanServ::getInstance().namesAllChannels(senderSocket);
+}
+
+void NamesCmd::sendListUserInSpecificChannel(const Command &cmd, const int senderSocket) const
+{
+	const std::size_t NB_ARG = 1;
+
+	const std::string lastParam = getLastParam(cmd, NB_ARG);
+	std::vector<std::string> channelList = splitTargets(lastParam);
+	for (size_t i = 0; i < channelList.size(); ++i)
+		sendListUserInOneChannel(senderSocket, channelList.at(i));
+}
+
+void NamesCmd::sendListUserInOneChannel(const int senderSocket, const std::string& channelName) const
+{
+	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
+	channel.sendActualUsers(senderSocket);
 }
