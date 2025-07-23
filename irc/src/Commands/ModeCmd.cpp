@@ -211,8 +211,8 @@ bool ModeCmd::limitMode(Channel& channel, const Option& option) const
 
 bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
 {
-	int limit = std::atoi(option.argument.c_str());
-	if (limit == 0)
+	int limit = getChannelLimit(option.argument);
+	if (limit <= 0)
 	{
 		std::vector<std::string> args;
 		args.push_back(channel.getName());
@@ -221,6 +221,15 @@ bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
 		throw InvalidModeParamException(args);
 	}
 	return channel.setLimitNbUsers(limit);
+}
+
+int ModeCmd::getChannelLimit(const std::string &limitArg) const
+{
+	const std::string AUTHORIZED_CHAR = "0123456789";
+
+	if (limitArg.find_first_not_of(AUTHORIZED_CHAR) != std::string::npos)
+		return 0;
+	return std::atoi(limitArg.c_str());
 }
 
 std::string ModeCmd::builtBroadcastMsg(const std::vector<Option>& optionList) const

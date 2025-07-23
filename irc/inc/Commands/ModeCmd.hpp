@@ -45,6 +45,7 @@ private:
 	bool operatorMode(Channel& channel, const Option& option) const;
 	bool limitMode(Channel& channel, const Option& option) const;
 	bool setChannelLimit(Channel& channel, const Option& option) const;
+	int getChannelLimit(const std::string& limitArg) const;
 
 	std::string builtBroadcastMsg(const std::vector<Option>& optionList) const;
 	std::string builtOptionMsg(const std::vector<Option>& optionList) const;
