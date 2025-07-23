@@ -4,7 +4,19 @@
 #include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
 
-ChanServ::ChanServ() {}
+ChanServ::ChanServ()
+{
+	helpNoticeMap_["help"] = &ChanServ::sendHelpNotice;
+	helpNoticeMap_["help JOIN"] = &ChanServ::sendHelpJoinNotice;
+	helpNoticeMap_["help PART"] = &ChanServ::sendHelpPartNotice;
+	helpNoticeMap_["help TOPIC"] = &ChanServ::sendHelpTopicNotice;
+	helpNoticeMap_["help PRIVMSG"] = &ChanServ::sendHelpPrivmsgNotice;
+	helpNoticeMap_["help NAMES"] = &ChanServ::sendHelpNamesNotice;
+	helpNoticeMap_["help LIST"] = &ChanServ::sendHelpListNotice;
+	helpNoticeMap_["help MODE"] = &ChanServ::sendHelpModeNotice;
+	helpNoticeMap_["help INVITE"] = &ChanServ::sendHelpInviteNotice;
+	helpNoticeMap_["help KICK"] = &ChanServ::sendHelpKickNotice;
+}
 
 /**
  * @brief Returns the singleton instance of ChanServ.
@@ -20,30 +32,15 @@ ChanServ &ChanServ::getInstance()
 	return instance;
 }
 
-void ChanServ::receiveCommand(const int senderSocket, const std::string &cmd)
+void ChanServ::receiveCommand(const int senderSocket, const std::string& cmd)
 {
-	if (cmd == "help")
-		sendHelpNotice(senderSocket);
-	else if (cmd == "help JOIN")
-		sendHelpJoinNotice(senderSocket);
-	else if (cmd == "help PART")
-		sendHelpPartNotice(senderSocket);
-	else if (cmd == "help TOPIC")
-		sendHelpTopicNotice(senderSocket);
-	else if (cmd == "help PRIVMSG")
-		sendHelpPrivmsgNotice(senderSocket);
-	else if (cmd == "help NAMES")
-		sendHelpNamesNotice(senderSocket);
-	else if (cmd == "help LIST")
-		sendHelpListNotice(senderSocket);
-	else if (cmd == "help MODE")
-		sendHelpModeNotice(senderSocket);
-	else if (cmd == "help INVITE")
-		sendHelpInviteNotice(senderSocket);
-	else if (cmd == "help KICK")
-		sendHelpKickNotice(senderSocket);
+	const std::string DEFAULT_REPLY = "Unknown help topic. Use \002help\002 to see available commands.";
+
+	this_func_map_t::iterator it = helpNoticeMap_.find(cmd);
+	if (it == helpNoticeMap_.end())
+		sendNoticeReply(senderSocket, DEFAULT_REPLY);
 	else
-		MsgServ::getInstance().sendNoticeReply("ChanServ", senderSocket, "Unknown help topic. Use \002help\002 to see available commands.");
+		(this->*it->second)(senderSocket);
 }
 
 /*
@@ -54,43 +51,37 @@ void ChanServ::receiveCommand(const int senderSocket, const std::string &cmd)
  *
  * @return Reference to the existing or newly created channel.
  */
-Channel &ChanServ::findOrCreateChannel(std::string name, const int socketUser)
+Channel& ChanServ::findOrCreateChannel(const std::string& name, const int socketUser)
 {
-	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
+	try
 	{
-		if (it->is(name))
-			return *it;
+		return findChannel(name);
 	}
-	return builtNewChannel(name, socketUser);
-}
-
-Channel &ChanServ::findChannel(std::string name)
-{
-	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
+	catch(const NoSuchChannelException& e)
 	{
-		if (it->is(name))
-			return *it;
-	}
-	throw NoSuchChannelException(name);
-}
-
-void ChanServ::namesAllChannels(const int socketUser)
-{
-	for (std::vector<Channel>::iterator it = channels_.begin(); it < channels_.end(); ++it)
-	{
-		it->sendActualUsers(socketUser);
+		(void) e;
+		return builtNewChannel(name, socketUser);
 	}
 }
 
-void ChanServ::listAllChannels(const int socketUser)
+Channel& ChanServ::findChannel(const std::string& name)
 {
-	std::vector<Channel>::iterator it = channels_.begin();
-	for (; it < channels_.end(); ++it)
-	{
-		it->sendChannelSummary(socketUser);
-	}
-	if (it == channels_.begin())
+	std::size_t index = findChannelIndex(name);
+	return channelList_.at(index);
+}
+
+void ChanServ::namesAllChannels(const int socketUser) const
+{
+	for (std::size_t i = 0; i < channelList_.size(); ++i)
+		channelList_.at(i).sendActualUsers(socketUser);
+}
+
+void ChanServ::listAllChannels(const int socketUser) const
+{
+	if (channelList_.empty())
 		return;
+	for (std::size_t i = 0; i < channelList_.size(); ++i)
+		channelList_.at(i).sendChannelSummary(socketUser);
 	MsgServ::getInstance().sendNumericReply(socketUser, 323, "End of LIST");
 }
 
@@ -101,70 +92,61 @@ void ChanServ::listAllChannels(const int socketUser)
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::partAllChannels(const int loggedOutSocket, const std::string &msg)
+void ChanServ::partAllChannels(const int loggedOutSocket, const std::string& msg)
 {
-	for (int i = channels_.size() - 1; i >= 0; --i)
+	for (int i = channelList_.size() - 1; i >= 0; --i)
 	{
-		if (channels_.at(i).isConnected(loggedOutSocket))
+		if (channelList_.at(i).isConnected(loggedOutSocket))
 			part(i, loggedOutSocket, msg); /** @todo no channel name in the quit message */
 	}
 }
 
-void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing)
+void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const std::string& cmdName, const std::vector<std::string> &arg, const std::string& trailing)
 {
 	std::set<int> socketTargets;
 
 	socketTargets.insert(socketUser);
-	for (int i = channels_.size() - 1; i >= 0; --i)
+	for (int i = channelList_.size() - 1; i >= 0; --i)
 	{
-		if (channels_.at(i).isConnected(socketUser))
-			channels_.at(i).insertConnectedUsers(socketTargets);
+		if (channelList_.at(i).isConnected(socketUser))
+			channelList_.at(i).insertConnectedUsers(socketTargets);
 	}
 	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
-	{
 		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmdName, arg, trailing);
-	}
 }
 
-void ChanServ::quit(const int loggedOutSocket, const std::string &msg)
+void ChanServ::quit(const int loggedOutSocket, const std::string& msg)
 {
 	std::set<int> socketTargets;
 
-	for (int i = channels_.size() - 1; i >= 0; --i)
+	for (int i = channelList_.size() - 1; i >= 0; --i)
 	{
-		if (channels_.at(i).isConnected(loggedOutSocket))
+		if (channelList_.at(i).isConnected(loggedOutSocket))
 		{
-			channels_.at(i).insertConnectedUsers(socketTargets);
+			channelList_.at(i).insertConnectedUsers(socketTargets);
 			logOut(i, loggedOutSocket);
 		}
 	}
 	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
-	{
 		MsgServ::getInstance().sendMessageReply(loggedOutSocket, *it, "QUIT", std::vector<std::string>(), msg);
-	}
 }
 
-void ChanServ::part(const std::string &channelName, const int loggedOutSocket, const std::string &message)
+void ChanServ::part(const std::string& channelName, const int loggedOutSocket, const std::string& message)
 {
-	size_t index = findChannelIndex(channelName);
+	std::size_t index = findChannelIndex(channelName);
 	part(index, loggedOutSocket, message);
 }
 
-void ChanServ::kick(const std::string &channelName, const int loggedOutSocket, const int senderSocket, const std::string &message)
+void ChanServ::kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	size_t index = findChannelIndex(channelName);
+	std::size_t index = findChannelIndex(channelName);
 	kick(index, loggedOutSocket, senderSocket, message);
 }
 
-bool ChanServ::isValidChannelName(const std::string &channelName) const
+bool ChanServ::isValidChannelName(const std::string& channelName) const
 {
-	if (channelName.empty() || channelName.size() > 50)
-		return false;
-	if (channelName.find_first_of("#&+!") != 0)
-		return false;
-	if (channelName.find_first_of(",\a") != std::string::npos)
-		return false;
-	return true;
+	return (!channelName.empty() && channelName.size() <= 50 && channelName.find_first_of("#&+!") == 0 &&
+		channelName.find_first_of(",\a") == std::string::npos);
 }
 
 /**
@@ -175,183 +157,217 @@ bool ChanServ::isValidChannelName(const std::string &channelName) const
  *
  * @return Reference to the newly created channel stored in the channels list.
  */
-Channel &ChanServ::builtNewChannel(std::string name, const int socketModerator)
+Channel& ChanServ::builtNewChannel(const std::string& name, const int socketModerator)
 {
 	Channel newChannel(name, socketModerator);
-	channels_.push_back(newChannel);
-	return channels_.back();
+	channelList_.push_back(newChannel);
+	return channelList_.back();
 }
 
-void ChanServ::deleteChannel(const std::string &name)
+void ChanServ::deleteChannel(const std::string& name)
 {
-	for (std::vector<Channel>::iterator it = channels_.begin(); it != channels_.end(); ++it)
+	try
 	{
-		if (it->is(name))
-		{
-			channels_.erase(it);
-			break;
-		}
+		std::size_t index = findChannelIndex(name);
+		deleteChannel(index);
+	}
+	catch(const NoSuchChannelException& e)
+	{
+		(void) e;
 	}
 }
 
-size_t ChanServ::findChannelIndex(std::string channelName)
+std::size_t ChanServ::findChannelIndex(const std::string& channelName) const
 {
-	for (size_t i = 0; i < channels_.size(); ++i)
+	for (std::size_t i = 0; i < channelList_.size(); ++i)
 	{
-		if (channels_.at(i).is(channelName))
+		if (channelList_.at(i).is(channelName))
 			return i;
 	}
 	throw NoSuchChannelException(channelName);
 }
 
-void ChanServ::deleteChannel(const int index)
+void ChanServ::deleteChannel(const std::size_t index)
 {
-	channels_.erase(channels_.begin() + index);
+	channelList_.erase(channelList_.begin() + index);
 }
 
-void ChanServ::part(const size_t index, const int loggedOutSocket, const std::string &message)
+void ChanServ::part(const std::size_t index, const int loggedOutSocket, const std::string& message)
 {
-	channels_.at(index).managePartMessage(loggedOutSocket, message);
+	channelList_.at(index).managePartMessage(loggedOutSocket, message);
 	logOut(index, loggedOutSocket);
 }
 
-void ChanServ::kick(const size_t index, const int loggedOutSocket, const int senderSocket, const std::string &message)
+void ChanServ::kick(const std::size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	std::string username = UserManager::getInstance().getUserName(loggedOutSocket);
-	channels_.at(index).manageKickMessage(senderSocket, username, message);
+	const std::string username = UserManager::getInstance().getUserName(loggedOutSocket);
+	channelList_.at(index).manageKickMessage(senderSocket, username, message);
 	logOut(index, loggedOutSocket);
 }
 
-void ChanServ::logOut(const size_t index, const int loggedOutSocket)
+void ChanServ::logOut(const std::size_t index, const int loggedOutSocket)
 {
-	Channel &chan = channels_.at(index);
+	Channel &chan = channelList_.at(index);
 	bool channelEmpty = chan.disconnectUser(loggedOutSocket);
 	if (channelEmpty)
 		deleteChannel(index);
 }
 
-void ChanServ::sendHelpNotice(const int recieverSocket)
+void ChanServ::sendHelpNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "On this IRC sever, ChanServ is not here to help you manage your channels");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "but only informs you of on witch command is aviable to you on the server to manipulate channels.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "You can use the following command:");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002JOIN\002            Join or create a channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002PART\002            Leave the channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002TOPIC\002           Change or show the channel's topic");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002PRIVMSG\002         Send a message on the channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002NAMES\002           List the channels and their users");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002LIST\002            List the channels");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "If you are operator of a chanel, you can aslo use:");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002MODE\002            Moderate a channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002INVITE\002          Invite someone to join a channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002KICK\002            Kick someone from a channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "For more details on a command, type \"PRIVMSG ChanServ :help <cmd>\" or \"/msg ChanServ help <cmd>\".");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 14;
+	const std::string tabMessage[nbMessage] = {
+		"On this IRC sever, ChanServ is not here to help you manage your channels",
+		"but only informs you of on witch command is aviable to you on the server to manipulate channels.",
+		"You can use the following command:",
+		"\002JOIN\002            Join or create a channel",
+		"\002PART\002            Leave the channel",
+		"\002TOPIC\002           Change or show the channel's topic",
+		"\002PRIVMSG\002         Send a message on the channel",
+		"\002NAMES\002           List the channels and their users",
+		"\002LIST\002            List the channels",
+		"If you are operator of a chanel, you can aslo use:",
+		"\002MODE\002            Moderate a channel",
+		"\002INVITE\002          Invite someone to join a channel",
+		"\002KICK\002            Kick someone from a channel",
+		"For more details on a command, type \"PRIVMSG ChanServ :help <cmd>\" or \"/msg ChanServ help <cmd>\"."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpJoinNotice(const int recieverSocket)
+void ChanServ::sendHelpJoinNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "The JOIN command allows to join a channel or create it if it does not exist.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002Format: JOIN <channels> [passwords]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002<channels>\002      The names of the channel you want to join separeted with a ','");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002<passwords>\002     (Optional) The password needed by channels separeted with a ','");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "You can use \"JOIN 0\" to leave all the channel you are in.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", recieverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 5;
+	const std::string tabMessage[nbMessage] = {
+		"The JOIN command allows to join a channel or create it if it does not exist.",
+		"\002Format: JOIN <channels> [passwords]\002",
+		"\002<channels>\002      The names of the channel you want to join separeted with a ','",
+		"\002<passwords>\002     (Optional) The password needed by channels separeted with a ','",
+		"You can use \"JOIN 0\" to leave all the channel you are in."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpPartNotice(const int receiverSocket)
+void ChanServ::sendHelpPartNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The PART command lets you leave one or severals channels.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "You can provide a reason to you leaving.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: PART <channels> [reason]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channels>\002      Names of channels to leave, separated by ','");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<reason>\002        (Optional) Reason for leaving");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 5;
+	const std::string tabMessage[nbMessage] = {
+		"The PART command lets you leave one or severals channels.",
+		"You can provide a reason to you leaving.",
+		"\002Format: PART <channels> [reason]\002",
+		"\002<channels>\002      Names of channels to leave, separated by ','",
+		"\002<reason>\002        (Optional) Reason for leaving"
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpTopicNotice(const int receiverSocket)
+void ChanServ::sendHelpTopicNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The TOPIC command changes or shows the topic of a channel.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "Changing the popic of a channel can be restricted to operators.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "In that case if you are not operator of the channel, the c ommand will fail.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: TOPIC <channel> [topic]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channel>\002      The channel name");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<topic>\002        (Optional) The new topic");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "If you dont provide a topic, the actual topic will be send to you.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 7;
+	const std::string tabMessage[nbMessage] = {
+		"The TOPIC command changes or shows the topic of a channel.",
+		"Changing the popic of a channel can be restricted to operators.",
+		"In that case if you are not operator of the channel, the c ommand will fail.",
+		"\002Format: TOPIC <channel> [topic]\002",
+		"\002<channel>\002      The channel name",
+		"\002<topic>\002        (Optional) The new topic",
+		"If you dont provide a topic, the actual topic will be send to you."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpPrivmsgNotice(const int receiverSocket)
+void ChanServ::sendHelpPrivmsgNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The PRIVMSG command sends a private message to a user or channel.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: PRIVMSG <target> :<message>\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<target>\002       Nickname or channel name");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<message>\002      The message to send");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 4;
+	const std::string tabMessage[nbMessage] = {
+		"The PRIVMSG command sends a private message to a user or channel.",
+		"\002Format: PRIVMSG <target> :<message>\002",
+		"\002<target>\002       Nickname or channel name",
+		"\002<message>\002      The message to send"
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpNamesNotice(const int receiverSocket)
+void ChanServ::sendHelpNamesNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The NAMES command shows the nicknames of users on a channel.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: NAMES [channels]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channels>\002      (Optional) Names of channels separated by ','");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "If you dont provide the name(s) of the channel(s) it will list all the channle on the server.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 4;
+	const std::string tabMessage[nbMessage] = {
+		"The NAMES command shows the nicknames of users on a channel.",
+		"\002Format: NAMES [channels]\002",
+		"\002<channels>\002      (Optional) Names of channels separated by ','",
+		"If you dont provide the name(s) of the channel(s) it will list all the channle on the server."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpListNotice(const int receiverSocket)
+void ChanServ::sendHelpListNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The LIST command shows channels and their topics.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: LIST [channels]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channels>\002      (Optional) names of channels to list");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "If you dont provide the name(s) of the channel(s) it will list all the channle on the server.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 4;
+	const std::string tabMessage[nbMessage] = {
+		"The LIST command shows channels and their topics.",
+		"\002Format: LIST [channels]\002",
+		"\002<channels>\002      (Optional) names of channels to list",
+		"If you dont provide the name(s) of the channel(s) it will list all the channle on the server."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpModeNotice(const int receiverSocket)
+void ChanServ::sendHelpModeNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The MODE command changes or shows a channel or user mode.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: MODE <target> [(+/-<modes> [params]]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<target>\002        Names of channels separated by ','");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<modes>\002         Mode string to change");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<params>\002        (Opional) Mode parameters");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The following modes are available:");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002i\002               Set/remove Invite-only channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002t\002               Set/remove the restrictions of the TOPIC command to channel operators");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002k\002               Set/remove the channel key (password)");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002o\002               Give/take channel operator privilege");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002l\002               Set/remove the user limit to channel");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "If you dont provide any modes it will send the actual channel modes.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 12;
+	const std::string tabMessage[nbMessage] = {
+		"The MODE command changes or shows a channel or user mode.",
+		"\002Format: MODE <target> [(+/-<modes> [params]]\002",
+		"\002<target>\002        Names of channels separated by ','",
+		"\002<modes>\002         Mode string to change",
+		"\002<params>\002        (Opional) Mode parameters",
+		"The following modes are available:",
+		"\002i\002               Set/remove Invite-only channel",
+		"\002t\002               Set/remove the restrictions of the TOPIC command to channel operators",
+		"\002k\002               Set/remove the channel key (password)",
+		"\002o\002               Give/take channel operator privilege",
+		"\002l\002               Set/remove the user limit to channel",
+		"If you dont provide any modes it will send the actual channel modes."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpInviteNotice(const int receiverSocket)
+void ChanServ::sendHelpInviteNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The INVITE command invites a user to a channel.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: INVITE <nick> <channel>\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<nick>\002         Nickname to invite.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channel>\002      Channel name.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 4;
+	const std::string tabMessage[nbMessage] = {
+		"The INVITE command invites a user to a channel.",
+		"\002Format: INVITE <nick> <channel>\002",
+		"\002<nick>\002         Nickname to invite.",
+		"\002<channel>\002      Channel name."
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
 }
 
-void ChanServ::sendHelpKickNotice(const int receiverSocket)
+void ChanServ::sendHelpKickNotice(const int receiverSocket) const
 {
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** ChanServ Help *****\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "The KICK command removes a user from a channel.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002Format: KICK <channel> <user> [reason]\002");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<channel>\002      Names of channels separated by ','.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<user>\002         Names of users to kick separated by ','.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002<reason>\002       (Optional) Reason for the kick.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "You can eather provite one channel and severals users");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "or as many channels that users.");
-	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, "\002***** End of Help *****\002");
+	const std::size_t nbMessage = 7;
+	const std::string tabMessage[nbMessage] = {
+		"The KICK command removes a user from a channel.",
+		"\002Format: KICK <channel> <user> [reason]\002",
+		"\002<channel>\002      Names of channels separated by ','.",
+		"\002<user>\002         Names of users to kick separated by ','.",
+		"\002<reason>\002       (Optional) Reason for the kick.",
+		"You can eather provite one channel and severals users",
+		"or as many channels that users.",
+	};
+	sendHelpNoticeReply(receiverSocket, tabMessage, nbMessage);
+}
+
+void ChanServ::sendHelpNoticeReply(const int receiverSocket, const std::string* tabMessage, const std::size_t nbMessage) const
+{
+	sendNoticeReply(receiverSocket, "\002***** ChanServ Help *****\002");
+	for (std::size_t i = 0; i < nbMessage; ++i)
+		sendNoticeReply(receiverSocket, tabMessage[i]);
+	sendNoticeReply(receiverSocket, "\002***** End of Help *****\002");
+}
+
+void ChanServ::sendNoticeReply(const int receiverSocket, const std::string& message) const
+{
+	MsgServ::getInstance().sendNoticeReply("ChanServ", receiverSocket, message);
 }

@@ -49,6 +49,7 @@ private:
 	void sendMsg(int socket, std::string& msg);
 	const std::string convertCodeToCommandId(const int code);
 
+	static const std::size_t BUFFER_SIZE = 512;
 	std::vector<std::string> buffers_;
 
 	friend class MsgServTester;/** @todo remove before push */

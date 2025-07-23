@@ -39,7 +39,7 @@ MsgServ& MsgServ::getInstance()
  */
 void MsgServ::recvMsg(int socket, int buffer_index)
 {
-	char buffer[512];
+	char buffer[BUFFER_SIZE];
 	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
 		throw ReiceveException();
@@ -126,8 +126,7 @@ std::string MsgServ::formatMsg(const Message &msg)
 	}
 	if (!msg.trailing.empty())
 		reply += " :" + msg.trailing; 
-	reply += "\r\n";
-	return reply;
+	return reply + "\r\n";
 }
 
 /**
@@ -189,7 +188,7 @@ int MsgServ::completeMsg(int buffer_index, const std::string &msg)
 {
 	std::string& buffer = buffers_.at(buffer_index);
 	buffer += msg;
-	if (buffer.size() > 512)
+	if (buffer.size() > BUFFER_SIZE)
 	{
 		buffer.clear();
 		return 1;
@@ -210,18 +209,17 @@ int MsgServ::completeMsg(int buffer_index, const std::string &msg)
 std::string MsgServ::getCommand(int buffer_index)
 {
 	std::string& buffer = buffers_.at(buffer_index);
-	size_t pos = buffer.find("\r\n");
+	std::size_t posOffset = 2;
+	std::size_t pos = buffer.find("\r\n");
 	if (pos == std::string::npos)
 	{
 		pos = buffer.find("\n");
 		if (pos == std::string::npos)
 			return "";
-		std::string command = buffer.substr(0, pos);
-		buffer = buffer.substr(pos + 1);
-		return command;
+		posOffset = 1;
 	}
-	std::string command = buffer.substr(0, pos);
-	buffer = buffer.substr(pos + 2);
+	const std::string command = buffer.substr(0, pos);
+	buffer = buffer.substr(pos + posOffset);
 	return command;
 }
 
