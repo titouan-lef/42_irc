@@ -1,14 +1,11 @@
 #include "Channel.hpp"
 
-#include "User.hpp"
 #include "MsgServ.hpp"
 #include "UserManager.hpp"
-#include "NoSuchNickException.hpp"
 #include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 #include "InviteOnlyException.hpp"
-#include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 #include "UserOnChannelException.hpp"
 
@@ -124,9 +121,7 @@ bool Channel::disconnectUser(const int socketUser)
 	}
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
-	if (socketConnectedUsers_.empty())
-		return true;
-	return false;
+	return (socketConnectedUsers_.empty());
 }
 
 /**
@@ -219,9 +214,7 @@ bool Channel::isConnected(const int socketUser) const { return findUser(socketCo
 void Channel::insertConnectedUsers(std::set<int>& list)
 {
 	for (std::size_t i = 0; i < socketConnectedUsers_.size(); ++i)
-	{
 		list.insert(socketConnectedUsers_.at(i));
-	}
 }
 
 /**
@@ -286,13 +279,11 @@ bool Channel::disableLimitNbUsers()
  * 
  * @warning you need to throw InvalidModeParamException if it returns 1.
  */
-bool Channel::setLimitNbUsers(size_t nbUserMax)
+bool Channel::setLimitNbUsers(const std::size_t newNbMaxUsers)
 {
-	if (nbMaxUsers_ != 0)
+	if (nbMaxUsers_ != 0 || newNbMaxUsers <= 0)
 		return false;
-	if (nbUserMax <= 0)
-		return false;
-	nbMaxUsers_ = nbUserMax;
+	nbMaxUsers_ = newNbMaxUsers;
 	return true;
 }
 

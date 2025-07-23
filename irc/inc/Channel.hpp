@@ -44,7 +44,7 @@ public:
 	bool setPassword(const std::string& newPassword);
 
 	bool disableLimitNbUsers();
-	bool setLimitNbUsers(std::size_t nbUserMax);
+	bool setLimitNbUsers(const std::size_t newNbMaxUsers);
 
 	bool enableInviteRestriction();
 	bool disableInviteRestriction();
