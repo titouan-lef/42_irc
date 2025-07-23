@@ -18,7 +18,7 @@ void NamesCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	const std::size_t NB_ARG_ALL_CHAN = 0;
 
-	if (getNbArgs(cmd) == NB_ARG_ALL_CHAN)
+	if (getNbArg(cmd) == NB_ARG_ALL_CHAN)
 		sendListUserInEachChannel(senderSocket);
 	else
 		sendListUserInSpecificChannel(cmd, senderSocket);

@@ -4,8 +4,6 @@
 #include "ChanServ.hpp"
 #include "IrcException.hpp"
 
-#define ARG_REQUIERED 1
-
 /**
  * @brief Executes the LIST command to display available channels or specific channel summaries.
  *
@@ -18,28 +16,43 @@
  * After processing, a numeric reply (code 323) is sent to indicate the end of the list.
  *
  * @param cmd The command object containing the LIST request and its arguments.
- * @param socket The socket descriptor of the user requesting the channel list.
+ * @param senderSocket The socket descriptor of the user requesting the channel list.
  */
-void ListCmd::execute(const Command& cmd, const int socket) const
+void ListCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	if (getNbArgs(cmd) == 0)
+	const std::size_t NB_ARG_ALL_CHAN = 0;
+
+	if (getNbArg(cmd) == NB_ARG_ALL_CHAN)
+		sendInfoAllChannel(senderSocket);
+	else
+		sendInfoSpecificChannel(cmd, senderSocket);
+}
+
+void ListCmd::sendInfoAllChannel(const int senderSocket) const
+{
+	ChanServ::getInstance().listAllChannels(senderSocket);
+}
+
+void ListCmd::sendInfoSpecificChannel(const Command &cmd, const int senderSocket) const
+{
+	const std::size_t NB_ARG = 1;
+
+	const std::string lastParam = getLastParam(cmd, NB_ARG);
+	std::vector<std::string> channelList = splitTargets(lastParam);
+	for (size_t i = 0; i < channelList.size(); ++i)
+		sendInfoOneChannel(senderSocket, channelList.at(i));
+	MsgServ::getInstance().sendNumericReply(senderSocket, 323, "End of LIST");
+}
+
+void ListCmd::sendInfoOneChannel(const int senderSocket, const std::string &channelName) const
+{
+	try
 	{
-		ChanServ::getInstance().listAllChannels(socket);
-		return;
+		Channel& channel = ChanServ::getInstance().findChannel(channelName);
+		channel.sendChannelSummary(senderSocket);
 	}
-	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
-	std::vector<std::string> channels = splitTargets(lastParam);
-	for (size_t i = 0; i < channels.size(); ++i)
+	catch(const IrcException& e)
 	{
-		try
-		{
-			ChanServ::getInstance().findChannel(channels.at(i)).sendChannelSummary(socket);
-		}
-		catch(const IrcException& e)
-		{
-			e.sendError(socket);
-		}
-		
+		e.sendError(senderSocket);
 	}
-	MsgServ::getInstance().sendNumericReply(socket, 323, "End of LIST");
 }

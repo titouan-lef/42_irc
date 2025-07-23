@@ -5,8 +5,6 @@
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 
-#define ARG_REQUIERED 2
-
 /**
  * @brief Executes the INVITE command to invite a user to a channel.
  *
@@ -19,8 +17,22 @@
  */
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	std::string lastParam = getLastParam(cmd, ARG_REQUIERED);
+	const std::string channelName = checkCmd(cmd);
 	const int invitedSocket = UserManager::getInstance().findUserSocket(cmd.arg.at(0));
-	ChanServ::getInstance().findChannel(lastParam).inviteUser(invitedSocket, senderSocket);
+	inviteUserInChannel(cmd, senderSocket, channelName, invitedSocket);
+}
+
+const std::string InviteCmd::checkCmd(const Command &cmd) const
+{
+	const std::size_t NB_ARG = 2;
+
+	return getLastParam(cmd, NB_ARG);
+}
+
+void InviteCmd::inviteUserInChannel(const Command& cmd, const int senderSocket, const std::string& channelName, const int invitedSocket) const
+{
+	Channel& channel = ChanServ::getInstance().findChannel(channelName);
+	channel.inviteUser(invitedSocket, senderSocket);
+
 	MsgServ::getInstance().sendMessageReply(senderSocket, invitedSocket, cmd.name, cmd.arg, cmd.trailing);
 }

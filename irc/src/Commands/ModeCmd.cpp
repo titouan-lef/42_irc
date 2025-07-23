@@ -11,95 +11,111 @@
 #include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 
-void ModeCmd::execute(const Command& cmd, const int socket) const
+void ModeCmd::execute(const Command& cmd, const int senderSocket) const
+{
+	const std::size_t NB_ARG_ACTUAL_MODE = 1;
+
+	Channel& channel = checkCmd(cmd, senderSocket);
+	if (cmd.arg.size() == NB_ARG_ACTUAL_MODE)
+		channel.sendActualModes(senderSocket);
+	else
+		changeMode(cmd, senderSocket, channel);
+}
+
+Channel& ModeCmd::checkCmd(const Command& cmd, const int senderSocket) const
 {
 	if (cmd.arg.size() < 1)
 		throw NeedMoreParamsException(cmd.name);
-	std::string channelName = cmd.arg.at(0);
+
+	const std::string& channelName = cmd.arg.at(0);
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
-	if (!channel.isConnected(socket))
-		throw UserNotInChannelException(UserManager::getInstance().getUserNickname(socket), channel.getName());
-	if (!channel.isOperator(socket))
-		throw ChannelPrivilegesNeeded(channel.getName());
-	if (cmd.arg.size() == 1)
+
+	if (!channel.isConnected(senderSocket))
 	{
-		channel.sendActualModes(socket);
-		return;
+		const std::string& nickname = UserManager::getInstance().getUserNickname(senderSocket);
+		throw UserNotInChannelException(nickname, channelName);
 	}
-	std::vector<Option> options = parseCommand(cmd, socket);
-	options = executeModeOptions(socket, channel, options);
-	std::string msg = builtBroadcastMsg(options);
-	if (!msg.empty())
-		channel.sendChangedModes(socket, msg);
+	if (!channel.isOperator(senderSocket))
+		throw ChannelPrivilegesNeeded(channelName);
+
+	return channel;
 }
 
-std::string ModeCmd::builtBroadcastMsg(const std::vector<ModeCmd::Option>& appliedOptions) const
+void ModeCmd::changeMode(const Command& cmd, const int senderSocket, Channel& channel) const
 {
-	std::string options;
-	std::string args;
-	std::vector<Option>::const_iterator it = appliedOptions.begin();
-
-	if (it == appliedOptions.end())
-		return "";
-	int lastIsAddFlag = -1;
-	for (; it < appliedOptions.end(); ++it)
-	{
-		if (lastIsAddFlag != it->isAddFlag && it->isAddFlag)
-			options += "+";
-		else if (lastIsAddFlag != it->isAddFlag)
-			options += "-";
-		lastIsAddFlag = it->isAddFlag;
-		options += it->flag;
-		if (!it->argument.empty())
-			args += " " + it->argument;
-	}
-	return options + args;
+	std::vector<Option> optionList = parseCommand(cmd, senderSocket);
+	applyAllValidOption(senderSocket, channel, optionList);
+	const std::string msg = builtBroadcastMsg(optionList);
+	if (!msg.empty())
+		channel.sendChangedModes(senderSocket, msg);
 }
 
-
-std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int socket) const
+std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int senderSocket) const
 {
 	std::vector<Option> optionList;
 	argIterator it = cmd.arg.begin() + 1;
 	while (it < cmd.arg.end())
 	{
-		addOptionInList(cmd, socket, optionList, it);
+		addOptionInList(cmd, senderSocket, optionList, it);
 		++it;
 	}
 	return optionList;/** @warning max 3 arg */
 }
 
-void ModeCmd::addOptionInList(const Command &cmd, const int socket, std::vector<Option> &optionList, argIterator& it) const
+void ModeCmd::addOptionInList(const Command& cmd, const int senderSocket, std::vector<Option>& optionList, argIterator& it) const
 {
 	const std::string& flags = *it;
 	bool isAddFlag = true;
 	for (std::size_t i = 0; i < flags.length(); ++i)
 	{
-		if (flags[i] == '+' || flags[i] == '-')
-			isAddFlag = (flags[i] == '+');
-		else try
+		const char flag = flags.at(i);
+		if (flag == '+' || flag == '-')
 		{
-			Option option = {flags[i], isAddFlag, ""};
-			checkOptionAndAddArg(cmd, it, option);
+			isAddFlag = (flag == '+');
+			continue;
+		}
+		Option option = {flag, isAddFlag, ""};
+		if (fillOption(cmd, senderSocket, it, option))
 			optionList.push_back(option);
-		}
-		catch(const IrcException& e)
-		{
-			e.sendError(socket);
-		}
 	}
 }
 
-void ModeCmd::checkOptionAndAddArg(const Command& cmd, argIterator& it, Option& option) const
+bool ModeCmd::fillOption(const Command& cmd, const int senderSocket, argIterator& it, Option& option) const
 {
-	const std::string validFlag = "itlok";
-	const std::size_t posFlagArg = 2;
+	try
+	{
+		checkFlagAndItsArg(cmd, it, option);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError(senderSocket);
+		return false;
+	}
+	return true;
+}
 
-	std::size_t pos = validFlag.find(option.flag);
-	if (pos == std::string::npos)
-		throw UnknownModeException(option.flag);
-	if ((pos == posFlagArg && option.isAddFlag) || pos > posFlagArg)
+void ModeCmd::checkFlagAndItsArg(const Command& cmd, argIterator& it, Option& option) const
+{
+	const std::size_t flagId = checkFlag(option.flag);
+	if (flagNeedArg(option, flagId))
 		option.argument = defineOptionArg(cmd, it);
+}
+
+std::size_t ModeCmd::checkFlag(const char flag) const
+{
+	const std::string VALID_FLAG = "itlok";
+
+	const std::size_t flagId = VALID_FLAG.find(flag);
+	if (flagId == std::string::npos)
+		throw UnknownModeException(flag);
+	return flagId;
+}
+
+bool ModeCmd::flagNeedArg(const Option& option, const std::size_t flagId) const
+{
+	const std::size_t POS_FLAG_ARG = 2;
+
+	return (flagId > POS_FLAG_ARG || (flagId == POS_FLAG_ARG && option.isAddFlag));
 }
 
 const std::string ModeCmd::defineOptionArg(const Command& cmd, argIterator& it) const
@@ -110,26 +126,31 @@ const std::string ModeCmd::defineOptionArg(const Command& cmd, argIterator& it) 
 	return *it;
 }
 
-std::vector<ModeCmd::Option> ModeCmd::executeModeOptions(const int socket, Channel& channel, const std::vector<ModeCmd::Option>& options) const
+void ModeCmd::applyAllValidOption(const int senderSocket, Channel& channel, std::vector<Option>& optionList) const
 {
-	std::vector<ModeCmd::Option> result;
-	for (std::vector<Option>::const_iterator it = options.begin() ; it < options.end(); ++it)
+	for (std::vector<Option>::iterator it = optionList.begin(); it < optionList.end();)// Be carefull, no ++it.
 	{
-		try
-		{
-			bool isOperationSuccessfull = executeModeOption(channel, *it);
-			if (isOperationSuccessfull)
-				result.push_back(*it);
-		}
-		catch(const IrcException& e)
-		{
-			e.sendError(socket);
-		}
+		if (applyValidOption(senderSocket, channel, *it))
+			++it;
+		else
+			optionList.erase(it);// No ++it because of erase.
 	}
-	return result;
 }
 
-bool ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::applyValidOption(const int senderSocket, Channel& channel, const Option& option) const
+{
+	try
+	{
+		return executeModeOption(channel, option);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError(senderSocket);
+		return false;
+	}
+}
+
+bool ModeCmd::executeModeOption(Channel& channel, const Option& option) const
 {
 	switch (option.flag)
 	{
@@ -147,33 +168,33 @@ bool ModeCmd::executeModeOption(Channel& channel, const ModeCmd::Option& option)
 	return false;
 }
 
-bool ModeCmd::inviteMode(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::inviteMode(Channel& channel, const Option& option) const
 {
 	if (option.isAddFlag)
 		return channel.enableInviteRestriction();
 	return channel.disableInviteRestriction();
 }
 
-bool ModeCmd::topicMode(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::topicMode(Channel& channel, const Option& option) const
 {
 	if (option.isAddFlag)
 		return channel.enableTopicRestriction();
 	return channel.disableTopicRestriction();
 }
 
-bool ModeCmd::passwordMode(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::passwordMode(Channel& channel, const Option& option) const
 {
 	if (option.isAddFlag)
 		return channel.setPassword(option.argument);
 	return channel.disablePassword(option.argument);
 }
 
-bool ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::operatorMode(Channel& channel, const Option& option) const
 {
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
 	if (!channel.isConnected(targetSocket))
 	{
-		std::string nickname = UserManager::getInstance().getUserNickname(targetSocket);
+		const std::string& nickname = UserManager::getInstance().getUserNickname(targetSocket);
 		throw UserNotInChannelException(nickname, channel.getName());
 	}
 	if (option.isAddFlag)
@@ -181,20 +202,58 @@ bool ModeCmd::operatorMode(Channel& channel, const ModeCmd::Option& option) cons
 	return channel.removeOperator(targetSocket);
 }
 
-bool ModeCmd::limitMode(Channel& channel, const ModeCmd::Option& option) const
+bool ModeCmd::limitMode(Channel& channel, const Option& option) const
 {
 	if (option.isAddFlag)
-	{
-		int limit = std::atoi(option.argument.c_str());
-		if (limit == 0)
-		{
-			std::vector<std::string> args;
-			args.push_back(channel.getName());
-			args.push_back(std::string(1, option.flag));
-			args.push_back(option.argument);
-			throw InvalidModeParamException(args);
-		}
-		return channel.setLimitNbUsers(limit);
-	}
+		return setChannelLimit(channel, option);
 	return channel.disableLimitNbUsers();
+}
+
+bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
+{
+	int limit = std::atoi(option.argument.c_str());
+	if (limit == 0)
+	{
+		std::vector<std::string> args;
+		args.push_back(channel.getName());
+		args.push_back(std::string(1, option.flag));
+		args.push_back(option.argument);
+		throw InvalidModeParamException(args);
+	}
+	return channel.setLimitNbUsers(limit);
+}
+
+std::string ModeCmd::builtBroadcastMsg(const std::vector<Option>& optionList) const
+{
+	if (optionList.empty())
+		return "";
+	return builtOptionMsg(optionList);
+}
+
+std::string ModeCmd::builtOptionMsg(const std::vector<Option>& optionList) const
+{
+	std::string allOption, allOptionArg;
+	bool isAddFlag = (!optionList.at(0).isAddFlag);
+	for (std::size_t i = 0; i < optionList.size(); ++i)
+	{
+		updateFlagMsg(optionList.at(i), allOption, isAddFlag);
+		updateArgMsg(optionList.at(i), allOptionArg);
+	}
+	return allOption + allOptionArg;
+}
+
+void ModeCmd::updateFlagMsg(const Option &option, std::string& allOption, bool &isAddFlag) const
+{
+	if (isAddFlag != option.isAddFlag)
+	{
+		allOption += (option.isAddFlag ? "+" : "-");
+		isAddFlag = option.isAddFlag;
+	}
+	allOption += option.flag;
+}
+
+void ModeCmd::updateArgMsg(const Option &option, std::string &allOptionArg) const
+{
+	if (!option.argument.empty())
+		allOptionArg += " " + option.argument;
 }

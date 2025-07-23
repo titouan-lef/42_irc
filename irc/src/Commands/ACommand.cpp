@@ -15,18 +15,21 @@ std::vector<std::string> ACommand::splitTargets(const std::string& str) const
 {
 	const char DELIMITER = ',';
 
-	std::vector<std::string> tokens;
-	size_t start = 0;
-	size_t end = str.find(DELIMITER, start);
+	std::vector<std::string> targetList;
+	std::string target;
+	std::size_t start = 0;
+	std::size_t end = str.find(DELIMITER);
 
 	while (end != std::string::npos)
 	{
-		tokens.push_back(str.substr(start, end - start));
+		target = str.substr(start, end - start);
+		targetList.push_back(target);
 		start = end + 1;
 		end = str.find(DELIMITER, start);
 	}
-	tokens.push_back(str.substr(start));
-	return tokens;
+	target = str.substr(start);
+	targetList.push_back(target);
+	return targetList;
 }
 
 /**
@@ -49,7 +52,7 @@ const std::string ACommand::truncateTrailing(const std::string& trailing) const
  * @return Last param of the command
  * @throws NeedMoraParamsException the number requierement of args is not the same
  */
-std::string ACommand::getLastParam(const Command& cmd, const size_t nbArgsRequiered) const
+std::string ACommand::getLastParam(const Command& cmd, const std::size_t nbArgsRequiered) const
 {
 	if (cmd.trailing.empty())
 	{
@@ -76,7 +79,7 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t nbArgsRequie
  * @return Last param of the command
  * @throws NeedMoraParamsException the number requierement of args is not the same
  */
-std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, const size_t argsMax) const
+std::string ACommand::getLastParam(const Command& cmd, const std::size_t argsMin, const std::size_t argsMax) const
 {
 	if (cmd.trailing.empty())
 	{
@@ -86,9 +89,9 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, con
 	}
 	else
 	{
-		if (cmd.arg.size() > argsMax - 1 || cmd.arg.size() < argsMin - 1)
+		if (cmd.arg.size() + 1 > argsMax || cmd.arg.size() + 1 < argsMin)
 			throw NeedMoreParamsException(cmd.name);
-		return truncateTrailing(cmd.trailing);;
+		return truncateTrailing(cmd.trailing);
 	}
 }
 
@@ -99,11 +102,10 @@ std::string ACommand::getLastParam(const Command& cmd, const size_t argsMin, con
  * 
  * @return the number of argument
  */
-size_t ACommand::getNbArgs(const Command& cmd) const
+std::size_t ACommand::getNbArg(const Command& cmd) const
 {
-	size_t nbArgs = 0;
-	nbArgs = cmd.arg.size();
-	if (!cmd.trailing.empty() && cmd.trailing != ":")
-		nbArgs++;
-	return nbArgs;
+	const std::size_t nbArg = cmd.arg.size();
+	if (cmd.trailing.empty() || cmd.trailing == ":")
+		return nbArg;
+	return nbArg + 1;
 }

@@ -2,6 +2,8 @@
 
 #include "ACommand.hpp"
 
+#include <iostream>
+
 struct Command;
 
 class ListCmd : public ACommand
@@ -12,4 +14,8 @@ public:
 
 	void execute(const Command& cmd, const int senderSocket) const;
 
+private:
+	void sendInfoAllChannel(const int senderSocket) const;
+	void sendInfoSpecificChannel(const Command& cmd, const int senderSocket) const;
+	void sendInfoOneChannel(const int senderSocket, const std::string& channelName) const;
 };
