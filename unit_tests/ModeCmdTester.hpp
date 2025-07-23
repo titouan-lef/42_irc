@@ -705,6 +705,36 @@ public:
 			user1.sendCommand("JOIN #test");
 			user1.skipReplies(4);
 
+			user1.sendCommand("MODE #test +l -1");
+			user1.assertReply(":ircserv 696 user1 #test l -1 :Invalid parameter for mode");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
+			user1.sendCommand("MODE #test +l 1cv2");
+			user1.assertReply(":ircserv 696 user1 #test l 1cv2 :Invalid parameter for mode");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
+			user1.sendCommand("MODE #test +l 2147483648");
+			user1.assertReply(":ircserv 696 user1 #test l 2147483648 :Invalid parameter for mode");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			ReplyTester user2(4343, "password", "user2");
+
+			user1.sendCommand("JOIN #test");
+			user1.skipReplies(4);
+
 			user1.sendCommand("MODE #test +la");
 			user1.assertReply(":ircserv 461 user1 MODE :Not enough parameters");
 		}
