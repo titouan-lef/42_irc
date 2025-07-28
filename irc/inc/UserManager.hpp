@@ -64,6 +64,7 @@ private:
 
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
+	void closeServer();
 	void deleteUser(const int index);
 	size_t getIndex(const int userSocket);
 

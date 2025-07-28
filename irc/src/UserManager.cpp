@@ -216,7 +216,7 @@ void UserManager::closeAllConnection()
 {
 	for (std::size_t i = userList_.size() - 1; i > 0; --i)/** @todo see to one instruction but size_t >= 0 (/!\ --i) */
 		closeConnection(i);
-	closeConnection(0);
+	closeServer();
 }
 
 /**
@@ -396,9 +396,14 @@ void UserManager::closeConnection(const int index)
 			struct sockaddr_in addr = addressList_.at(index);
 			std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
 		}
-		close(pollfdList_.at(index).fd);
 	}
+	close(pollfdList_.at(index).fd); /** @todo check with Lucien before this line is under else if */
 	deleteUser(index);
+}
+
+void UserManager::closeServer()
+{
+	close(pollfdList_.at(0).fd);
 }
 
 /**

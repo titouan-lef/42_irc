@@ -13,20 +13,20 @@ class Server
 public:
 
 	static Server& getInstance();
-
+	
 	const std::string& getCreationDate() const;
 	bool isInvalidPassword(const std::string& password) const;
 	bool isUp() const;
 	int up(std::string port,std::string password);
 	void stop();
-
+	
 private:
 
 	Server();
 	~Server(){}
 	Server(const Server& other);
 	Server& operator=(const Server& other);
-
+	
 	void run();
 	void initServerConnection(std::string port, std::string password);
 	std::string getDate() const;
@@ -42,7 +42,7 @@ private:
 	void onEvent();
 	void manageEvent();
 	void closeServerConnection();
-
+	
 	std::string	creationDate_;
 	std::string	password_;
 	bool running_;
