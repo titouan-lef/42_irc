@@ -1,0 +1,59 @@
+Test Connexion Basique :
+
+#1
+PASS password
+NICK pl
+USER plc 0 * :pl chalmin
+
+#2
+PASS password
+NICK pl
+USER plc 0 * :pl chalmin
+
+#3
+PASSpassword
+NICK pl
+USER plc 0 * :pl chalmin
+
+#4
+PASS password
+NICKpl
+USER plc 0 * :pl chalmin
+
+#5
+PASS password
+NICK pl
+USERplc 0 * :pl chalmin
+
+#6
+PASS password
+NICK pl
+USER plc 0 * pl: chalmin
+
+#7
+PASS wrongpassword
+NICK pl
+USER plc 0 * :pl chalmin
+
+#8
+NICK pl
+USER plc 0 * :pl chalmin
+JOIN #Test
+
+#9
+PASS password
+JOIN #Test
+NICK pl
+USER plc 0 * :pl chalmin
+
+#10
+PASS password
+NICK pl
+JOIN #Test
+USER plc 0 * :pl chalmin
+
+#11
+PASS password
+NICK pl
+USER plc 0 * :pl chalmin
+JOIN #Test

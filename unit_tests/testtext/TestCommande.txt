@@ -1,0 +1,10 @@
+Test Commande Basique :
+
+JOIN :
+
+JOIN #test1
+
+JOIN #test1,#test2,#test3
+
+JOIN #test1,test2,#test3
+
