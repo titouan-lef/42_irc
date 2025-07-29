@@ -1,6 +1,15 @@
 #include "ACommand.hpp"
 
+#include "NeedMoreParamsException.hpp"
 #include "command.hpp"
+
+ACommand::ACommand(const std::size_t nbArgMin, const std::size_t nbArgMax): nbArgMin_(nbArgMin), nbArgMax_(nbArgMax) {}
+
+void ACommand::checkArgSize(const Command& cmd) const
+{
+	if (cmd.arg.size() < nbArgMin_ || cmd.arg.size() > nbArgMax_)
+		throw NeedMoreParamsException(cmd.name);
+}
 
 /**
  * @brief split the character string with a separator passed as a parameter.
@@ -10,7 +19,7 @@
  * 
  * @return a vector of string.
  */
-std::vector<std::string> ACommand::splitTargets(const std::string& str) const
+std::vector<std::string> ACommand::splitTargets(const std::string &str) const
 {
 	const char DELIMITER = ',';
 

@@ -10,13 +10,12 @@ struct Command;
 class KickCmd : public ACommand
 {
 public:
-	KickCmd(){}
+	KickCmd();
 	~KickCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;
 
 private:
-	void checkCmd(const Command& cmd) const;
 	void checkCmdArg(const Command& cmd, const std::size_t nbChannel, const std::size_t nbUser) const;
 	const std::string buildMessage(const Command& cmd, const int senderSocket) const;
 	const std::string& getChannelName(const std::size_t userIndex, const std::vector<std::string>& channelList) const;

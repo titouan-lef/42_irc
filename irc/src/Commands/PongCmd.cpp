@@ -2,19 +2,12 @@
 
 #include "command.hpp"
 #include "UserManager.hpp"
-#include "NeedMoreParamsException.hpp"
+
+PongCmd::PongCmd(): ACommand(1, 1) {}
 
 void PongCmd::execute(const Command& cmd, const int socketSender) const
 {
-	checkCmd(cmd);
+	checkArgSize(cmd);
 	UserManager::getInstance().validatePongResponse(socketSender);
 	UserManager::getInstance().updateLastActivity(socketSender);
-}
-
-void PongCmd::checkCmd(const Command& cmd) const
-{
-	const std::size_t NB_ARG = 1;
-
-	if (cmd.arg.size() != NB_ARG)
-		throw NeedMoreParamsException(cmd.name);
 }

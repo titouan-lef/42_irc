@@ -1,8 +1,9 @@
 #include "NamesCmd.hpp"
 
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "command.hpp"
+
+NamesCmd::NamesCmd(): ACommand(0, 1) {}
 
 /**
  * @brief Executes the NAMES command to list users in specified channels or all channels.
@@ -18,9 +19,8 @@
  */
 void NamesCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG_ALL_CHAN = 0;
-
-	if (cmd.arg.size() == NB_ARG_ALL_CHAN)
+	checkArgSize(cmd);
+	if (cmd.arg.size() == nbArgMin_)
 		sendListUserInEachChannel(senderSocket);
 	else
 		sendListUserInSpecificChannel(cmd, senderSocket);
@@ -33,10 +33,6 @@ void NamesCmd::sendListUserInEachChannel(const int senderSocket) const
 
 void NamesCmd::sendListUserInSpecificChannel(const Command &cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG = 1;
-
-	if (cmd.arg.size() != NB_ARG)
-		throw NeedMoreParamsException(cmd.name);
 	std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
 	for (size_t i = 0; i < channelList.size(); ++i)
 		sendListUserInOneChannel(senderSocket, channelList.at(i));

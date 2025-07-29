@@ -4,8 +4,9 @@
 
 #include "command.hpp"
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "IrcException.hpp"
+
+PartCmd::PartCmd(): ACommand(1, 2) {}
 
 /**
  * @brief Executes the PART command to remove a user from one or more channels.
@@ -25,22 +26,13 @@
  */
 void PartCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	checkCmd(cmd);
+	checkArgSize(cmd);
 	partChannelOfCmd(cmd, senderSocket);
-}
-
-void PartCmd::checkCmd(const Command& cmd) const
-{
-	const std::size_t NB_ARG_MIN = 1;
-	const std::size_t NB_ARG_MAX = 2;
-
-	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
-		throw NeedMoreParamsException(cmd.name);
 }
 
 void PartCmd::partChannelOfCmd(const Command &cmd, const int senderSocket) const
 {
-	const char* message = (cmd.arg.size() == 2 ? cmd.arg.at(1).c_str() : NULL);
+	const char* message = (cmd.arg.size() == nbArgMax_ ? cmd.arg.at(1).c_str() : NULL);
 	const std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
 	for (size_t i = 0; i < channelList.size(); ++i)
 		partOneChannel(message, senderSocket, channelList.at(i));

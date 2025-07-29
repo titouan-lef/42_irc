@@ -10,7 +10,9 @@
 #include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"
 
-void UserCmd::execute(const Command& cmd, const int senderSocket) const
+UserCmd::UserCmd(): ACommand(4, 4) {}
+
+void UserCmd::execute(const Command &cmd, const int senderSocket) const
 {
 	User& user = UserManager::getInstance().getUser(senderSocket);
 	checkCmd(cmd, user);
@@ -20,14 +22,11 @@ void UserCmd::execute(const Command& cmd, const int senderSocket) const
 
 void UserCmd::checkCmd(const Command& cmd, const User& user) const
 {
-	const std::size_t NB_ARG = 4;
-
 	if (!user.isConnected())
 		throw PasswordMismatchException();
 	if (!user.isNickRegister())
 		throw NotRegisteredException();
-	if (cmd.arg.size() != NB_ARG)
-		throw NeedMoreParamsException(cmd.name);
+	checkArgSize(cmd);
 	if (!validParam(cmd.arg))
 		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
 	if (!validUsername(cmd.arg.at(0)))

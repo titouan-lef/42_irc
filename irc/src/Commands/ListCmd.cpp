@@ -3,8 +3,9 @@
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "IrcException.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "command.hpp"
+
+ListCmd::ListCmd(): ACommand(0, 1) {}
 
 /**
  * @brief Executes the LIST command to display available channels or specific channel summaries.
@@ -22,21 +23,11 @@
  */
 void ListCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG_ALL_CHAN = 0;
-
-	checkCmd(cmd);
-	if (cmd.arg.size() == NB_ARG_ALL_CHAN)
+	checkArgSize(cmd);
+	if (cmd.arg.size() == nbArgMin_)
 		sendInfoAllChannel(senderSocket);
 	else
 		sendInfoSpecificChannel(cmd, senderSocket);
-}
-
-void ListCmd::checkCmd(const Command &cmd) const
-{
-	const std::size_t NB_ARG_MAX = 1;
-
-	if (cmd.arg.size() > NB_ARG_MAX)
-		throw NeedMoreParamsException(cmd.name);
 }
 
 void ListCmd::sendInfoAllChannel(const int senderSocket) const

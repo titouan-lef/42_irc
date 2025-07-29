@@ -11,7 +11,7 @@ struct Command;
 class UserCmd : public ACommand
 {
 public:
-	UserCmd(){}
+	UserCmd();
 	~UserCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;

@@ -9,9 +9,11 @@
 #include "TooManyTargetsException.hpp"
 #include "NoRecipientException.hpp"
 
+PrivmsgCmd::PrivmsgCmd(): ACommand(2, 2) {}
+
 void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	checkCmdParam(cmd);
+	checkCmd(cmd);
 	const std::string& nicknameAllTarget = cmd.arg.at(0);
 	std::vector<std::string> targetList = splitTargets(nicknameAllTarget);
 	checkNbTarget(targetList.size(), nicknameAllTarget);
@@ -19,13 +21,11 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 		sendToTarget(cmd, senderSocket, targetList.at(i));
 }
 
-void PrivmsgCmd::checkCmdParam(const Command& cmd) const
+void PrivmsgCmd::checkCmd(const Command& cmd) const
 {
-	const std::size_t NB_ARG = 2;
-
-	if (cmd.arg.size() > NB_ARG)
+	if (cmd.arg.size() > nbArgMax_)
 		throw NeedMoreParamsException(cmd.name);
-	if (cmd.arg.size() < NB_ARG)
+	if (cmd.arg.size() < nbArgMin_)
 		throw NoRecipientException(cmd.name);
 	if (cmd.arg.at(1).empty())
 		throw NoTextToSendException();

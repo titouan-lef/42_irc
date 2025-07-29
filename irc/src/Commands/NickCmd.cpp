@@ -5,10 +5,11 @@
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"
-#include "NeedMoreParamsException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
 #include "User.hpp"
+
+NickCmd::NickCmd(): ACommand(1, 1) {}
 
 void NickCmd::execute(const Command& cmd, const int senderSocket) const
 {
@@ -19,12 +20,9 @@ void NickCmd::execute(const Command& cmd, const int senderSocket) const
 
 const std::string NickCmd::checkCmd(const Command& cmd, const User& user) const
 {
-	const size_t NB_ARG = 1;
-
 	if (!user.isConnected())
 		throw PasswordMismatchException();
-	if (cmd.arg.size() != NB_ARG)
-		throw NeedMoreParamsException(cmd.name);
+	checkArgSize(cmd);
 	const std::string& nickname = cmd.arg.at(0);
 	checkNickname(nickname);
 	return nickname;

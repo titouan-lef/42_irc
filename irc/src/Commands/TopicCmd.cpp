@@ -2,7 +2,8 @@
 
 #include "command.hpp"
 #include "ChanServ.hpp"
-#include "NeedMoreParamsException.hpp"
+
+TopicCmd::TopicCmd(): ACommand(1, 2) {}
 
 void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 {
@@ -15,24 +16,18 @@ void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 
 Channel& TopicCmd::checkCmd(const Command& cmd) const
 {
-	const std::size_t NB_ARG_MIN = 1;
-	const std::size_t NB_ARG_MAX = 2;
-
-	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
-		throw NeedMoreParamsException(cmd.name);
+	checkArgSize(cmd);
 	Channel& channel = ChanServ::getInstance().findChannel(cmd.arg.at(0));
 	return channel;
 }
 
 bool TopicCmd::isGetTopicCmd(const std::size_t nbArg) const
 {
-	const std::size_t NUM_ARG_TOPIC = 1;
-
-	return (nbArg == NUM_ARG_TOPIC);
+	return (nbArg == nbArgMin_);
 }
 
 void TopicCmd::changeTopicName(const Command& cmd, const int senderSocket, Channel& channel) const
 {
-	channel.setTopic(cmd.arg.back(), senderSocket);
+	channel.setTopic(cmd.arg.at(nbArgMax_ - 1), senderSocket);
 	channel.manageCmdMessage(senderSocket, cmd);
 }

@@ -8,7 +8,7 @@ struct Command;
 class PassCmd : public ACommand
 {
 public:
-	PassCmd() {}
+	PassCmd();
 	~PassCmd() {}
 
 	void execute(const Command& cmd, const int senderSocket) const;

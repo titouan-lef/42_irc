@@ -3,11 +3,12 @@
 #include "command.hpp"
 #include "ChanServ.hpp"
 #include "BadChanMaskException.hpp"
-#include "NeedMoreParamsException.hpp"
+
+JoinCmd::JoinCmd(): ACommand(1, 2) {}
 
 void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	checkCmd(cmd);
+	checkArgSize(cmd);
 
 	if (isPartAllCmd(cmd.arg))
 	{
@@ -18,7 +19,7 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 	std::vector<std::string> chanNameList;
 	std::vector<std::string> passwordList;
 
-	if (cmd.arg.size() == 1)
+	if (cmd.arg.size() == nbArgMin_)
 		chanNameList = splitTargets(cmd.arg.at(0));
 	else
 	{
@@ -47,18 +48,9 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 	}
 }
 
-void JoinCmd::checkCmd(const Command& cmd) const
-{
-	const std::size_t NB_ARG_MIN = 1;
-	const std::size_t NB_ARG_MAX = 2;
-
-	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
-		throw NeedMoreParamsException(cmd.name);
-}
-
 bool JoinCmd::isPartAllCmd(const std::vector<std::string>& arg) const
 {
-	return (arg.size() == 1 && arg.at(0) == "0");
+	return (arg.size() == nbArgMin_ && arg.at(0) == "0");
 }
 
 void JoinCmd::tryConnection(const std::string &channel, const int senderSocket, const std::string *password) const

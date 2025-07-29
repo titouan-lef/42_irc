@@ -10,7 +10,7 @@ struct Command;
 class NickCmd : public ACommand
 {
 public:
-	NickCmd(){}
+	NickCmd();
 	~NickCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;

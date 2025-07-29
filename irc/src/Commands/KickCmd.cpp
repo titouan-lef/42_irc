@@ -6,9 +6,11 @@
 #include "NeedMoreParamsException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 
+KickCmd::KickCmd(): ACommand(2, 3) {}
+
 void KickCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	checkCmd(cmd);
+	checkArgSize(cmd);
 
 	std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
 	std::vector<std::string> userList = splitTargets(cmd.arg.at(1));
@@ -23,15 +25,6 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 	}
 }
 
-void KickCmd::checkCmd(const Command& cmd) const
-{
-	const std::size_t NB_ARG_MIN = 2;
-	const std::size_t NB_ARG_MAX = 3;
-
-	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
-		throw NeedMoreParamsException(cmd.name);
-}
-
 void KickCmd::checkCmdArg(const Command& cmd, const std::size_t nbChannel, const std::size_t nbUser) const
 {
 	const std::size_t NB_CHAN_ALWAYS_OK = 1;
@@ -44,7 +37,7 @@ void KickCmd::checkCmdArg(const Command& cmd, const std::size_t nbChannel, const
 
 const std::string KickCmd::buildMessage(const Command& cmd, const int senderSocket) const
 {
-	if (cmd.arg.size() == 3)
+	if (cmd.arg.size() == nbArgMax_)
 		return cmd.arg.at(2);
 	const std::string& nickname = UserManager::getInstance().getUserNickname(senderSocket);
 	return ("Kicked by " + nickname);

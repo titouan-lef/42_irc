@@ -4,7 +4,8 @@
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
-#include "NeedMoreParamsException.hpp"
+
+InviteCmd::InviteCmd(): ACommand(2, 2) {}
 
 /**
  * @brief Executes the INVITE command to invite a user to a channel.
@@ -18,19 +19,11 @@
  */
 void InviteCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	checkCmd(cmd);
+	checkArgSize(cmd);
 	const std::string& nickname = cmd.arg.at(0);
 	const int invitedSocket = UserManager::getInstance().findUserSocket(nickname);
 	const std::string& channelName = cmd.arg.at(1);
 	inviteUserInChannel(cmd, senderSocket, channelName, invitedSocket);
-}
-
-void InviteCmd::checkCmd(const Command &cmd) const
-{
-	const std::size_t NB_ARG = 2;
-
-	if (cmd.arg.size() != NB_ARG)
-		throw NeedMoreParamsException(cmd.name);
 }
 
 void InviteCmd::inviteUserInChannel(const Command& cmd, const int senderSocket, const std::string& channelName, const int invitedSocket) const

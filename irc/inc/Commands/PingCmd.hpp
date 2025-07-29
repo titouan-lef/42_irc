@@ -7,11 +7,8 @@ struct Command;
 class PingCmd : public ACommand
 {
 public:
-	PingCmd(){}
+	PingCmd();
 	~PingCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;
-
-private:
-	void checkCmd(const Command& cmd) const;
 };

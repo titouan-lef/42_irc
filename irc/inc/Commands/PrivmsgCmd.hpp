@@ -9,13 +9,13 @@ struct Command;
 class PrivmsgCmd : public ACommand
 {
 public:
-	PrivmsgCmd(){}
+	PrivmsgCmd();
 	~PrivmsgCmd(){}
 
 	void execute(const Command& cmd, const int senderSocket) const;
 
 private:
-	void checkCmdParam(const Command& cmd) const;
+	void checkCmd(const Command& cmd) const;
 	void checkNbTarget(const std::size_t nbTarget, const std::string &target) const;
 	void sendToTarget(const Command& cmd, const int senderSocket, const std::string& target) const;
 	bool isMsgToChannel(const std::string& target) const;

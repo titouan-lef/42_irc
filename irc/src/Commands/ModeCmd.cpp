@@ -11,12 +11,12 @@
 #include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 
+ModeCmd::ModeCmd(): ACommand(1, -1) {}
+
 void ModeCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG_ACTUAL_MODE = 1;
-
 	Channel& channel = checkCmd(cmd, senderSocket);
-	if (cmd.arg.size() == NB_ARG_ACTUAL_MODE)
+	if (cmd.arg.size() == nbArgMin_)
 		channel.sendActualModes(senderSocket);
 	else
 		changeMode(cmd, senderSocket, channel);
@@ -24,10 +24,7 @@ void ModeCmd::execute(const Command& cmd, const int senderSocket) const
 
 Channel& ModeCmd::checkCmd(const Command& cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG_MIN = 1;
-
-	if (cmd.arg.size() < NB_ARG_MIN)
-		throw NeedMoreParamsException(cmd.name);
+	checkArgSize(cmd);
 
 	const std::string& channelName = cmd.arg.at(0);
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
