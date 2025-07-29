@@ -35,21 +35,21 @@ public:
 		{
 			ModeCmd mode;
 
-			Command cmd = {"MODE", "", {}};
+			Command cmd = {"MODE", {}, false};
 			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,10);});
 			
-			cmd = {"MODE", "", {"#test"}};
+			cmd = {"MODE", {"#test"}, false};
 			Tester::assertThrows<UserNotInChannelException>([&]() {mode.execute(cmd ,10);});
 
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			
-			cmd = {"MODE", "", {"#test"}};
+			cmd = {"MODE", {"#test"}, false};
 			Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {mode.execute(cmd ,10);});
 
-			cmd = {"MODE", "", {"#testre"}};
+			cmd = {"MODE", {"#testre"}, false};
 			Tester::assertThrows<NoSuchChannelException>([&]() {mode.execute(cmd ,1);});
 
-			cmd = {"MODE", "", {"test"}};
+			cmd = {"MODE", {"test"}, false};
 			Tester::assertThrows<NoSuchChannelException>([&]() {mode.execute(cmd ,1);});
 
 			ChanServ::getInstance().partAllChannels(10);
@@ -132,28 +132,28 @@ public:
 			Tester::assertFalse(chan.isOperator(10));
 			Tester::assertFalse(chan.isOperator(11));
 
-			Command cmd = {"MODE", "", {"#test", "+o", "Alice"}};
+			Command cmd = {"MODE", {"#test", "+o", "Alice"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isOperator(10));
 
-			cmd = {"MODE", "", {"#test", "-o", "Alice"}};
+			cmd = {"MODE", {"#test", "-o", "Alice"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isOperator(10));
 
-			cmd = {"MODE", "", {"#test", "o", "Alice"}};
+			cmd = {"MODE", {"#test", "o", "Alice"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isOperator(10));
 
-			cmd = {"MODE", "", {"#test", "--o", "Alice"}};
+			cmd = {"MODE", {"#test", "--o", "Alice"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isOperator(10));
 
-			cmd = {"MODE", "", {"#test", "++oo", "Alice", "Bob"}};
+			cmd = {"MODE", {"#test", "++oo", "Alice", "Bob"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isOperator(10));
 			Tester::assertTrue(chan.isOperator(11));
 
-			cmd = {"MODE", "", {"#test", "-oo", "Alice", "Bob"}};
+			cmd = {"MODE", {"#test", "-oo", "Alice", "Bob"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isOperator(10));
 			Tester::assertFalse(chan.isOperator(11));
@@ -275,20 +275,20 @@ public:
 		{
 			ModeCmd mode;
 
-			Command cmd = {"MODE", "", {"#test", "+i"}};
+			Command cmd = {"MODE", {"#test", "+i"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
-			cmd = {"MODE", "", {"#test", "-i"}};
+			cmd = {"MODE", {"#test", "-i"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 
-			cmd = {"MODE", "", {"#test", "+ii"}};
+			cmd = {"MODE", {"#test", "+ii"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
-			cmd = {"MODE", "", {"#test", "-iii"}};
+			cmd = {"MODE", {"#test", "-iii"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
@@ -459,18 +459,18 @@ public:
 			ModeCmd mode;
 
 			Tester::assertFalse(chan.isTopicRestricted());
-			Command cmd = {"MODE", "", {"#test", "+t"}};
+			Command cmd = {"MODE", {"#test", "+t"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 
-			cmd = {"MODE", "", {"#test", "-t"}};
+			cmd = {"MODE", {"#test", "-t"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isTopicRestricted());
 
-			cmd = {"MODE", "", {"#test", "+tt"}};
+			cmd = {"MODE", {"#test", "+tt"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isTopicRestricted());
 
-			cmd = {"MODE", "", {"#test", "-ttt"}};
+			cmd = {"MODE", {"#test", "-ttt"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isTopicRestricted());
 		}
@@ -576,7 +576,7 @@ public:
 			Tester::assertFalse(chan.isPasswordProtected());
 
 			Tester::assertFalse(chan.isPasswordProtected());
-			Command cmd = {"MODE", "", {"#test", "+k", "password"}};
+			Command cmd = {"MODE", {"#test", "+k", "password"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isPasswordProtected());
 
@@ -585,11 +585,11 @@ public:
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10, "password");});
 			Tester::assertDoNotThrows([&]() {chan.disconnectUser(10);});
 
-			cmd = {"MODE", "", {"#test", "-k"}};
+			cmd = {"MODE", {"#test", "-k"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertTrue(chan.isPasswordProtected());
 
-			cmd = {"MODE", "", {"#test", "-k", "password"}};
+			cmd = {"MODE", {"#test", "-k", "password"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertFalse(chan.isPasswordProtected());
 
@@ -668,18 +668,18 @@ public:
 			ModeCmd mode;
 
 			Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, (std::size_t)0);
-			// Command cmd = {"MODE", "", {"#test", "+l"}};
+			// Command cmd = {"MODE", {"#test", "+l"}, false};
 			// Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd ,1);});
 
 			Tester::assertFalse(chan.isPasswordProtected());
-			Command cmd = {"MODE", "", {"#test", "+l", "2"}};
+			Command cmd = {"MODE", {"#test", "+l", "2"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, (std::size_t)2);
 
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertThrows<ChannelIsFullException>([&]() {chan.connectUser(11);});
 
-			cmd = {"MODE", "", {"#test", "-l"}};
+			cmd = {"MODE", {"#test", "-l"}, false};
 			Tester::assertDoNotThrows([&]() {mode.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(chan.nbMaxUsers_, (std::size_t)0);
 			Tester::assertDoNotThrows([&]() {chan.connectUser(11);});

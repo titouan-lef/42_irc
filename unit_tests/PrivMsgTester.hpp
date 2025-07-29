@@ -33,22 +33,22 @@ private :
 
 		PrivmsgCmd privmsg;
 
-		Command cmd = {"PRIVMSG", ":", {"#CHANEL1,#CHANEL2,#CHANEL3,#CHANEL4,#CHANEL5"}};
+		Command cmd = {"PRIVMSG", {"#CHANEL1,#CHANEL2,#CHANEL3,#CHANEL4,#CHANEL5", ""}, true};
 		Tester::assertThrows<NoTextToSendException>([&]() {privmsg.execute(cmd ,10);});
 
-		cmd = {"PRIVMSG", ": salut", {"#CHANEL1,#CHANEL2,#CHANEL3,#CHANEL4,#CHANEL5"}};
+		cmd = {"PRIVMSG", {"#CHANEL1,#CHANEL2,#CHANEL3,#CHANEL4,#CHANEL5", " salut"}, true};
 		Tester::assertThrows<TooManyTargetsException>([&]() {privmsg.execute(cmd ,10);});
 
-		cmd = {"PRIVMSG", ": trailing", {}};
+		cmd = {"PRIVMSG", {" trailing"}, true};
 		Tester::assertThrows<NoRecipientException>([&]() {privmsg.execute(cmd ,10);});
 
-		cmd = {"PRIVMSG", ": trailing", {"chan", "chan2"}};
+		cmd = {"PRIVMSG", {"chan", "chan2", " trailing"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {privmsg.execute(cmd ,10);});
 
-		cmd = {"PRIVMSG", ": trailing", {"user"}};
+		cmd = {"PRIVMSG", {"user", " trailing"}, true};
 		Tester::assertThrows<NoSuchNickException>([&]() {privmsg.execute(cmd ,10);});
 
-		cmd = {"PRIVMSG", ": trailing", {"#chan"}};
+		cmd = {"PRIVMSG", {"#chan", " trailing"}, true};
 		Tester::assertThrows<NoSuchChannelException>([&]() {privmsg.execute(cmd ,10);});
 
 	};

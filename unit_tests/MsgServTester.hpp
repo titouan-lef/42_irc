@@ -24,6 +24,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "COMMAND";
 			msg.arg = {"arg1", "arg2", "arg3"};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "myPrefix";
 
@@ -36,7 +37,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "COMMAND";
 			msg.arg = {};
-			msg.trailing = "";
+			msg.hasTrailing = false;
 			msg.senderPrefix = "myPrefix";
 
 			Tester::assertExpectedEqualsActual(
@@ -48,6 +49,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "COMMAND";
 			msg.arg = {};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "myPrefix";
 
@@ -60,7 +62,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "COMMAND";
 			msg.arg = {"arg1", "arg2", "arg3"};
-			msg.trailing = "";
+			msg.hasTrailing = false;
 			msg.senderPrefix = "myPrefix";
 
 			Tester::assertExpectedEqualsActual(
@@ -77,6 +79,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "423";
 			msg.arg = {"arg1", "arg2", "arg3"};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "ircServer";
 
@@ -88,8 +91,7 @@ private:
 		{
 			MsgServ::Message msg;
 			msg.commandId = "423";
-			msg.arg = {};
-			msg.trailing = "";
+			msg.hasTrailing = false;
 			msg.senderPrefix = "ircServer";
 			
 			Tester::assertExpectedEqualsActual(
@@ -101,6 +103,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "002";
 			msg.arg = {"arg1", "arg2", "arg3"};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "ircServer";
 
@@ -113,6 +116,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "042";
 			msg.arg = {"arg1", "arg2", "arg3"};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "ircServer";
 
@@ -125,6 +129,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "040";
 			msg.arg = {"arg1", "arg2", "arg3"};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "ircServer";
 
@@ -136,7 +141,7 @@ private:
 		{
 			MsgServ::Message msg;
 			msg.commandId = "423";
-			msg.arg = {};
+			msg.hasTrailing = true;
 			msg.trailing = "My trailing";
 			msg.senderPrefix = "ircServer";
 
@@ -149,7 +154,7 @@ private:
 			MsgServ::Message msg;
 			msg.commandId = "423";
 			msg.arg = {"arg1"};
-			msg.trailing = "";
+			msg.hasTrailing = false;
 			msg.senderPrefix = "ircServer";
 
 			Tester::assertExpectedEqualsActual(

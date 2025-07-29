@@ -28,37 +28,37 @@ public:
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
-		Command cmd = {"USER", "RealName", {"0", "*"}};
+		Command cmd = {"USER", {"0", "*", "RealName"}, true};
 		Tester::assertThrows<PasswordMismatchException>([&]() {user.execute(cmd ,10);});
 
 		UserManager::getInstance().getUser(10).validConnection();
 
-		cmd = {"USER", "RealName", {"0", "*"}};
+		cmd = {"USER", {"0", "*", "RealName"}, true};
 		Tester::assertThrows<NotRegisteredException>([&]() {user.execute(cmd ,10);});
 
 		UserManager::getInstance().getUser(10).setNickname("nickname");
 
-		cmd = {"USER", "", {"0", "*"}};
+		cmd = {"USER", {"0", "*"}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
-		cmd = {"USER", "RealName", {"0"}};
+		cmd = {"USER", {"0", "RealName"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
-		cmd = {"USER", "RealName", {"0","0"}};
+		cmd = {"USER", {"0","0", "RealName"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
-		cmd = {"USER", "RealName", {"username","*","*"}};
+		cmd = {"USER", {"username","*","*", "RealName"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
-		cmd = {"USER", "RealName", {"username","0","0"}};
+		cmd = {"USER", {"username","0","0", "RealName"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
-		cmd = {"USER", "RealName", {"username","1","*"}};
+		cmd = {"USER", {"username","1","*", "RealName"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
 
 		UserManager::getInstance().getUser(10).setUsername("username");
 
-		cmd = {"USER", "RealName", {"username","0","*"}};
+		cmd = {"USER", {"username","0","*", "RealName"}, true};
 		Tester::assertThrows<AlreadyRegistredException>([&]() {user.execute(cmd ,10);});\
 
 		UserManager::getInstance().deleteUser(1);
@@ -80,7 +80,7 @@ public:
 		};
 		for (std::size_t i = 0; i < validUsernames.size(); ++i)
 		{
-			Command cmd = {"USER", "RealName", {validUsernames.at(i), "0", "*"}};
+			Command cmd = {"USER", {validUsernames.at(i), "0", "*", "RealName"}, true};
 			Tester::assertDoNotThrows([&]() {userCmd.execute(cmd, 10);});
 			Tester::assertExpectedEqualsActual(validUsernames.at(i), user.getUsername());
 			user.setUsername("");
@@ -108,7 +108,7 @@ public:
 
 		for (std::size_t i = 0; i < invalidUsernames.size(); ++i)
 		{
-			Command cmd = {"USER", "RealName", {invalidUsernames.at(i), "0", "*"}};
+			Command cmd = {"USER", {invalidUsernames.at(i), "0", "*", "RealName"}, true};
 			Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10);});
 		}
 

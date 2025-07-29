@@ -25,78 +25,81 @@ public:
 		const std::string commandName = "PASS";
 		const std::size_t nbArg = 1;
 		const std::string argValue = "Password";
-		const std::string trailing = "";
 		{
 			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password");
 			Tester::assertExpectedEqualsActual(commandName, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(nbArg, cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(argValue, cmdIrc.arg[0]);
-			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
+			Tester::assertFalse(cmdIrc.hasTrailing);
 		}
 		{
 			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ");
 			Tester::assertExpectedEqualsActual(commandName, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(nbArg, cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(argValue, cmdIrc.arg[0]);
-			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
+			Tester::assertFalse(cmdIrc.hasTrailing);
 		}
 		{
 			Command cmdIrc = CommandManager::getInstance().parserCmd("        PASS       Password");
 			Tester::assertExpectedEqualsActual(commandName, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(nbArg, cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(argValue, cmdIrc.arg[0]);
-			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
+			Tester::assertFalse(cmdIrc.hasTrailing);
 		}
 		{
 			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS       Password         ");
 			Tester::assertExpectedEqualsActual(commandName, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(nbArg, cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(argValue, cmdIrc.arg[0]);
-			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
+			Tester::assertFalse(cmdIrc.hasTrailing);
 		}
 		{
 			Command cmdIrc = CommandManager::getInstance().parserCmd("PASS Password         ");
 			Tester::assertExpectedEqualsActual(commandName, cmdIrc.name);
 			Tester::assertExpectedEqualsActual(nbArg, cmdIrc.arg.size());
 			Tester::assertExpectedEqualsActual(argValue, cmdIrc.arg[0]);
-			Tester::assertExpectedEqualsActual(trailing, cmdIrc.trailing);
+			Tester::assertFalse(cmdIrc.hasTrailing);
 		}
 		{
 			Tester::startTest("Parser valid PRIVMSG");
 			{
-				const Command cmdtester = {"PRIVMSG", ":salut la team", {"titouan,lucien,pl"}};
+				const Command cmdtester = {"PRIVMSG", {"titouan,lucien,pl", "salut la team"}, true};
 				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :salut la team");
 				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
-				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+				Tester::assertTrue(cmdIrc.hasTrailing);
+				Tester::assertExpectedEqualsActual(cmdtester.arg[1], cmdIrc.arg[1]);
 			}
 			{
-				const Command cmdtester = {"PRIVMSG", ":   salut la team", {"titouan,lucien,pl"}};
+				const Command cmdtester = {"PRIVMSG", {"titouan,lucien,pl", "   salut la team"}, true};
 				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :   salut la team");
 				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
-				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+				Tester::assertTrue(cmdIrc.hasTrailing);
+				Tester::assertExpectedEqualsActual(cmdtester.arg[1], cmdIrc.arg[1]);
 			}
 		}
 		{
 			Tester::startTest("Parser valid PRIVMSG");
 			{
-				const Command cmdtester = {"PRIVMSG", ":salut la team", {"titouan,lucien,pl"}};
+				const Command cmdtester = {"PRIVMSG", {"titouan,lucien,pl", "salut la team"}, true};
 				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :salut la team");
 				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
-				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+				Tester::assertTrue(cmdIrc.hasTrailing);
+				Tester::assertExpectedEqualsActual(cmdtester.arg[1], cmdIrc.arg[1]);
 			}
 			{
-				const Command cmdtester = {"PRIVMSG", ":   salut la team", {"titouan,lucien,pl"}};
+				const Command cmdtester = {"PRIVMSG", {"titouan,lucien,pl", "   salut la team"}, true};
 				Command cmdIrc = CommandManager::getInstance().parserCmd("PRIVMSG titouan,lucien,pl :   salut la team");
 				Tester::assertExpectedEqualsActual(cmdtester.name, cmdIrc.name);
 				Tester::assertExpectedEqualsActual(cmdtester.arg.size(), cmdIrc.arg.size());
 				Tester::assertExpectedEqualsActual(cmdtester.arg[0], cmdIrc.arg[0]);
-				Tester::assertExpectedEqualsActual(cmdtester.trailing, cmdIrc.trailing);
+				Tester::assertTrue(cmdIrc.hasTrailing);
+				Tester::assertExpectedEqualsActual(cmdtester.arg[1], cmdIrc.arg[1]);
 			}
 		}
 		{

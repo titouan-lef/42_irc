@@ -24,17 +24,17 @@ public:
 
 		ListCmd list;
 
-		Command cmd = {"LIST", ":", {"#salut"}};
+		Command cmd = {"LIST", {"#salut", ""}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1);});
-		cmd = {"LIST", "", {"#CHAN1", "#CHAN2"}};
+		cmd = {"LIST", {"#CHAN1", "#CHAN2"}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1);});
-		cmd = {"LIST", ":", {}};
+		cmd = {"LIST", {":"}, true};
 		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
-		cmd = {"LIST", "", {}};
+		cmd = {"LIST", {}, false};
 		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
-		cmd = {"LIST", ":#CHAN1,#CHAN2", {}};
+		cmd = {"LIST", {"#CHAN1,#CHAN2"}, true};
 		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
-		cmd = {"LIST", "", {"#CHAN1,#CHAN2"}};
+		cmd = {"LIST", {"#CHAN1,#CHAN2"}, false};
 		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
 	}
 	void testListAllChan()
@@ -45,9 +45,7 @@ public:
 			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
 			user1.skipReplies(12);
 			user1.sendCommand("LIST :");
-			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
-			user1.assertReply(":ircserv 322 user1 #CHAN2 1");
-			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
+			user1.assertReply(":ircserv 403 user1 :No such channel");
 			user1.assertReply(":ircserv 323 user1 :End of LIST");
 			user1.sendCommand("LIST");
 			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
@@ -59,16 +57,45 @@ public:
 			ReplyTester user1(4343, "password", "user1");
 			user1.sendCommand("LIST");
 			user1.sendCommand("LIST :");
+			user1.assertReply(":ircserv 403 user1 :No such channel");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
 			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
 			user1.skipReplies(12);
 			user1.sendCommand("LIST :");
-			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
-			user1.assertReply(":ircserv 322 user1 #CHAN2 1");
-			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
+			user1.assertReply(":ircserv 403 user1 :No such channel");
 			user1.assertReply(":ircserv 323 user1 :End of LIST");
 			user1.sendCommand("LIST");
 			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
 			user1.assertReply(":ircserv 322 user1 #CHAN2 1");
+			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
+			user1.skipReplies(12);
+			user1.sendCommand("LIST :#CHAN1,#CHAN2,#CHAN3");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
+			user1.assertReply(":ircserv 322 user1 #CHAN2 1");
+			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
+			user1.skipReplies(12);
+			user1.sendCommand("LIST :#CHAN1,#CHAN_NOT_EXIST,#CHAN3");
+			user1.assertReply(":ircserv 322 user1 #CHAN1 1");
+			user1.assertReply(":ircserv 403 user1 #CHAN_NOT_EXIST :No such channel");
+			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
+			user1.assertReply(":ircserv 323 user1 :End of LIST");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+			user1.sendCommand("JOIN #CHAN1,#CHAN2,#CHAN3");
+			user1.skipReplies(12);
+			user1.sendCommand("LIST :#CHAN1 #CHAN2,#CHAN3");
+			user1.assertReply(":ircserv 403 user1 #CHAN1 #CHAN2 :No such channel");
 			user1.assertReply(":ircserv 322 user1 #CHAN3 1");
 			user1.assertReply(":ircserv 323 user1 :End of LIST");
 		}

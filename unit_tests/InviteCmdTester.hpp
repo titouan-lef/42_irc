@@ -25,28 +25,28 @@ public:
 
 		InviteCmd invite;
 
-		Command cmd = {"INVITE", "", {}};
+		Command cmd = {"INVITE", {}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
 
-		cmd = {"INVITE", "", {"#test1"}};
+		cmd = {"INVITE", {"#test1"}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
 
-		cmd = {"INVITE", "", {"user1", "#test", "error"}};
+		cmd = {"INVITE", {"user1", "#test", "error"}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
 
-		cmd = {"INVITE", "error", {"user1", "#test"}};
+		cmd = {"INVITE", {"user1", "#test", "error"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		UserManager::getInstance().getUser(10).setNickname("user1");
-		cmd = {"INVITE", "", {"user1", "#testre"}};
+		cmd = {"INVITE", {"user1", "#testre"}, false};
 		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd ,1);});
 
-		cmd = {"INVITE", "", {"user1", "#test"}};
+		cmd = {"INVITE", {"user1", "#test"}, false};
 		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {invite.execute(cmd ,10);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
-		cmd = {"INVITE", "", {"user1", "#test"}};
+		cmd = {"INVITE", {"user1", "#test"}, false};
 		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd ,1);});
 
 		UserManager::getInstance().deleteUser(1);
@@ -64,7 +64,7 @@ public:
 			UserManager::getInstance().getUser(10).setNickname("user1");
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
-			Command cmd = {"INVITE", "", {"user1", "#test"}};
+			Command cmd = {"INVITE", {"user1", "#test"}, false};
 			Tester::assertDoNotThrows([&]() {invite.execute(cmd ,1);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 

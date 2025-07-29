@@ -28,25 +28,25 @@ public:
 
 		TopicCmd topic;
 
-		Command cmd = {"TOPIC", "", {}};
+		Command cmd = {"TOPIC", {}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {topic.execute(cmd ,1);});
 
-		cmd = {"TOPIC", "", {"#test1", "#test2"}};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {topic.execute(cmd ,1);});
-
-		cmd = {"TOPIC", "", {"#testre"}};
+		cmd = {"TOPIC", {"#test1", "#test2"}, false};
 		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
 
-		cmd = {"TOPIC", "", {"test"}};
+		cmd = {"TOPIC", {"#testre"}, false};
 		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
 
-		cmd = {"TOPIC", ":New topic", {"#test"}};
+		cmd = {"TOPIC", {"test"}, false};
+		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
+
+		cmd = {"TOPIC", {"#test", "New topic"}, true};
 		Tester::assertThrows<UserNotInChannelException>([&]() {topic.execute(cmd ,10);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 		chan.enableTopicRestriction();
-		cmd = {"TOPIC", ":New topic", {"#test"}};
+		cmd = {"TOPIC", {"#test", "New topic"}, true};
 		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {topic.execute(cmd ,10);});
 		chan.disableTopicRestriction();
 
@@ -61,14 +61,14 @@ public:
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertFalse(chan.isOperator(10));
 
-			Command cmd = {"TOPIC", "", {"#test"}};
+			Command cmd = {"TOPIC", {"#test"}, false};
 			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 
-			cmd = {"TOPIC", ":New topic is set", {"#test"}};
+			cmd = {"TOPIC", {"#test", "New topic is set"}, true};
 			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(std::string("New topic is set"), chan.topic_);
 
-			cmd = {"TOPIC", ":", {"#test"}};
+			cmd = {"TOPIC", {"#test", ""}, true};
 			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
 			Tester::assertExpectedEqualsActual(std::string(""), chan.topic_);
 
@@ -120,7 +120,7 @@ public:
 			user1.assertReply(":ircserv 323 user1 :End of LIST");
 
 			user1.sendCommand("TOPIC #test :");
-			user1.assertReply(":user1!user1@localhost TOPIC #test");
+			user1.assertReply(":user1!user1@localhost TOPIC #test :");/** @todo ':' must be in the reply ? */
 
 			user1.sendCommand("LIST #test");
 			user1.assertReply(":ircserv 322 user1 #test 1");

@@ -31,25 +31,25 @@ public:
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
-		Command cmd = {"NICK", "", {"me"}};
+		Command cmd = {"NICK", {"me"}, false};
 		Tester::assertThrows<PasswordMismatchException>([&]() {nick.execute(cmd ,10);});
 
 		UserManager::getInstance().getUser(10).validConnection();
 
-		cmd = {"NICK", "blabla", {"me"}};
+		cmd = {"NICK", {"me", "blabla"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {nick.execute(cmd ,10);});
 
-		cmd = {"NICK", "", {"me", "and", "me"}};
+		cmd = {"NICK", {"me", "and", "me"}, false};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {nick.execute(cmd ,10);});
 
-		cmd = {"NICK", "", {""}};
+		cmd = {"NICK", {""}, false};
 		Tester::assertThrows<NoNicknameGivenException>([&]() {nick.execute(cmd ,10);});
 
 		UserManager::getInstance().addNewUser(11, dummyAddr(4242));
 		UserManager::getInstance().getUser(11).setNickname("me");
 		UserManager::getInstance().getUser(11).validConnection();
 
-		cmd = {"NICK", "", {"me"}};
+		cmd = {"NICK", {"me"}, false};
 		Tester::assertThrows<NicknameInUseException>([&]() {nick.execute(cmd ,10);});\
 
 		UserManager::getInstance().deleteUser(1);
@@ -71,7 +71,7 @@ public:
 
 		for (std::size_t i = 0; i < validNicks.size(); ++i)
 		{
-			Command cmd = {"NICK", "", {validNicks[i]}};
+			Command cmd = {"NICK", {validNicks[i]}, false};
 			Tester::assertDoNotThrows([&]() {nick.execute(cmd, 10);});
 			Tester::assertExpectedEqualsActual(validNicks[i], user.getNickname());
 		}
@@ -95,7 +95,7 @@ public:
 
 		for (std::size_t i = 0; i < invalidNicks.size(); ++i)
 		{
-			Command cmd = {"NICK", "", {invalidNicks[i]}};
+			Command cmd = {"NICK", {invalidNicks[i]}, false};
 			Tester::assertThrows<ErroneUsNicknameException>([&]() {nick.execute(cmd ,10);});
 		}
 

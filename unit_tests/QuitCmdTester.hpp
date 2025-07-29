@@ -31,7 +31,7 @@ public:
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		QuitCmd quit;
 		ChanServ::getInstance().findOrCreateChannel("#join", 10);
-		Command cmd = {"QUIT", ":Bye", {}};
+		Command cmd = {"QUIT", {"Bye"}, true};
 		Tester::assertDoNotThrows([&]() {quit.execute(cmd ,10);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 		Tester::assertThrows<NoSuchNickException>([&]() {UserManager::getInstance().getUser(10);});
