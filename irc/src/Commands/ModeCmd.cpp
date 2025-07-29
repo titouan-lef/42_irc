@@ -24,7 +24,9 @@ void ModeCmd::execute(const Command& cmd, const int senderSocket) const
 
 Channel& ModeCmd::checkCmd(const Command& cmd, const int senderSocket) const
 {
-	if (cmd.arg.size() < 1)
+	const std::size_t NB_ARG_MIN = 1;
+
+	if (cmd.arg.size() < NB_ARG_MIN)
 		throw NeedMoreParamsException(cmd.name);
 
 	const std::string& channelName = cmd.arg.at(0);

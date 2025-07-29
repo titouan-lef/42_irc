@@ -14,7 +14,7 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 	std::vector<std::string> userList = splitTargets(cmd.arg.at(1));
 	checkCmdArg(cmd, channelList.size(), userList.size());
 
-	const std::string message = buildMessage(cmd.trailing, senderSocket);
+	const std::string message = buildMessage(cmd, senderSocket);
 
 	for (std::size_t i = 0; i < userList.size(); ++i)
 	{
@@ -25,9 +25,10 @@ void KickCmd::execute(const Command& cmd, const int senderSocket) const
 
 void KickCmd::checkCmd(const Command& cmd) const
 {
-	const std::size_t NB_ARG = 2;
+	const std::size_t NB_ARG_MIN = 2;
+	const std::size_t NB_ARG_MAX = 3;
 
-	if (cmd.arg.size() != NB_ARG)
+	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
 		throw NeedMoreParamsException(cmd.name);
 }
 
@@ -41,11 +42,10 @@ void KickCmd::checkCmdArg(const Command& cmd, const std::size_t nbChannel, const
 		throw NeedMoreParamsException(cmd.name);
 }
 
-const std::string KickCmd::buildMessage(const std::string &trailing, const int senderSocket) const
+const std::string KickCmd::buildMessage(const Command& cmd, const int senderSocket) const
 {
-	const std::string message = truncateTrailing(trailing);
-	if (!message.empty())
-		return message;
+	if (cmd.arg.size() == 3)
+		return cmd.arg.at(2);
 	const std::string& nickname = UserManager::getInstance().getUserNickname(senderSocket);
 	return ("Kicked by " + nickname);
 }

@@ -2,9 +2,11 @@
 
 #include "PasswordMismatchException.hpp"
 #include "AlreadyRegistredException.hpp"
+#include "NeedMoreParamsException.hpp"
 #include "Server.hpp"
 #include "UserManager.hpp"
 #include "User.hpp"
+#include "command.hpp"
 
 /**
  * @brief Executes the PASS command to authenticate a user with the server password.
@@ -32,11 +34,13 @@ void PassCmd::execute(const Command& cmd, const int senderSocket) const
 
 void PassCmd::checkCmd(const Command& cmd, const User& user) const
 {
-	const size_t NB_ARG = 1;
+	const std::size_t NB_ARG = 1;
 
 	if (user.isConnected())
 		throw AlreadyRegistredException();
-	const std::string lastParam = getLastParam(cmd, NB_ARG);
-	if (Server::getInstance().isInvalidPassword(lastParam))
+	if (NB_ARG != cmd.arg.size())
+		throw NeedMoreParamsException(cmd.name);
+	const std::string& password = cmd.arg.at(0);
+	if (Server::getInstance().isInvalidPassword(password))
 		throw PasswordMismatchException();
 }

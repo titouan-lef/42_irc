@@ -8,6 +8,7 @@
 #include "InviteOnlyException.hpp"
 #include "UserNotInChannelException.hpp"
 #include "UserOnChannelException.hpp"
+#include "command.hpp"
 
 #include <sstream>
 
@@ -23,7 +24,10 @@ void Channel::sendChannelSummary(const int socket) const
 	std::string nbUserArg = sizeToStr(socketConnectedUsers_.size());
 	arg.push_back(name_);
 	arg.push_back(nbUserArg);
-	MsgServ::getInstance().sendNumericReply(socket, 322, arg, topic_);
+	if (topic_.empty())
+		MsgServ::getInstance().sendNumericReply(socket, 322, arg);
+	else
+		MsgServ::getInstance().sendNumericReply(socket, 322, arg, topic_);
 }
 
 void Channel::sendActualTopic(const int socket) const
@@ -47,10 +51,12 @@ void Channel::sendActualUsers(const int socket) const
 
 void Channel::sendChangedModes(const int socket, const std::string& options) const
 {
-	std::vector<std::string> arg;
-	arg.push_back(name_);
-	arg.push_back(options);
-	manageCmdMessage(socket, "MODE", arg, "");
+	Command cmd;
+	cmd.name = "MODE";
+	cmd.arg.push_back(name_);
+	cmd.arg.push_back(options);
+	cmd.hasTrailing = false;
+	manageCmdMessage(socket, cmd);
 }
 
 void Channel::sendActualModes(const int socket) const
@@ -66,15 +72,25 @@ void Channel::sendActualModes(const int socket) const
  *
  * @param cmd The command structure with name, trailing and agrs.
  */
-void Channel::sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const
+void Channel::sendMessageToAllUsers(const int senderSocket, const Command& cmd) const
 {
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
 	{
 		if (senderSocket == socketConnectedUsers_.at(i))
 			continue ;
-		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i), cmdName, arg, trailing);
+		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i), cmd);
 	}
 }
+
+/*void Channel::sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg) const
+{
+	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
+	{
+		if (senderSocket == socketConnectedUsers_.at(i))
+			continue ;
+		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i), cmdName, arg);
+	}
+}*/
 
 /**
  * @brief Adds a user to the list of connected users in the channel.
@@ -145,20 +161,29 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 	socketInvitedUsers_.insert(invitedSocket);
 }
 
-void Channel::managePartMessage(const int socketUser, const std::string &message) const
+void Channel::managePartMessage(const int socketUser, const char* message) const
 {
 	std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
 	if (!isConnected(socketUser))
 		throw UserNotInChannelException(nickname, name_);
-	manageCmdMessage(socketUser, "PART", std::vector<std::string>(1, name_), message);
+	Command cmd;
+	cmd.name = "PART";
+	cmd.arg.push_back(name_);
+	cmd.hasTrailing = (message != NULL);
+	if (cmd.hasTrailing)
+		cmd.arg.push_back(message);
+	manageCmdMessage(socketUser, cmd);
 }
 
-void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string &message) const
+void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string& message) const
 {
-	std::vector<std::string> arg;
-	arg.push_back(name_);
-	arg.push_back(username);
-	manageCmdMessage(socketUser, "KICK", arg, message);
+	Command cmd;
+	cmd.name = "KICK";
+	cmd.arg.push_back(name_);
+	cmd.arg.push_back(username);
+	cmd.hasTrailing = true;
+	cmd.arg.push_back(message);
+	manageCmdMessage(socketUser, cmd);
 }
 
 /**
@@ -363,15 +388,19 @@ void Channel::setTopic(const std::string& newTopic, const int socketUser)
 
 void Channel::manageJoinMessage(const int socketNewUser) const
 {
-	manageCmdMessage(socketNewUser, "JOIN", std::vector<std::string>(), name_);
+	Command cmd;
+	cmd.name = "JOIN";
+	cmd.arg.push_back(name_);
+	cmd.hasTrailing = true;
+	manageCmdMessage(socketNewUser, cmd);
 	sendActualTopic(socketNewUser);
 	sendActualUsers(socketNewUser);
 }
 
-void Channel::manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &message) const
+void Channel::manageCmdMessage(const int socketUser, const Command& cmd) const
 {
-	sendMessageToAllUsers(socketUser, cmdName, arg, message);
-	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmdName, arg, message);
+	sendMessageToAllUsers(socketUser, cmd);
+	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmd);
 }
 
 /**

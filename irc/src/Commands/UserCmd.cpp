@@ -14,19 +14,19 @@ void UserCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	User& user = UserManager::getInstance().getUser(senderSocket);
 	checkCmd(cmd, user);
-	UpdateUser(user, cmd.arg.at(0), cmd.trailing);
+	UpdateUser(user, cmd.arg.at(0), cmd.arg.at(2));
 	sendHandshakeValidation(senderSocket);
 }
 
 void UserCmd::checkCmd(const Command& cmd, const User& user) const
 {
-	const std::size_t NB_ARG = 3;
+	const std::size_t NB_ARG = 4;
 
 	if (!user.isConnected())
 		throw PasswordMismatchException();
 	if (!user.isNickRegister())
 		throw NotRegisteredException();
-	if (cmd.arg.size() != NB_ARG || cmd.trailing.empty())
+	if (cmd.arg.size() != NB_ARG)
 		throw NeedMoreParamsException(cmd.name);
 	if (!validParam(cmd.arg))
 		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
@@ -34,6 +34,7 @@ void UserCmd::checkCmd(const Command& cmd, const User& user) const
 		throw NeedMoreParamsException(cmd.name);
 	if (user.isUsernameRegister())
 		throw AlreadyRegistredException();
+	/** @todo parse real name ? */
 }
 
 /**
@@ -70,12 +71,12 @@ void UserCmd::sendHandshakeValidation(const int socket) const
 	const int MODE_CODE = 4;
 
 	std::string prefix = UserManager::getInstance().getUserPrefix(socket);
-	MsgServ::getInstance().sendNumericReply(socket, WELCOME_CODE, std::vector<std::string>(), "Welcome to the Internet Relay Network " + prefix);
+	MsgServ::getInstance().sendNumericReply(socket, WELCOME_CODE, "Welcome to the Internet Relay Network " + prefix);
 
-	MsgServ::getInstance().sendNumericReply(socket, HOST_CODE, std::vector<std::string>(), "Your host is ircserv, running version 1.0");
+	MsgServ::getInstance().sendNumericReply(socket, HOST_CODE, "Your host is ircserv, running version 1.0");
 
 	std::string date = Server::getInstance().getCreationDate();
-	MsgServ::getInstance().sendNumericReply(socket, DATE_CODE, std::vector<std::string>(), "This server was created the " + date);
+	MsgServ::getInstance().sendNumericReply(socket, DATE_CODE, "This server was created the " + date);
 
 	std::vector<std::string> arg;
 	arg.push_back("ircserv");

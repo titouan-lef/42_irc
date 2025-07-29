@@ -62,7 +62,6 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 			throw std::runtime_error("fd already register");
 	}
 
-	//User newUser;
 	Activity userActivity;
 	userActivity.timeLastActivity = time(NULL);
 	userActivity.pingSend = false;

@@ -15,7 +15,8 @@ public:
 	void execute(const Command& cmd, const int senderSocket) const;
 
 private:
-	bool isPartAllCmd(const std::size_t nbArg, const std::string& lastParam) const;
+	void checkCmd(const Command& cmd) const;
+	bool isPartAllCmd(const std::vector<std::string>& arg) const;
 	void tryConnection(const std::string& channel, const int socket, const std::string* password) const;
 	bool isPasswordProtected(const std::string& channelName) const;
 };

@@ -8,6 +8,7 @@
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
 #include "UserManager.hpp"
+#include "command.hpp"
 
 MsgServ::MsgServ() {}
 
@@ -63,42 +64,118 @@ bool MsgServ::isMsgComplete(std::string& msg)
 	return (msg.find("\r\n") != std::string::npos);
 }
 
-void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::string &trailing)
+void MsgServ::sendNumericReply(const int receiverSocket, const int code) const
 {
-	sendNumericReply(receiverSocket, code, std::vector<std::string>(), trailing);
+	Message msg;
+	msg.hasTrailing = false;
+	sendNumericReply(receiverSocket, code, msg);
 }
 
-void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg, const std::string &trailing)
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const
 {
-	std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
-	std::vector<std::string> newArg;
-	newArg.push_back(nickname);
-	newArg.insert(newArg.end(), arg.begin(), arg.end());
-	std::string commandId = convertCodeToCommandId(code);
-	Message msg = {receiverSocket, "ircserv", commandId, newArg, trailing};
+	Message msg;
+	msg.hasTrailing = true;
+	msg.trailing = trailing;
+	sendNumericReply(receiverSocket, code, msg);
+}
+
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg) const
+{
+	Message msg;
+	msg.arg = arg;
+	msg.hasTrailing = false;
+	sendNumericReply(receiverSocket, code, msg);
+}
+
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg, const std::string &trailing) const
+{
+	Message msg;
+	msg.arg = arg;
+	msg.hasTrailing = true;
+	msg.trailing = trailing;
+	sendNumericReply(receiverSocket, code, msg);
+}
+
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, Message& msg) const
+{
+	const std::string SERVER_PREFIX = "ircserv";
+
+	const std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
+	msg.arg.insert(msg.arg.begin(), nickname);
+	msg.receiverSocket = receiverSocket;
+	msg.senderPrefix = SERVER_PREFIX;
+	msg.commandId = convertCodeToCommandId(code);
 	sendReply(msg);
 }
 
-void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &cmdName, const std::string &trailing)
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const Command& cmd) const
 {
-	sendMessageReply(senderSocket, receiverSocket, cmdName, std::vector<std::string>(), trailing);
+	Message msg;
+	msg.arg = cmd.arg;
+	msg.hasTrailing = cmd.hasTrailing;
+	if (msg.hasTrailing)
+	{
+		msg.arg.pop_back();
+		msg.trailing = cmd.arg.back();
+	}
+	sendMessageReply(senderSocket, receiverSocket, cmd.name, msg);
 }
 
-void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing)
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId) const
 {
-	std::string senderPrefix = UserManager::getInstance().getUserPrefix(senderSocket);
-	Message msg = {receiverSocket, senderPrefix, cmdName, arg, trailing};
+	Message msg;
+	msg.hasTrailing = false;
+	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
+}
+
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::string &trailing) const
+{
+	Message msg;
+	msg.hasTrailing = true;
+	msg.trailing = trailing;
+	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
+}
+
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg) const
+{
+	Message msg;
+	msg.arg = arg;
+	msg.hasTrailing = false;
+	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
+}
+
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg,
+	const std::string& trailing) const
+{
+	Message msg;
+	msg.arg = arg;
+	msg.hasTrailing = true;
+	msg.trailing = trailing;
+	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
+}
+
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const
+{
+	msg.senderPrefix = UserManager::getInstance().getUserPrefix(senderSocket);
+	msg.receiverSocket = receiverSocket;
+	msg.commandId = commandId;
 	sendReply(msg);
 }
 
 void MsgServ::sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing)
 {
 	std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
-	Message msg = {receiverSocket, serviceName, "NOTICE", std::vector<std::string>(1, nickname), trailing};
+	Message msg;
+	msg.receiverSocket = receiverSocket;
+	msg.senderPrefix = serviceName;
+	msg.commandId = "NOTICE";
+	msg.arg.push_back(nickname);
+	msg.hasTrailing = true;
+	msg.trailing = trailing;
 	sendReply(msg);
 }
 
-void MsgServ::sendReply(const Message &msg)
+void MsgServ::sendReply(const Message &msg) const
 {
 	std::string reply = formatMsg(msg);
 	try
@@ -116,7 +193,7 @@ void MsgServ::sendReply(const Message &msg)
 	}
 }
 
-std::string MsgServ::formatMsg(const Message &msg)
+std::string MsgServ::formatMsg(const Message &msg) const
 {
 	std::string reply = ":" + msg.senderPrefix + " " + msg.commandId;
 	for (std::size_t i = 0; i < msg.arg.size(); ++i)
@@ -124,7 +201,7 @@ std::string MsgServ::formatMsg(const Message &msg)
 		if (!msg.arg.at(i).empty())
 			reply += " " + msg.arg.at(i);
 	}
-	if (!msg.trailing.empty())
+	if (msg.hasTrailing)
 		reply += " :" + msg.trailing; 
 	return reply + "\r\n";
 }
@@ -139,7 +216,7 @@ std::string MsgServ::formatMsg(const Message &msg)
  *
  * @note Currently uses a temporary nickname placeholder for error reporting.
  */
-void MsgServ::sendMsg(int receiverSocket, std::string& msg)
+void MsgServ::sendMsg(int receiverSocket, std::string& msg) const
 {
 	/** std::string nickname = "tmpNickname"; @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	if (msg.empty())
@@ -151,7 +228,7 @@ void MsgServ::sendMsg(int receiverSocket, std::string& msg)
 		msg.erase(0, sent);
 }
 
-const std::string MsgServ::convertCodeToCommandId(const int code)
+const std::string MsgServ::convertCodeToCommandId(const int code) const
 {
 	std::stringstream codeName;
 	codeName << std::setw(3) << std::setfill('0') << code;

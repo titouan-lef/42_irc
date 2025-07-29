@@ -17,5 +17,5 @@ public:
 private:
 	void checkCmd(const Command& cmd) const;
 	void partChannelOfCmd(const Command& cmd, const int senderSocket) const;
-	void partOneChannel(const std::string& message, const int senderSocket, const std::string& channelName) const;
+	void partOneChannel(const char* message, const int senderSocket, const std::string& channelName) const;
 };

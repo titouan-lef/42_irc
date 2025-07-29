@@ -7,6 +7,8 @@
 
 #include "Channel.hpp"
 
+struct Command;
+
 class ChanServ: public Service
 {
 public:
@@ -20,11 +22,11 @@ public:
 	void deleteChannel(const std::string& name);
 	void namesAllChannels(const int socketUser) const;
 	void listAllChannels(const int socketUser) const;
-	void partAllChannels(const int loggedOutSocket, const std::string& msg = "");
-	void sendBroacastToLinkedUsers(const int loggedOutSocket, const std::string& cmdName, const std::vector<std::string>& arg, const std::string& trailing);
-	void quit(const int loggedOutSocket, const std::string& msg = "");
-	void part(const std::string& channelName, const int loggedOutSocket, const std::string& message = "");
-	void kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message = "");
+	void partAllChannels(const int loggedOutSocket, const char* message = NULL);
+	void sendBroacastToLinkedUsers(const int socketUser, const Command& cmd);
+	void quit(const int loggedOutSocket, const char* message = NULL);
+	void part(const std::string& channelName, const int loggedOutSocket, const char* message = NULL);
+	void kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message);
 	bool isValidChannelName(const std::string& channelName) const;
 	/** @todo add possibiliti to ask help to ChanServ */
 
@@ -37,8 +39,8 @@ private:
 	std::size_t findChannelIndex(const std::string& channelName) const;
 	Channel& builtNewChannel(const std::string& name, const int socketModerator);
 	void deleteChannel(const std::size_t index);
-	void part(const std::size_t index, const int loggedOutSocket, const std::string& message = "");
-	void kick(const std::size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message = "");
+	void part(const std::size_t index, const int loggedOutSocket, const char* message);
+	void kick(const std::size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message);
 	void logOut(const std::size_t index, const int loggedOutSocket);
 	
 	void sendHelpNotice(const int receiverSocket) const;

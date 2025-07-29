@@ -21,13 +21,13 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
 
 void PrivmsgCmd::checkCmdParam(const Command& cmd) const
 {
-	const std::size_t NB_ARG = 1;
+	const std::size_t NB_ARG = 2;
 
 	if (cmd.arg.size() > NB_ARG)
 		throw NeedMoreParamsException(cmd.name);
 	if (cmd.arg.size() < NB_ARG)
 		throw NoRecipientException(cmd.name);
-	if (cmd.trailing.empty() || cmd.trailing == ":")
+	if (cmd.arg.at(1).empty())
 		throw NoTextToSendException();
 }
 
@@ -44,7 +44,7 @@ void PrivmsgCmd::sendToTarget(const Command& cmd, const int senderSocket, const 
 	if (isMsgToChannel(target))
 		sendMsgToChannel(cmd, senderSocket, target);
 	else if (isMsgToService(target))
-		sendMsgToService(cmd.trailing, senderSocket, target);
+		sendMsgToService(cmd.arg.at(1), senderSocket, target);
 	else
 		sendMsgToUser(cmd, senderSocket, target);
 }
@@ -54,21 +54,18 @@ bool PrivmsgCmd::isMsgToChannel(const std::string &target) const { return ChanSe
 void PrivmsgCmd::sendMsgToChannel(const Command &cmd, const int senderSocket, const std::string& channelName) const
 {
 	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
-	const std::string truncTrailing =  truncateTrailing(cmd.trailing);
-	channel.sendMessageToAllUsers(senderSocket, cmd.name, cmd.arg, truncTrailing);
+	channel.sendMessageToAllUsers(senderSocket, cmd);
 }
 
 bool PrivmsgCmd::isMsgToService(const std::string &target) const { return UserManager::getInstance().isServiceName(target); }
 
-void PrivmsgCmd::sendMsgToService(const std::string &trailing, const int senderSocket, const std::string &serviceName) const
+void PrivmsgCmd::sendMsgToService(const std::string &message, const int senderSocket, const std::string &serviceName) const
 {
-	const std::string truncTrailing =  truncateTrailing(trailing);
-	UserManager::getInstance().sendCommandToService(senderSocket, serviceName, truncTrailing);
+	UserManager::getInstance().sendCommandToService(senderSocket, serviceName, message);
 }
 
 void PrivmsgCmd::sendMsgToUser(const Command &cmd, const int senderSocket, const std::string &nickname) const
 {
 	int receiverSocket = UserManager::getInstance().findUserSocket(nickname);
-	const std::string truncTrailing =  truncateTrailing(cmd.trailing);
-	MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd.name, cmd.arg, truncTrailing);
+	MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd);
 }

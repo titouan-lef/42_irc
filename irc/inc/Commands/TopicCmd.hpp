@@ -15,6 +15,6 @@ public:
 
 private:
 	Channel& checkCmd(const Command& cmd) const;
-	bool isGetTopicCmd(const std::string& trailing) const;
+	bool isGetTopicCmd(const std::size_t nbArg) const;
 	void changeTopicName(const Command& cmd, const int senderSocket, Channel& channel) const;
 };

@@ -7,6 +7,8 @@
 
 class MsgServTester;/** @todo remove before push */
 
+struct Command;
+
 class MsgServ: public Service
 {
 public:
@@ -15,12 +17,17 @@ public:
 	void recvMsg(int socket, int buffer_index);
 	bool isMsgComplete(std::string& msg);
 
-	void sendNumericReply(const int receiverSocket, const int code, const std::string& trailing = "");
-	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg, const std::string& trailing = "");
+	void sendNumericReply(const int receiverSocket, const int code) const;
+	void sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const;
+	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg) const;
+	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg, const std::string& trailing) const;
 
-	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& cmdName, const std::string& trailing = "");
-	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& cmdName, const std::vector<std::string>& arg,
-		const std::string& trailing = "");
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const Command& cmd) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::string& trailing) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg,
+		const std::string& trailing) const;
 
 	void sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing);
 
@@ -37,6 +44,7 @@ private:
 		std::string senderPrefix;
 		std::string commandId;
 		std::vector<std::string> arg;
+		bool hasTrailing;
 		std::string trailing;
 	};
 
@@ -44,10 +52,12 @@ private:
 	MsgServ(const MsgServ& other);
 	MsgServ& operator=(const MsgServ& other);
 
-	void sendReply(const Message& msg);
-	std::string formatMsg(const Message &msg);
-	void sendMsg(int socket, std::string& msg);
-	const std::string convertCodeToCommandId(const int code);
+	void sendNumericReply(const int receiverSocket, const int code, Message& msg) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const;
+	void sendReply(const Message& msg) const;
+	std::string formatMsg(const Message &msg) const;
+	void sendMsg(int socket, std::string& msg) const;
+	const std::string convertCodeToCommandId(const int code) const;
 
 	static const std::size_t BUFFER_SIZE = 512;
 	std::vector<std::string> buffers_;

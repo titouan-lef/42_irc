@@ -5,6 +5,7 @@
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "PasswordMismatchException.hpp"
+#include "NeedMoreParamsException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
 #include "User.hpp"
@@ -22,7 +23,9 @@ const std::string NickCmd::checkCmd(const Command& cmd, const User& user) const
 
 	if (!user.isConnected())
 		throw PasswordMismatchException();
-	const std::string nickname = getLastParam(cmd, NB_ARG);
+	if (cmd.arg.size() != NB_ARG)
+		throw NeedMoreParamsException(cmd.name);
+	const std::string& nickname = cmd.arg.at(0);
 	checkNickname(nickname);
 	return nickname;
 }
@@ -73,6 +76,6 @@ bool NickCmd::isAuthorizedFirstChar(const unsigned char c) const
 void NickCmd::updateUser(const Command& cmd, const int senderSocket, User &user, const std::string &nickname) const
 {
 	if (user.isNickRegister())
-		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd.name, cmd.arg, truncateTrailing(cmd.trailing));
+		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd);
 	user.setNickname(nickname);
 }

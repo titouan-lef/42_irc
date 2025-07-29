@@ -129,6 +129,7 @@ bool CommandManager::cmdNotExist(const std::string &cmdName) const
 
 void CommandManager::parserCmdElement(const std::string& recv, std::size_t start, Command& cmd) const
 {
+	cmd.hasTrailing = false;
 	while (start != recv.size())
 	{
 		std::string param;
@@ -137,8 +138,8 @@ void CommandManager::parserCmdElement(const std::string& recv, std::size_t start
 			return;
 		if (param[0] == ':')
 		{
-			cmd.trailing = param;
-			return ;
+			cmd.hasTrailing = true;
+			param = param.substr(1);
 		}
 		cmd.arg.push_back(param);
 	}
@@ -146,13 +147,13 @@ void CommandManager::parserCmdElement(const std::string& recv, std::size_t start
 
 std::size_t CommandManager::delimitParameter(const std::string& recv, std::size_t start, std::string& param) const
 {
-	const char delimiter = ' ';
+	const char DELIMITER = ' ';
 
-	std::size_t end = recv.find(delimiter, start);
+	std::size_t end = recv.find(DELIMITER, start);
 	while (end != std::string::npos && end - start == 0)
 	{
 		++start;
-		end = recv.find(delimiter, start);
+		end = recv.find(DELIMITER, start);
 	}
 	if (end == std::string::npos || recv[start] == ':')
 		end = recv.size();

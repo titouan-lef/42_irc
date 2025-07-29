@@ -3,6 +3,7 @@
 #include "MsgServ.hpp"
 #include "UserManager.hpp"
 #include "NoSuchChannelException.hpp"
+#include "command.hpp"
 
 ChanServ::ChanServ()
 {
@@ -92,16 +93,16 @@ void ChanServ::listAllChannels(const int socketUser) const
  * @param socket The socket of the user quit the server.
  *
  */
-void ChanServ::partAllChannels(const int loggedOutSocket, const std::string& msg)
+void ChanServ::partAllChannels(const int loggedOutSocket, const char* message)
 {
 	for (int i = channelList_.size() - 1; i >= 0; --i)
 	{
 		if (channelList_.at(i).isConnected(loggedOutSocket))
-			part(i, loggedOutSocket, msg); /** @todo no channel name in the quit message */
+			part(i, loggedOutSocket, message); /** @todo no channel name in the quit message */
 	}
 }
 
-void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const std::string& cmdName, const std::vector<std::string> &arg, const std::string& trailing)
+void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const Command& cmd)
 {
 	std::set<int> socketTargets;
 
@@ -112,10 +113,10 @@ void ChanServ::sendBroacastToLinkedUsers(const int socketUser, const std::string
 			channelList_.at(i).insertConnectedUsers(socketTargets);
 	}
 	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
-		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmdName, arg, trailing);
+		MsgServ::getInstance().sendMessageReply(socketUser, *it, cmd);
 }
 
-void ChanServ::quit(const int loggedOutSocket, const std::string& msg)
+void ChanServ::quit(const int loggedOutSocket, const char* message)
 {
 	std::set<int> socketTargets;
 
@@ -127,11 +128,16 @@ void ChanServ::quit(const int loggedOutSocket, const std::string& msg)
 			logOut(i, loggedOutSocket);
 		}
 	}
+	Command cmd;
+	cmd.name = "QUIT";
+	cmd.hasTrailing = (message != NULL);
+	if (cmd.hasTrailing)
+		cmd.arg.push_back(message);
 	for (std::set<int>::iterator it = socketTargets.begin(); it != socketTargets.end(); ++it)
-		MsgServ::getInstance().sendMessageReply(loggedOutSocket, *it, "QUIT", std::vector<std::string>(), msg);
+		MsgServ::getInstance().sendMessageReply(loggedOutSocket, *it, cmd);
 }
 
-void ChanServ::part(const std::string& channelName, const int loggedOutSocket, const std::string& message)
+void ChanServ::part(const std::string& channelName, const int loggedOutSocket, const char* message)
 {
 	std::size_t index = findChannelIndex(channelName);
 	part(index, loggedOutSocket, message);
@@ -192,7 +198,7 @@ void ChanServ::deleteChannel(const std::size_t index)
 	channelList_.erase(channelList_.begin() + index);
 }
 
-void ChanServ::part(const std::size_t index, const int loggedOutSocket, const std::string& message)
+void ChanServ::part(const std::size_t index, const int loggedOutSocket, const char* message)
 {
 	channelList_.at(index).managePartMessage(loggedOutSocket, message);
 	logOut(index, loggedOutSocket);

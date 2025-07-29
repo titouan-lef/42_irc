@@ -3,6 +3,8 @@
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "IrcException.hpp"
+#include "NeedMoreParamsException.hpp"
+#include "command.hpp"
 
 /**
  * @brief Executes the LIST command to display available channels or specific channel summaries.
@@ -22,10 +24,19 @@ void ListCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	const std::size_t NB_ARG_ALL_CHAN = 0;
 
-	if (getNbArg(cmd) == NB_ARG_ALL_CHAN)
+	checkCmd(cmd);
+	if (cmd.arg.size() == NB_ARG_ALL_CHAN)
 		sendInfoAllChannel(senderSocket);
 	else
 		sendInfoSpecificChannel(cmd, senderSocket);
+}
+
+void ListCmd::checkCmd(const Command &cmd) const
+{
+	const std::size_t NB_ARG_MAX = 1;
+
+	if (cmd.arg.size() > NB_ARG_MAX)
+		throw NeedMoreParamsException(cmd.name);
 }
 
 void ListCmd::sendInfoAllChannel(const int senderSocket) const
@@ -35,10 +46,7 @@ void ListCmd::sendInfoAllChannel(const int senderSocket) const
 
 void ListCmd::sendInfoSpecificChannel(const Command &cmd, const int senderSocket) const
 {
-	const std::size_t NB_ARG = 1;
-
-	const std::string lastParam = getLastParam(cmd, NB_ARG);
-	std::vector<std::string> channelList = splitTargets(lastParam);
+	std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
 	for (size_t i = 0; i < channelList.size(); ++i)
 		sendInfoOneChannel(senderSocket, channelList.at(i));
 	MsgServ::getInstance().sendNumericReply(senderSocket, 323, "End of LIST");

@@ -7,7 +7,7 @@
 void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 {
 	Channel& channel = checkCmd(cmd);
-	if (isGetTopicCmd(cmd.trailing))
+	if (isGetTopicCmd(cmd.arg.size()))
 		channel.sendActualTopic(senderSocket);
 	else
 		changeTopicName(cmd, senderSocket, channel);
@@ -15,22 +15,24 @@ void TopicCmd::execute(const Command& cmd, const int senderSocket) const
 
 Channel& TopicCmd::checkCmd(const Command& cmd) const
 {
-	const std::size_t NB_ARG = 1;
+	const std::size_t NB_ARG_MIN = 1;
+	const std::size_t NB_ARG_MAX = 2;
 
-	if (cmd.arg.size() != NB_ARG)
+	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
 		throw NeedMoreParamsException(cmd.name);
 	Channel& channel = ChanServ::getInstance().findChannel(cmd.arg.at(0));
 	return channel;
 }
 
-bool TopicCmd::isGetTopicCmd(const std::string &trailing) const
+bool TopicCmd::isGetTopicCmd(const std::size_t nbArg) const
 {
-	return trailing.empty();
+	const std::size_t NUM_ARG_TOPIC = 1;
+
+	return (nbArg == NUM_ARG_TOPIC);
 }
 
 void TopicCmd::changeTopicName(const Command& cmd, const int senderSocket, Channel& channel) const
 {
-	const std::string trailing = truncateTrailing(cmd.trailing);
-	channel.setTopic(trailing, senderSocket);
-	channel.manageCmdMessage(senderSocket, cmd.name, cmd.arg, trailing);
+	channel.setTopic(cmd.arg.back(), senderSocket);
+	channel.manageCmdMessage(senderSocket, cmd);
 }

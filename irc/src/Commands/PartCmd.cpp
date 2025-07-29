@@ -31,21 +31,22 @@ void PartCmd::execute(const Command& cmd, const int senderSocket) const
 
 void PartCmd::checkCmd(const Command& cmd) const
 {
-	const std::size_t NB_ARG = 1;
+	const std::size_t NB_ARG_MIN = 1;
+	const std::size_t NB_ARG_MAX = 2;
 
-	if (cmd.arg.size() != NB_ARG)
+	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
 		throw NeedMoreParamsException(cmd.name);
 }
 
 void PartCmd::partChannelOfCmd(const Command &cmd, const int senderSocket) const
 {
-	const std::string message = truncateTrailing(cmd.trailing);
+	const char* message = (cmd.arg.size() == 2 ? cmd.arg.at(1).c_str() : NULL);
 	const std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));
 	for (size_t i = 0; i < channelList.size(); ++i)
 		partOneChannel(message, senderSocket, channelList.at(i));
 }
 
-void PartCmd::partOneChannel(const std::string& message, const int senderSocket, const std::string& channelName) const
+void PartCmd::partOneChannel(const char* message, const int senderSocket, const std::string& channelName) const
 {
 	try
 	{

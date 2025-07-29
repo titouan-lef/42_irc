@@ -3,32 +3,27 @@
 #include "command.hpp"
 #include "ChanServ.hpp"
 #include "BadChanMaskException.hpp"
+#include "NeedMoreParamsException.hpp"
 
 void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 {
-	const std::size_t MIN_ARG = 1;
-	const std::size_t MAX_ARG = 2;
+	checkCmd(cmd);
 
-	std::size_t nbArg = getNbArg(cmd);
-	std::string lastParam = getLastParam(cmd, MIN_ARG, MAX_ARG);
-
-	if (isPartAllCmd(nbArg, lastParam))
+	if (isPartAllCmd(cmd.arg))
 	{
 		ChanServ::getInstance().partAllChannels(senderSocket);
-		return ;
+		return;
 	}
 
 	std::vector<std::string> chanNameList;
 	std::vector<std::string> passwordList;
 
-	if (nbArg == 1)
-	{
-		chanNameList = splitTargets(lastParam);
-	}
+	if (cmd.arg.size() == 1)
+		chanNameList = splitTargets(cmd.arg.at(0));
 	else
 	{
 		chanNameList = splitTargets(cmd.arg.at(0));
-		passwordList = splitTargets(lastParam);
+		passwordList = splitTargets(cmd.arg.at(1));
 	}
 
 	std::size_t indexPassword = 0;
@@ -52,28 +47,25 @@ void JoinCmd::execute(const Command& cmd, const int senderSocket) const
 	}
 }
 
-bool JoinCmd::isPartAllCmd(const std::size_t nbArg, const std::string &lastParam) const
+void JoinCmd::checkCmd(const Command& cmd) const
 {
-	return (nbArg == 1 && lastParam == "0");
+	const std::size_t NB_ARG_MIN = 1;
+	const std::size_t NB_ARG_MAX = 2;
+
+	if (cmd.arg.size() < NB_ARG_MIN || cmd.arg.size() > NB_ARG_MAX)
+		throw NeedMoreParamsException(cmd.name);
+}
+
+bool JoinCmd::isPartAllCmd(const std::vector<std::string>& arg) const
+{
+	return (arg.size() == 1 && arg.at(0) == "0");
 }
 
 void JoinCmd::tryConnection(const std::string &channel, const int senderSocket, const std::string *password) const
 {
 	if (!ChanServ::getInstance().isValidChannelName(channel))
 		throw BadChanMaskException(channel);
-
 	Channel& chan = ChanServ::getInstance().findOrCreateChannel(channel, senderSocket);
-
-	/*
-	si A
-	{
-		si B
-			1
-		else
-
-	}
-	*/
-	
 	if (chan.isPasswordProtected())
 	{
 		if (password)
@@ -82,9 +74,7 @@ void JoinCmd::tryConnection(const std::string &channel, const int senderSocket, 
 			chan.connectUser(senderSocket, "");
 	}
 	else if (!chan.isConnected(senderSocket))
-	{
 		chan.connectUser(senderSocket);
-	}
 }
 
 bool JoinCmd::isPasswordProtected(const std::string &channelName) const

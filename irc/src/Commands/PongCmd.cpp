@@ -13,6 +13,8 @@ void PongCmd::execute(const Command& cmd, const int socketSender) const
 
 void PongCmd::checkCmd(const Command& cmd) const
 {
-	if (cmd.arg.size() != 1 && !cmd.trailing.empty()) /** @todo necessary ?? */
+	const std::size_t NB_ARG = 1;
+
+	if (cmd.arg.size() != NB_ARG)
 		throw NeedMoreParamsException(cmd.name);
 }

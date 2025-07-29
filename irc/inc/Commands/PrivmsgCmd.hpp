@@ -21,6 +21,6 @@ private:
 	bool isMsgToChannel(const std::string& target) const;
 	void sendMsgToChannel(const Command &cmd, const int senderSocket, const std::string& channelName) const;
 	bool isMsgToService(const std::string& target) const;
-	void sendMsgToService(const std::string& trailing, const int senderSocket, const std::string& serviceName) const;
+	void sendMsgToService(const std::string& message, const int senderSocket, const std::string& serviceName) const;
 	void sendMsgToUser(const Command &cmd, const int senderSocket, const std::string& nickname) const;
 };

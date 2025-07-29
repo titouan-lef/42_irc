@@ -8,6 +8,8 @@ class ChannelTester; /** @todo remove before push */
 class ModeCmdTester; /** @todo remove before push */
 class TopicCmdTester; /** @todo remove before push */
 
+struct Command;
+
 class Channel
 {
 public:
@@ -19,15 +21,15 @@ public:
 	void sendActualUsers(const int socket) const;
 	void sendChangedModes(const int socket, const std::string& options) const;
 	void sendActualModes(const int socket) const;
-	void sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
-	void manageCmdMessage(const int socketUser, const std::string &cmdName, const std::vector<std::string> &arg, const std::string &trailing) const;
+	void sendMessageToAllUsers(const int senderSocket, const Command& cmd) const;
+	void manageCmdMessage(const int socketUser, const Command& cmd) const;
 
 	void connectUser(const int socketNewUser, const std::string& password = "");
 	bool disconnectUser(const int socketUser);
 	void inviteUser(int invitedSocket, int socketSender);
 
-	void managePartMessage(const int socketUser, const std::string &message) const;
-	void manageKickMessage(const int senderSocket, const std::string &username, const std::string &message) const;
+	void managePartMessage(const int socketUser, const char* message) const;
+	void manageKickMessage(const int senderSocket, const std::string &username, const std::string& message) const;
 
 	bool addNewOperator(const int socketNewOperator);
 	bool removeOperator(const int socketUser);
