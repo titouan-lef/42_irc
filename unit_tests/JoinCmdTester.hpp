@@ -205,5 +205,39 @@ public:
 			user1.sendCommand("PART #chan2");
 			user1.assertReply(":user1!user1@localhost PART #chan2");
 		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1");
+			user1.assertReply(":user1!user1@localhost JOIN :#chan1");
+			user1.assertReply(":ircserv 331 user1 #chan1 :No topic is set");
+			user1.assertReply(":ircserv 353 user1 = #chan1 :@user1");
+			user1.assertReply(":ircserv 366 user1 #chan1 :End of NAMES list");
+			user1.sendCommand("JOIN #chan1");
+			user1.assertReply(":ircserv 443 user1 user1 #chan1 :is already on channel");
+			user1.sendCommand("JOIN #chan1 mdp");
+			user1.assertReply(":ircserv 443 user1 user1 #chan1 :is already on channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN #chan1");
+			user1.assertReply(":user1!user1@localhost JOIN :#chan1");
+			user1.assertReply(":ircserv 331 user1 #chan1 :No topic is set");
+			user1.assertReply(":ircserv 353 user1 = #chan1 :@user1");
+			user1.assertReply(":ircserv 366 user1 #chan1 :End of NAMES list");
+			user1.sendCommand("MODE #chan1 +k mdp");
+			user1.skipReplies(1);
+			user1.sendCommand("JOIN #chan1");
+			user1.assertReply(":ircserv 443 user1 user1 #chan1 :is already on channel");
+			user1.sendCommand("JOIN #chan1 mdp");
+			user1.assertReply(":ircserv 443 user1 user1 #chan1 :is already on channel");
+		}
+		{
+			ReplyTester user1(4343, "password", "user1");
+
+			user1.sendCommand("JOIN 0 mdp");
+			user1.assertReply(":ircserv 461 user1 JOIN :Not enough parameters");
+		}
 	};
 };
