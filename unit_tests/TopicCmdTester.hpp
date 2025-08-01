@@ -16,7 +16,7 @@ class TopicCmdTester
 public:
 	void testerTopicCmd()
 	{
-		Channel& chan = ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
+		Channel& chan = ChanServ::getInstance().createChannelWithOperator(std::string("#test"), 1);
 		testPermission(chan);
 		testTopic(chan);
 		ChanServ::getInstance().partAllChannels(1);

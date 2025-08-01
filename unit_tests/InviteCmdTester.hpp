@@ -13,7 +13,7 @@ class InviteCmdTester
 public:
 	void testerInviteCmd()
 	{
-		Channel& chan = ChanServ::getInstance().findOrCreateChannel(std::string("#test"), 1);
+		Channel& chan = ChanServ::getInstance().createChannelWithOperator(std::string("#test"), 1);
 		testPermission(chan);
 		testInvite(chan);
 		ChanServ::getInstance().partAllChannels(1);

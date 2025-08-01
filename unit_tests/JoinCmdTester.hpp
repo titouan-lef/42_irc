@@ -75,7 +75,7 @@ public:
 		Tester::startTest("JOIN channels with passwords");
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		ChanServ::getInstance().findOrCreateChannel("#join", 1);
+		ChanServ::getInstance().createChannelWithOperator("#join", 1);
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#join").setPassword("password");});
 		
 		JoinCmd join;
