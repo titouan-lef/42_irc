@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdlib>
+#include <vector>
 
 #include "Msg.hpp"
 
@@ -183,7 +184,12 @@ void EscapeBot::msgExec(Msg& message)
 		return ;
 	}
 	if (!message.cmd_.empty())
+	{
+		std::vector<std::string> args;
+		std::string replyMsg;
+		replyMsg = ;
 		sendCommand("PRIVMSG "+ message.nickSender_ + " :I have no time for your probleme ! Please send a message to the helper bot");
+	}
 }
 /**
  * 
