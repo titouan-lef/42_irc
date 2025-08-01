@@ -17,7 +17,8 @@ public:
 
 	void receiveCommand(const int senderSocket, const std::string& message);
 	
-	Channel& findOrCreateChannel(const std::string& name, const int socketUser);
+	Channel& createChannelWithOperator(const std::string& name, const int socketModerator);
+	Channel* searchChannel(const std::string& name);
 	Channel& findChannel(const std::string& name);
 	void deleteChannel(const std::string& name);
 	void namesAllChannels(const int socketUser) const;
@@ -37,7 +38,6 @@ private:
 	ChanServ();
 	// ~ChanServ();
 	std::size_t findChannelIndex(const std::string& channelName) const;
-	Channel& builtNewChannel(const std::string& name, const int socketModerator);
 	void deleteChannel(const std::size_t index);
 	void part(const std::size_t index, const int loggedOutSocket, const char* message);
 	void kick(const std::size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message);

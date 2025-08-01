@@ -44,24 +44,31 @@ void ChanServ::receiveCommand(const int senderSocket, const std::string& cmd)
 		(this->*it->second)(senderSocket);
 }
 
-/*
- * @brief Finds a channel by name or creates a new one if not found.
+/**
+ * @brief Creates a new channel with the given name and initial user.
  *
- * @param name The name of the channel to find.
- * @param user The user requesting the channel creation if not found.
+ * @param name The name of the new channel.
+ * @param user The user who creates the channel.
  *
- * @return Reference to the existing or newly created channel.
+ * @return Reference to the newly created channel stored in the channels list.
  */
-Channel& ChanServ::findOrCreateChannel(const std::string& name, const int socketUser)
+Channel& ChanServ::createChannelWithOperator(const std::string& name, const int socketOperator)
+{
+	Channel newChannel(name, socketOperator);
+	channelList_.push_back(newChannel);
+	return channelList_.back();
+}
+
+Channel* ChanServ::searchChannel(const std::string& name)
 {
 	try
 	{
-		return findChannel(name);
+		Channel& chan = findChannel(name);
+		return &chan;
 	}
 	catch(const NoSuchChannelException& e)
 	{
-		(void) e;
-		return builtNewChannel(name, socketUser);
+		return NULL;
 	}
 }
 
@@ -155,21 +162,6 @@ bool ChanServ::isValidChannelName(const std::string& channelName) const
 		channelName.find_first_of(",\a") == std::string::npos);
 }
 
-/**
- * @brief Creates a new channel with the given name and initial user.
- *
- * @param name The name of the new channel.
- * @param user The user who creates the channel.
- *
- * @return Reference to the newly created channel stored in the channels list.
- */
-Channel& ChanServ::builtNewChannel(const std::string& name, const int socketModerator)
-{
-	Channel newChannel(name, socketModerator);
-	channelList_.push_back(newChannel);
-	return channelList_.back();
-}
-
 void ChanServ::deleteChannel(const std::string& name)
 {
 	try
@@ -177,10 +169,7 @@ void ChanServ::deleteChannel(const std::string& name)
 		std::size_t index = findChannelIndex(name);
 		deleteChannel(index);
 	}
-	catch(const NoSuchChannelException& e)
-	{
-		(void) e;
-	}
+	catch(const NoSuchChannelException& e) {}
 }
 
 std::size_t ChanServ::findChannelIndex(const std::string& channelName) const
