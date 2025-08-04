@@ -30,6 +30,7 @@ private:
 	std::string extractServer(const std::string& recvMsg);
 	void extractRequest(const std::string& recvMsg, Msg& message);
 	void msgExec(Msg& message);
+	std::string getReplyMsg(std::string msg);
 
 	int socketBot_;
 	bool running_;

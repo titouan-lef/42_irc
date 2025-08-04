@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <vector>
+#include <fstream>
+#include <string>
 
 #include "Msg.hpp"
 
@@ -130,9 +132,6 @@ void EscapeBot::interpretMsg(const std::string& recvMsg)
 {
 	Msg message;
 	EscapeBot::parseMsg(recvMsg, message);
-	std::cout << message.nickSender_ << " | "
-	<<  message.cmd_ << " | "
-	<<  message.restOfMsg_ << std::endl;
 	EscapeBot::msgExec(message);
 }
 
@@ -185,11 +184,86 @@ void EscapeBot::msgExec(Msg& message)
 	}
 	if (!message.cmd_.empty())
 	{
-		std::vector<std::string> args;
 		std::string replyMsg;
-		replyMsg = ;
-		sendCommand("PRIVMSG "+ message.nickSender_ + " :I have no time for your probleme ! Please send a message to the helper bot");
+		replyMsg = getReplyMsg(message.restOfMsg_);
+		sendCommand("PRIVMSG "+ message.nickSender_ + " :" + replyMsg);
 	}
+}
+
+/********************************************* Get Meteo ************************************************/
+bool checkInputSafety(const std::string& city)
+{
+	for (std::string::const_iterator it = city.begin(); it != city.end(); ++it)
+	{
+		if (!std::isalpha(static_cast<unsigned char>(*it)))
+			return false;
+	}
+	return true;
+}
+
+std::string getText()
+{
+	std::ifstream meteo;
+	meteo.open(".txt");
+	std::string data;
+	std::getline(meteo, data);
+	meteo.close();
+	return (data);
+}
+
+std::string getMeteo(const std::string& city)
+{
+	std::string cityName = city.substr(0, city.size() - 2);
+	if (!checkInputSafety(cityName))
+		return ("Try with a valid name of city");
+	const std::string cmd = ("curl -s \"https://wttr.in/" + cityName + "?format=3\" > .txt");
+	int cr = system(cmd.c_str()); /** @todo check if is good*/
+	if (cr != 0)
+		return ("You can't consult the meteo bsh failed");
+	std::string meteo;
+	meteo = getText();
+	cr = system("rm .txt");
+	if (cr != 0)
+		return ("You can't consult the meteo");
+	return (meteo);
+}
+
+std::vector<std::string> splitOnSpace(std::string msg)
+{
+	std::vector<std::string> result;
+	std::string current;
+	for (size_t i = 0; i < msg.size(); ++i)
+	{
+		if (msg[i] == ' ') 
+		{
+			if (!current.empty()) 
+			{
+				result.push_back(current);
+				current.clear();
+			}
+		}
+		else
+			current += msg[i];
+	}
+	if (!current.empty()) {
+		result.push_back(current);
+	}
+	return result;
+}
+
+std::string EscapeBot::getReplyMsg(std::string msg)
+{
+	std::vector<std::string> args;
+	args = splitOnSpace(msg);
+	if (args.size() != 3)
+		return "Please try with METEO city name.";
+	if (args[1] == ":METEO")
+	{
+		std::cout << args[2] << std::endl;
+		return getMeteo(args[2]);
+	}
+	else
+		return "Please try with METEO city name.";
 }
 /**
  * 
