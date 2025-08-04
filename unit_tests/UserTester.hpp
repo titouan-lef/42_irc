@@ -36,9 +36,7 @@ private:
 
 		Tester::assertExpectedEqualsActual(user.getNickname(), std::string("*"));
 		Tester::assertTrue(user.getUsername().empty());
-		Tester::assertFalse(user.isConnected());
-		Tester::assertFalse(user.isNickRegister());
-		Tester::assertFalse(user.isUsernameRegister());
+		Tester::assertExpectedEqualsActual(DISCONNECTED, user.getStatus());
 	}
 
 	void testConnection()
@@ -47,14 +45,23 @@ private:
 
 		User user;
 
-		user.validConnection();
-		Tester::assertTrue(user.isConnected());
+		Tester::assertExpectedEqualsActual(DISCONNECTED, user.getStatus());
+
+		user.passToNextConnectionStep();
+		Tester::assertExpectedEqualsActual(VERIFIED, user.getStatus());
+		Tester::assertTrue(user.getStatus() > DISCONNECTED);
+
 		user.setNickname("mister");
+		user.passToNextConnectionStep();
+		Tester::assertExpectedEqualsActual(IDENTIFIED, user.getStatus());
+		Tester::assertTrue(user.getStatus() > VERIFIED);
 		Tester::assertExpectedEqualsActual(user.getNickname(), std::string("mister"));
-		Tester::assertTrue(user.isNickRegister());
+
 		user.setUsername("kakou");
+		user.passToNextConnectionStep();
+		Tester::assertExpectedEqualsActual(CONNECTED, user.getStatus());
+		Tester::assertTrue(user.getStatus() > IDENTIFIED);
 		Tester::assertExpectedEqualsActual(user.getUsername(), std::string("kakou"));
-		Tester::assertTrue(user.isUsernameRegister());
 		Tester::assertExpectedEqualsActual(user.getPrefix(), std::string("mister!kakou@localhost"));
 	}
 };

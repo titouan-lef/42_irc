@@ -26,28 +26,28 @@ public:
 		InviteCmd invite;
 
 		Command cmd = {"INVITE", {}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		cmd = {"INVITE", {"#test1"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		cmd = {"INVITE", {"user1", "#test", "error"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		cmd = {"INVITE", {"user1", "#test", "error"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		UserManager::getInstance().getUser(10).setNickname("user1");
 		cmd = {"INVITE", {"user1", "#testre"}, false};
-		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		cmd = {"INVITE", {"user1", "#test"}, false};
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {invite.execute(cmd ,10);});
+		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {invite.execute(cmd,10, CONNECTED);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 		cmd = {"INVITE", {"user1", "#test"}, false};
-		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd ,1);});
+		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		UserManager::getInstance().deleteUser(1);
 		ChanServ::getInstance().partAllChannels(10);
@@ -65,7 +65,7 @@ public:
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
 			Command cmd = {"INVITE", {"user1", "#test"}, false};
-			Tester::assertDoNotThrows([&]() {invite.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {invite.execute(cmd, 1, CONNECTED);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 			UserManager::getInstance().deleteUser(1);

@@ -29,25 +29,25 @@ public:
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
 		Command cmd = {"PASS", {}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"pass", "pass2"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"pass", "hello"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"pass"}, false};
-		Tester::assertThrows<PasswordMismatchException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<PasswordMismatchException>([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"pass"}, false};
-		Tester::assertThrows<PasswordMismatchException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<PasswordMismatchException>([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"password"}, false};
-		Tester::assertDoNotThrows([&]() {pass.execute(cmd ,10);});
+		Tester::assertDoNotThrows([&]() {pass.execute(cmd, 10, DISCONNECTED);});
 
 		cmd = {"PASS", {"password"}, false};
-		Tester::assertThrows<AlreadyRegistredException>([&]() {pass.execute(cmd ,10);});
+		Tester::assertThrows<AlreadyRegistredException>([&]() {pass.execute(cmd, 10, VERIFIED);});
 
 		UserManager::getInstance().deleteUser(1);
 	};

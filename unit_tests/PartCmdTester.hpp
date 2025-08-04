@@ -30,10 +30,10 @@ public:
 		PartCmd part;
 
 		Command cmd = {"PART", {}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd, 10, CONNECTED);});
 
 		cmd = {"PART", {"#test", "#test2", "#test3"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {part.execute(cmd, 10, CONNECTED);});
 
 	};
 
@@ -46,13 +46,13 @@ public:
 
 		ChanServ::getInstance().createChannelWithOperator("#join", 10);
 		Command cmd = {"PART", {"#join"}, false};
-		Tester::assertDoNotThrows([&]() {part.execute(cmd ,10);});
+		Tester::assertDoNotThrows([&]() {part.execute(cmd, 10, CONNECTED);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 
 		ChanServ::getInstance().createChannelWithOperator("#join", 10);
 		ChanServ::getInstance().createChannelWithOperator("#chan", 10);
 		cmd = {"PART", {"#join,#chan"}, false};
-		Tester::assertDoNotThrows([&]() {part.execute(cmd ,10);});
+		Tester::assertDoNotThrows([&]() {part.execute(cmd, 10, CONNECTED);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#chan");});
 
@@ -60,7 +60,7 @@ public:
 
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#join").connectUser(10);});
 		cmd = {"PART", {"#join"}, false};
-		Tester::assertDoNotThrows([&]() {part.execute(cmd ,10);});
+		Tester::assertDoNotThrows([&]() {part.execute(cmd, 10, CONNECTED);});
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 
 		ChanServ::getInstance().createChannelWithOperator("#chan", 1);
@@ -68,7 +68,7 @@ public:
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#join").connectUser(10);});
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#chan").connectUser(10);});
 		cmd = {"PART", {"#join,#chan"}, false};
-		Tester::assertDoNotThrows([&]() {part.execute(cmd ,10);});
+		Tester::assertDoNotThrows([&]() {part.execute(cmd, 10, CONNECTED);});
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 		Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 

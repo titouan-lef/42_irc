@@ -29,19 +29,19 @@ public:
 		KickCmd kick;
 
 		Command cmd = {"KICK", {}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd, 10, CONNECTED);});
 
 		cmd = {"KICK", {"#test"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd, 10, CONNECTED);});
 
 		cmd = {"KICK", {"#test", "#test2", "#test3", "reason"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd, 10, CONNECTED);});
 
 		cmd = {"KICK", {"#test,#chan", "user"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd, 10, CONNECTED);});
 
 		cmd = {"KICK", {"#test,#chan", "user,user1,user2"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {kick.execute(cmd, 10, CONNECTED);});
 	};
 
 	void testKickChannels()
@@ -55,14 +55,14 @@ public:
 		{
 			ChanServ::getInstance().createChannelWithOperator("#join", 10);
 			cmd = {"KICK", {"#join", "Bob"}, false};
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 10, CONNECTED);});
 			Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 		}
 		{
 			ChanServ::getInstance().createChannelWithOperator("#join", 10);
 			ChanServ::getInstance().createChannelWithOperator("#chan", 10);
 			cmd = {"KICK", {"#join,#chan", "Bob,Bob"}, false};
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 10, CONNECTED);});
 			Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 			Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#chan");});
 		}
@@ -70,9 +70,9 @@ public:
 		{
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#join").connectUser(10);});
 			cmd = {"KICK", {"#join", "Bob"}, false};
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 10, CONNECTED);});
 			Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 1, CONNECTED);});
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 		}
 		ChanServ::getInstance().createChannelWithOperator("#chan", 1);
@@ -80,10 +80,10 @@ public:
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#join").connectUser(10);});
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#chan").connectUser(10);});
 			cmd = {"KICK", {"#join,#chan", "Bob,Bob"}, false};
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 10, CONNECTED);});
 			Tester::assertTrue(ChanServ::getInstance().findChannel("#join").isConnected(10));
 			Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 1, CONNECTED);});
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#join").isConnected(10));
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 		}
@@ -92,10 +92,10 @@ public:
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().createChannelWithOperator("#join", 10);});
 			Tester::assertDoNotThrows([&]() {ChanServ::getInstance().findChannel("#chan").connectUser(10);});
 			cmd = {"KICK", {"#join,#chan", "Bob,Bob"}, false};
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,10);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 10, CONNECTED);});
 			Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
 			Tester::assertTrue(ChanServ::getInstance().findChannel("#chan").isConnected(10));
-			Tester::assertDoNotThrows([&]() {kick.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {kick.execute(cmd, 1, CONNECTED);});
 			Tester::assertFalse(ChanServ::getInstance().findChannel("#chan").isConnected(10));
 		}
 		Tester::assertDoNotThrows([&]() {ChanServ::getInstance().part("#chan", 1);});

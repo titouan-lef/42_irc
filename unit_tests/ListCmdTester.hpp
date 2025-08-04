@@ -25,17 +25,17 @@ public:
 		ListCmd list;
 
 		Command cmd = {"LIST", {"#salut", ""}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1, CONNECTED);});
 		cmd = {"LIST", {"#CHAN1", "#CHAN2"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {list.execute(cmd, 1, CONNECTED);});
 		cmd = {"LIST", {":"}, true};
-		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
+		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1, CONNECTED);});
 		cmd = {"LIST", {}, false};
-		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
+		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1, CONNECTED);});
 		cmd = {"LIST", {"#CHAN1,#CHAN2"}, true};
-		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
+		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1, CONNECTED);});
 		cmd = {"LIST", {"#CHAN1,#CHAN2"}, false};
-		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1);});
+		Tester::assertDoNotThrows([&]() {list.execute(cmd, 1, CONNECTED);});
 	}
 	void testListAllChan()
 	{

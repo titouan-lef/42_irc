@@ -29,25 +29,25 @@ public:
 		TopicCmd topic;
 
 		Command cmd = {"TOPIC", {}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {topic.execute(cmd ,1);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 		cmd = {"TOPIC", {"#test1", "#test2"}, false};
-		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
+		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 		cmd = {"TOPIC", {"#testre"}, false};
-		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
+		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 		cmd = {"TOPIC", {"test"}, false};
-		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd ,1);});
+		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 		cmd = {"TOPIC", {"#test", "New topic"}, true};
-		Tester::assertThrows<UserNotInChannelException>([&]() {topic.execute(cmd ,10);});
+		Tester::assertThrows<UserNotInChannelException>([&]() {topic.execute(cmd, 10, CONNECTED);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 		chan.enableTopicRestriction();
 		cmd = {"TOPIC", {"#test", "New topic"}, true};
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {topic.execute(cmd ,10);});
+		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {topic.execute(cmd, 10, CONNECTED);});
 		chan.disableTopicRestriction();
 
 		ChanServ::getInstance().partAllChannels(10);
@@ -62,14 +62,14 @@ public:
 			Tester::assertFalse(chan.isOperator(10));
 
 			Command cmd = {"TOPIC", {"#test"}, false};
-			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 			cmd = {"TOPIC", {"#test", "New topic is set"}, true};
-			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd, 1, CONNECTED);});
 			Tester::assertExpectedEqualsActual(std::string("New topic is set"), chan.topic_);
 
 			cmd = {"TOPIC", {"#test", ""}, true};
-			Tester::assertDoNotThrows([&]() {topic.execute(cmd ,1);});
+			Tester::assertDoNotThrows([&]() {topic.execute(cmd, 1, CONNECTED);});
 			Tester::assertExpectedEqualsActual(std::string(""), chan.topic_);
 
 			ChanServ::getInstance().partAllChannels(10);

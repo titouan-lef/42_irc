@@ -24,42 +24,44 @@ public:
 	{
 		Tester::startTest("USER permission tests");
 
-		UserCmd user;
+		UserCmd userCmd;
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
 		Command cmd = {"USER", {"0", "*", "RealName"}, true};
-		Tester::assertThrows<PasswordMismatchException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<PasswordMismatchException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
-		UserManager::getInstance().getUser(10).validConnection();
+		UserManager::getInstance().getUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"0", "*", "RealName"}, true};
-		Tester::assertThrows<NotRegisteredException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NotRegisteredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		UserManager::getInstance().getUser(10).setNickname("nickname");
+		UserManager::getInstance().getUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"0", "*"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		cmd = {"USER", {"0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		cmd = {"USER", {"0","0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		cmd = {"USER", {"username","*","*", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		cmd = {"USER", {"username","0","0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		cmd = {"USER", {"username","1","*", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {user.execute(cmd ,10);});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
 
 		UserManager::getInstance().getUser(10).setUsername("username");
+		UserManager::getInstance().getUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"username","0","*", "RealName"}, true};
-		Tester::assertThrows<AlreadyRegistredException>([&]() {user.execute(cmd ,10);});\
+		Tester::assertThrows<AlreadyRegistredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});\
 
 		UserManager::getInstance().deleteUser(1);
 	};
@@ -71,8 +73,6 @@ public:
 		UserCmd userCmd;
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		User& user = UserManager::getInstance().getUser(10);
-		user.validConnection();
-		user.setNickname("nickname");
 		std::vector<std::string> validUsernames =
 		{
 			"a", "Z", "a1", "abc123", "xYz", "Bob123", "User1", "User1234", "TestUser", "Nick42", "Alpha9", "Z9", "U0U0", "JohnDoe", "x9y8z7",
@@ -81,7 +81,7 @@ public:
 		for (std::size_t i = 0; i < validUsernames.size(); ++i)
 		{
 			Command cmd = {"USER", {validUsernames.at(i), "0", "*", "RealName"}, true};
-			Tester::assertDoNotThrows([&]() {userCmd.execute(cmd, 10);});
+			Tester::assertDoNotThrows([&]() {userCmd.execute(cmd, 10, IDENTIFIED);});
 			Tester::assertExpectedEqualsActual(validUsernames.at(i), user.getUsername());
 			user.setUsername("");
 		}
@@ -95,9 +95,6 @@ public:
 
 		UserCmd userCmd;
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		User& user = UserManager::getInstance().getUser(10);
-		user.validConnection();
-		user.setNickname("nickname");
 		std::vector<std::string> invalidUsernames =
 		{
 			"user name", "user@name", "hello!", "name*", "line\nbreak", "carriage\r", "tab\tchar", "user\n", "user#",
@@ -109,7 +106,7 @@ public:
 		for (std::size_t i = 0; i < invalidUsernames.size(); ++i)
 		{
 			Command cmd = {"USER", {invalidUsernames.at(i), "0", "*", "RealName"}, true};
-			Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10);});
+			Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, IDENTIFIED);});
 		}
 
 		UserManager::getInstance().deleteUser(1);

@@ -107,22 +107,22 @@ public:
 			Server::getInstance().definePassword("Password");
 			UserManager::getInstance().addNewUser(1, dummyAddr(1234));
 			{
-				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("PASS	Password  :   ", 1);});
+				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("PASS	Password  :   ", 1, DISCONNECTED);});
 			}
 			{
-				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("         	            ", 1);});
+				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("         	            ", 1, DISCONNECTED);});
 			}
 			{
-				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("PASS/Password :", 1);});
+				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("PASS/Password :", 1, DISCONNECTED);});
 			}
 			{
-				Tester::assertThrows<NeedMoreParamsException>([&]() {CommandManager::getInstance().interpretData("PASS Password :", 1);});
+				Tester::assertThrows<NeedMoreParamsException>([&]() {CommandManager::getInstance().interpretData("PASS Password :", 1, DISCONNECTED);});
 			}
 			{
-				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Passsword	", 1);});
+				Tester::assertThrows<PasswordMismatchException>([&]() {CommandManager::getInstance().interpretData("PASS Passsword	", 1, DISCONNECTED);});
 			}
 			{
-				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("	PASS Password", 1);});
+				Tester::assertThrows<UnknownCmdException>([&]() {CommandManager::getInstance().interpretData("	PASS Password", 1, DISCONNECTED);});
 			}
 			UserManager::getInstance().deleteUser(1);
 		}
