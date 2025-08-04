@@ -6,6 +6,7 @@
 #include <vector>
 
 struct Command;
+enum Status;
 
 class KickCmd : public ACommand
 {
@@ -13,7 +14,7 @@ public:
 	KickCmd();
 	~KickCmd(){}
 
-	void execute(const Command& cmd, const int senderSocket) const;
+	void execute(const Command& cmd, const int senderSocket, const Status& userStatus) const;
 
 private:
 	void checkCmdArg(const Command& cmd, const std::size_t nbChannel, const std::size_t nbUser) const;

@@ -1,6 +1,6 @@
 #include "User.hpp"
 
-User::User(): nickname_(getDefaultNickname()), username_(getDefaultUsername()), isConnected_(false) {}
+User::User(): nickname_(getDefaultNickname()), username_(getDefaultUsername()), status_(DISCONNECTED) {}
 
 /**
  * @brief Checks if the user's nickname matches the given nickname.
@@ -9,51 +9,19 @@ User::User(): nickname_(getDefaultNickname()), username_(getDefaultUsername()), 
  *
  * @return true if the nicknames are equal, false otherwise.
  */
-bool User::is(const std::string& nickname) const
-{
-	return (nickname_ == nickname);
-}
+bool User::is(const std::string& nickname) const { return (nickname_ == nickname); }
 
-/**
- * @brief Checks if the user is connected.
- *
- * A user is consider connected if he succesfully gave the write server password.
- * 
- * @return true if the user is connected, false otherwise.
- */
-bool User::isConnected() const
-{
-	return isConnected_;
-}
-
-/**
- * @brief Checks if the user has registered a nickname.
- *
- * @return true if the nickname is different from the default "*", false otherwise.
- */
-bool User::isNickRegister() const
-{
-	return (nickname_ != getDefaultNickname());
-}
-
-/**
- * @brief Checks if the user has registered a username.
- *
- * @return true if the username string is not empty, false otherwise.
- */
-bool User::isUsernameRegister() const
-{
-	return (username_ != getDefaultUsername());
-}
+Status User::getStatus() const { return status_; }
 
 /**
  * @brief Marks the user as connected.
  * 
  * @note The user must give the good server password with the PASS command before excuting this function.
  */
-void User::validConnection()
+void User::passToNextConnectionStep()
 {
-	isConnected_ = true;
+	/** @todo do exception to not overflow ? */
+	status_ = (Status)(status_ + 1);
 }
 
 const std::string User::getDefaultNickname() { return "*"; }

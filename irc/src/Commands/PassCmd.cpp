@@ -1,13 +1,13 @@
 #include "PassCmd.hpp"
 
 #include "PasswordMismatchException.hpp"
-#include "AlreadyRegistredException.hpp"
 #include "Server.hpp"
 #include "UserManager.hpp"
 #include "User.hpp"
 #include "command.hpp"
+#include "status.hpp"
 
-PassCmd::PassCmd(): ACommand(1, 1) {}
+PassCmd::PassCmd(): ACommand(DISCONNECTED, DISCONNECTED, 1, 1) {}
 
 /**
  * @brief Executes the PASS command to authenticate a user with the server password.
@@ -26,17 +26,16 @@ PassCmd::PassCmd(): ACommand(1, 1) {}
  * @throws AlreadyRegistredException If the user is already registered.
  * @throws PasswordMismatchException If the provided password does not match the server’s password.
  */
-void PassCmd::execute(const Command& cmd, const int senderSocket) const
+void PassCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
+	checkCmd(cmd);
 	User& user = UserManager::getInstance().getUser(senderSocket);
-	checkCmd(cmd, user);
-	user.validConnection();
+	user.passToNextConnectionStep();
 }
 
-void PassCmd::checkCmd(const Command& cmd, const User& user) const
+void PassCmd::checkCmd(const Command& cmd) const
 {
-	if (user.isConnected())
-		throw AlreadyRegistredException();
 	checkArgSize(cmd);
 	const std::string& password = cmd.arg.at(0);
 	if (Server::getInstance().isInvalidPassword(password))

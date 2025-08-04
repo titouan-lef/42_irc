@@ -1,6 +1,7 @@
 #include "PrivmsgCmd.hpp"
 
 #include "command.hpp"
+#include "status.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
@@ -9,10 +10,11 @@
 #include "TooManyTargetsException.hpp"
 #include "NoRecipientException.hpp"
 
-PrivmsgCmd::PrivmsgCmd(): ACommand(2, 2) {}
+PrivmsgCmd::PrivmsgCmd(): ACommand(CONNECTED, CONNECTED, 2, 2) {}
 
-void PrivmsgCmd::execute(const Command& cmd, const int senderSocket) const
+void PrivmsgCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkCmd(cmd);
 	const std::string& nicknameAllTarget = cmd.arg.at(0);
 	std::vector<std::string> targetList = splitTargets(nicknameAllTarget);

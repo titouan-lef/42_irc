@@ -1,6 +1,7 @@
 #include "CommandManager.hpp"
 
 #include "UserManager.hpp"
+#include "status.hpp"
 #include "InviteCmd.hpp"
 #include "JoinCmd.hpp"
 #include "KickCmd.hpp"
@@ -70,11 +71,11 @@ CommandManager& CommandManager::getInstance()
 * This method parses the raw command received (as a string),
 * then performs the appropriate action based on the user's state.
 */
-void CommandManager::interpretData(const std::string& recv, const int senderSocket)
+void CommandManager::interpretData(const std::string& recv, const int senderSocket, const Status& userStatus)
 {
 	UserManager::getInstance().updateLastActivity(senderSocket);
 	Command cmd = parserCmd(recv);
-	commands_[cmd.name]->execute(cmd, senderSocket);
+	commands_[cmd.name]->execute(cmd, senderSocket, userStatus);
 }
 
 /**
@@ -159,27 +160,4 @@ std::size_t CommandManager::delimitParameter(const std::string& recv, std::size_
 		end = recv.size();
 	param = recv.substr(start, end - start);
 	return end;
-}
-
-/**
- * @brief Handles the progressive registration of an IRC client.
- *
- * This function is called when the user is not yet fully registered.
- * It determines, based on the user's state (connection, nickname, etc.),
- * whether the received command is valid in the context of registration, and executes it.
- *
- * The registration typically follows three steps: PASS → NICK → USER.
- *
- * @param cmd The command to process, in structured form.
- * @param user Reference to the user concerned by the registration process.
- *
- * @throws PasswordMismatchException If a command other than PASS is sent before authentication.
- * @throws NotRegisteredException If a disallowed command is sent during the registration phase.
- */
-void CommandManager::registerClient(const std::string& recv, const int senderSocket)
-{
-	Command cmd = parserCmd(recv);
-	if (cmd.name != "USER" && cmd.name != "NICK" && cmd.name != "PASS")
-		throw NotRegisteredException();
-	commands_[cmd.name]->execute(cmd, senderSocket);
 }

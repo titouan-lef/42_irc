@@ -1,15 +1,17 @@
 #include "KickCmd.hpp"
 
 #include "command.hpp"
+#include "status.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "ChannelPrivilegesNeeded.hpp"
 
-KickCmd::KickCmd(): ACommand(2, 3) {}
+KickCmd::KickCmd(): ACommand(CONNECTED, CONNECTED, 2, 3) {}
 
-void KickCmd::execute(const Command& cmd, const int senderSocket) const
+void KickCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkArgSize(cmd);
 
 	std::vector<std::string> channelList = splitTargets(cmd.arg.at(0));

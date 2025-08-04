@@ -2,8 +2,9 @@
 
 #include "ChanServ.hpp"
 #include "command.hpp"
+#include "status.hpp"
 
-NamesCmd::NamesCmd(): ACommand(0, 1) {}
+NamesCmd::NamesCmd(): ACommand(CONNECTED, CONNECTED, 0, 1) {}
 
 /**
  * @brief Executes the NAMES command to list users in specified channels or all channels.
@@ -17,8 +18,9 @@ NamesCmd::NamesCmd(): ACommand(0, 1) {}
  * @param cmd The command object containing the NAMES request and its arguments.
  * @param socket The socket descriptor of the user requesting the user lists.
  */
-void NamesCmd::execute(const Command& cmd, const int senderSocket) const
+void NamesCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkArgSize(cmd);
 	if (cmd.arg.size() == nbArgMin_)
 		sendListUserInEachChannel(senderSocket);

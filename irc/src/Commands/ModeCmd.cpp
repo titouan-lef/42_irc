@@ -3,6 +3,7 @@
 #include <cstdlib>
 
 #include "command.hpp"
+#include "status.hpp"
 #include "UserManager.hpp"
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
@@ -11,10 +12,11 @@
 #include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
 
-ModeCmd::ModeCmd(): ACommand(1, -1) {}
+ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
 
-void ModeCmd::execute(const Command& cmd, const int senderSocket) const
+void ModeCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	Channel& channel = checkCmd(cmd, senderSocket);
 	if (cmd.arg.size() == nbArgMin_)
 		channel.sendActualModes(senderSocket);

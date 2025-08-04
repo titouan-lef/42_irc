@@ -3,10 +3,11 @@
 #include <vector>
 
 #include "command.hpp"
+#include "status.hpp"
 #include "ChanServ.hpp"
 #include "IrcException.hpp"
 
-PartCmd::PartCmd(): ACommand(1, 2) {}
+PartCmd::PartCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
 /**
  * @brief Executes the PART command to remove a user from one or more channels.
@@ -24,8 +25,9 @@ PartCmd::PartCmd(): ACommand(1, 2) {}
  *
  * @throws NeedMoreParamsException If the command does not contain exactly one argument.
  */
-void PartCmd::execute(const Command& cmd, const int senderSocket) const
+void PartCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkArgSize(cmd);
 	partChannelOfCmd(cmd, senderSocket);
 }

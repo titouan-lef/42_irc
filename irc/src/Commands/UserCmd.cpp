@@ -1,38 +1,31 @@
 #include "UserCmd.hpp"
 
 #include "command.hpp"
+#include "status.hpp"
 #include "MsgServ.hpp"
 #include "Server.hpp"
 #include "User.hpp"
 #include "UserManager.hpp"
-#include "PasswordMismatchException.hpp"
-#include "NotRegisteredException.hpp"
-#include "AlreadyRegistredException.hpp"
 #include "NeedMoreParamsException.hpp"
 
-UserCmd::UserCmd(): ACommand(4, 4) {}
+UserCmd::UserCmd(): ACommand(IDENTIFIED, IDENTIFIED, 4, 4) {}
 
-void UserCmd::execute(const Command &cmd, const int senderSocket) const
+void UserCmd::execute(const Command &cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
+	checkCmd(cmd);
 	User& user = UserManager::getInstance().getUser(senderSocket);
-	checkCmd(cmd, user);
 	UpdateUser(user, cmd.arg.at(0), cmd.arg.at(2));
 	sendHandshakeValidation(senderSocket);
 }
 
-void UserCmd::checkCmd(const Command& cmd, const User& user) const
+void UserCmd::checkCmd(const Command& cmd) const
 {
-	if (!user.isConnected())
-		throw PasswordMismatchException();
-	if (!user.isNickRegister())
-		throw NotRegisteredException();
 	checkArgSize(cmd);
 	if (!validParam(cmd.arg))
 		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
 	if (!validUsername(cmd.arg.at(0)))
 		throw NeedMoreParamsException(cmd.name);
-	if (user.isUsernameRegister())
-		throw AlreadyRegistredException();
 	/** @todo parse real name ? */
 }
 
@@ -60,6 +53,7 @@ void UserCmd::UpdateUser(User& user, const std::string& username, const std::str
 {
 	user.setUsername(username);
 	user.setRealName(realName);
+	user.passToNextConnectionStep();
 }
 
 void UserCmd::sendHandshakeValidation(const int socket) const

@@ -7,6 +7,7 @@
 
 class Channel;
 struct Command;
+enum Status;
 
 class ModeCmd : public ACommand
 {
@@ -14,7 +15,7 @@ public:
 	ModeCmd();
 	~ModeCmd(){}
 
-	void execute(const Command& cmd, const int senderSocket) const;
+	void execute(const Command& cmd, const int senderSocket, const Status& userStatus) const;
 
 private:
 	typedef std::vector<std::string>::const_iterator argIterator;

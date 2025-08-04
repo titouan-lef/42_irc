@@ -179,10 +179,7 @@ void UserManager::executeCommandsClient(int i)
 	{
 		std::string command = MsgServ::getInstance().getCommand(i);
 		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
-		if (userList_.at(i).isUsernameRegister())
-			CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd);
-		else
-			CommandManager::getInstance().registerClient(command, pollfdList_.at(i).fd);
+		CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd, userList_.at(i).getStatus());
 	}
 	catch(const IrcException& e)
 	{
@@ -388,7 +385,7 @@ void UserManager::closeConnection(const int index)
 	if (Server::getInstance().isUp())
 	{
 		User user = userList_.at(index);
-		if (user.isNickRegister())
+		if (user.getStatus() >= IDENTIFIED)
 			std::cout << user.getNickname() + " disconnected" << std::endl;
 		else if (index != 0)
 		{

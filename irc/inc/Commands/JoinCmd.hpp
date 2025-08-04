@@ -7,6 +7,7 @@
 
 class Channel;
 struct Command;
+enum Status;
 
 class JoinCmd : public ACommand
 {
@@ -14,7 +15,7 @@ public:
 	JoinCmd();
 	~JoinCmd(){}
 
-	void execute(const Command& cmd, const int senderSocket) const;
+	void execute(const Command& cmd, const int senderSocket, const Status& userStatus) const;
 
 private:
 	bool isPartAllChannelCmd(const std::vector<std::string>& arg) const;

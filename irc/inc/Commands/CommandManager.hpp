@@ -7,6 +7,8 @@
 
 #include "command.hpp"
 
+enum Status;
+
 class CommandTester; /** @todo remove before push */
 class PrivMsgTester; /** @todo remove before push */
 
@@ -14,8 +16,7 @@ class CommandManager
 {
 public:
 	static CommandManager& getInstance();
-	void interpretData(const std::string& recv, const int senderSocket);
-	void registerClient(const std::string& recv, const int senderSocket);
+	void interpretData(const std::string& recv, const int senderSocket, const Status& userStatus);
 
 private:
 	CommandManager();

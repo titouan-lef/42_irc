@@ -1,27 +1,28 @@
 #include "NickCmd.hpp"
 
 #include "command.hpp"
+#include "status.hpp"
 #include "ChanServ.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
-#include "PasswordMismatchException.hpp"
 #include "NoNicknameGivenException.hpp"
 #include "UserManager.hpp"
 #include "User.hpp"
 
-NickCmd::NickCmd(): ACommand(1, 1) {}
+NickCmd::NickCmd(): ACommand(VERIFIED, CONNECTED, 1, 1) {}
 
-void NickCmd::execute(const Command& cmd, const int senderSocket) const
+void NickCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
+	const std::string nickname = checkCmd(cmd);
+	if (userStatus >= IDENTIFIED)
+		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd);
 	User& user = UserManager::getInstance().getUser(senderSocket);
-	const std::string nickname = checkCmd(cmd, user);
-	updateUser(cmd, senderSocket, user, nickname);
+	updateUser(user, nickname, userStatus);
 }
 
-const std::string NickCmd::checkCmd(const Command& cmd, const User& user) const
+const std::string NickCmd::checkCmd(const Command& cmd) const
 {
-	if (!user.isConnected())
-		throw PasswordMismatchException();
 	checkArgSize(cmd);
 	const std::string& nickname = cmd.arg.at(0);
 	checkNickname(nickname);
@@ -71,9 +72,9 @@ bool NickCmd::isAuthorizedFirstChar(const unsigned char c) const
 	return (isalpha(c) || AUTHORIZED_CHAR_LIST.find(c) != std::string::npos);
 }
 
-void NickCmd::updateUser(const Command& cmd, const int senderSocket, User &user, const std::string &nickname) const
+void NickCmd::updateUser(User &user, const std::string &nickname, const Status& userStatus) const
 {
-	if (user.isNickRegister())
-		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd);
 	user.setNickname(nickname);
+	if (userStatus < IDENTIFIED)
+		user.passToNextConnectionStep();
 }

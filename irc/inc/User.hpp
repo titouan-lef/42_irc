@@ -2,22 +2,21 @@
 
 #include "Client.hpp"
 
-#include "iostream"
+#include <iostream>
+
+#include "status.hpp"
 
 class UserTester;
 
 class User: public Client
 {
 public:
-
 	User();
 	// ~User();
 
 	bool is(const std::string& nickname) const;
-	bool isConnected() const;
-	bool isNickRegister() const;
-	bool isUsernameRegister() const;
-	void validConnection();
+	Status getStatus() const;
+	void passToNextConnectionStep();
 	
 	static const std::string getDefaultNickname();
 	static const std::string getDefaultPrefix();
@@ -34,7 +33,7 @@ private:
 	std::string nickname_;
 	std::string username_;
 	std::string realName_; /** @todo ignore ?? */
-	bool isConnected_;
+	Status status_;
 
 	friend class UserTester;
 };

@@ -1,0 +1,3 @@
+#pragma once
+
+enum Status {DISCONNECTED, VERIFIED, IDENTIFIED, CONNECTED};

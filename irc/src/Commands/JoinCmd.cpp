@@ -5,11 +5,13 @@
 #include "BadChanMaskException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "command.hpp"
+#include "status.hpp"
 
-JoinCmd::JoinCmd(): ACommand(1, 2) {}
+JoinCmd::JoinCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
-void JoinCmd::execute(const Command& cmd, const int senderSocket) const
+void JoinCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkArgSize(cmd);
 	if (isPartAllChannelCmd(cmd.arg))
 		partAllChannel(cmd, senderSocket);

@@ -5,6 +5,7 @@
 #include <iostream>
 
 struct Command;
+enum Status;
 
 class PrivmsgCmd : public ACommand
 {
@@ -12,7 +13,7 @@ public:
 	PrivmsgCmd();
 	~PrivmsgCmd(){}
 
-	void execute(const Command& cmd, const int senderSocket) const;
+	void execute(const Command& cmd, const int senderSocket, const Status& userStatus) const;
 
 private:
 	void checkCmd(const Command& cmd) const;

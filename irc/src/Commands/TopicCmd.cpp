@@ -1,12 +1,14 @@
 #include "TopicCmd.hpp"
 
 #include "command.hpp"
+#include "status.hpp"
 #include "ChanServ.hpp"
 
-TopicCmd::TopicCmd(): ACommand(1, 2) {}
+TopicCmd::TopicCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
-void TopicCmd::execute(const Command& cmd, const int senderSocket) const
+void TopicCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	Channel& channel = checkCmd(cmd);
 	if (isGetTopicCmd(cmd.arg.size()))
 		channel.sendActualTopic(senderSocket);

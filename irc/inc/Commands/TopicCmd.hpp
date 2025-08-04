@@ -4,6 +4,7 @@
 
 class Channel;
 struct Command;
+enum Status;
 
 class TopicCmd : public ACommand
 {
@@ -11,7 +12,7 @@ public:
 	TopicCmd();
 	~TopicCmd(){}
 
-	void execute(const Command& cmd, const int senderSocket) const;
+	void execute(const Command& cmd, const int senderSocket, const Status& userStatus) const;
 
 private:
 	Channel& checkCmd(const Command& cmd) const;

@@ -4,8 +4,9 @@
 #include "ChanServ.hpp"
 #include "IrcException.hpp"
 #include "command.hpp"
+#include "status.hpp"
 
-ListCmd::ListCmd(): ACommand(0, 1) {}
+ListCmd::ListCmd(): ACommand(CONNECTED, CONNECTED, 0, 1) {}
 
 /**
  * @brief Executes the LIST command to display available channels or specific channel summaries.
@@ -21,8 +22,9 @@ ListCmd::ListCmd(): ACommand(0, 1) {}
  * @param cmd The command object containing the LIST request and its arguments.
  * @param senderSocket The socket descriptor of the user requesting the channel list.
  */
-void ListCmd::execute(const Command& cmd, const int senderSocket) const
+void ListCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
+	checkUserStatus(userStatus);
 	checkArgSize(cmd);
 	if (cmd.arg.size() == nbArgMin_)
 		sendInfoAllChannel(senderSocket);
