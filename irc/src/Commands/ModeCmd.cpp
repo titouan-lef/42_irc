@@ -14,6 +14,18 @@
 
 ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
 
+/**
+ * @brief Executes the Mode command to display available channels or specific channel summaries.
+ *
+ * @param cmd The command object containing the mode request and its arguments.
+ * @param senderSocket The socket descriptor of the user requesting the channel mode.
+ * @param userStatus The sender user status.
+ * 
+ * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throw Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeeded, UnknownModeException
+ * @todo ErrKeySet / maybe KeySet(467), NoChanModes(477) ?
+ * 
+ */
 void ModeCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);

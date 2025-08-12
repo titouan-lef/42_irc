@@ -9,6 +9,18 @@
 
 JoinCmd::JoinCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
+
+/**
+ * @brief Executes the JOIN command to join or create a channel if is doesn't exist.
+ *
+ * @param cmd The command object containing the join request and its arguments.
+ * @param senderSocket The socket descriptor of the user sending join.
+ * @param userStatus The sender user status.
+ * 
+ * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throw Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException, BadChanMaskException
+ * @todo  execption forbiden : ERR_INVITEONLYCHAN 473, ERR_BADCHANNELKEY 475, ERR_CHANNELISFULL 471, ERR_NOSUCHCHANNEL 403/ maybe KeySet(467) ?
+ */
 void JoinCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);

@@ -9,6 +9,17 @@
 
 KickCmd::KickCmd(): ACommand(CONNECTED, CONNECTED, 2, 3) {}
 
+/**
+ * @brief Executes the KICK command to invite a user to a channel.
+ *
+ * @param cmd The command object containing the kick request and its arguments.
+ * @param senderSocket The socket descriptor of the user sending the kick.
+ * @param userStatus The sender user status.
+ * 
+ * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throw Command: NeedMoreParamsException, ChannelPrivilegesNeeded
+ * @todo NoSuchChannelException 403, BadChanKeyException 476, UserNotInChannel 441, ERR_NOTONCHANNEL 442
+ */
 void KickCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);

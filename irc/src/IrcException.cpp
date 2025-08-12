@@ -157,4 +157,4 @@ SendException::SendException(const std::vector<std::string>& arg, const std::str
 	IrcException(1, arg, "Impossible to send data from " + nickname) {}
 
 InvalidModeParamException::InvalidModeParamException(const std::vector<std::string>& arg):
-	/** @todo check this*/ IrcException(696, arg, "Invalid parameter for mode") {}
+	/** @todo check this maybe ERR_UNKNOWNMODE 472*/ IrcException(696, arg, "Invalid parameter for mode") {}

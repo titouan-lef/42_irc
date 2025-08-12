@@ -11,12 +11,13 @@ InviteCmd::InviteCmd(): ACommand(CONNECTED, CONNECTED, 2, 2) {}
 /**
  * @brief Executes the INVITE command to invite a user to a channel.
  *
- * This function handles the logic for inviting a user to a channel.
- * finds the socket associated with the user to be invited, and then instructs
- * the channel service to invite the user to the specified channel.
- *
  * @param cmd The command object containing the invite request and its arguments.
  * @param senderSocket The socket descriptor of the user sending the invite.
+ * @param userStatus The sender user status.
+ * 
+ * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throw Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException
+ * @todo execption forbiden : NotonChannel(442) ChannelPrivilegesNeeded(482)/ may be 341 RPL_INVITING
  */
 void InviteCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
