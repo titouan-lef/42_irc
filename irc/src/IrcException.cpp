@@ -139,7 +139,7 @@ InviteOnlyException::InviteOnlyException(const std::string& channelName):
 	IrcException(473, std::vector<std::string>(1, channelName), "You're not invited to join this channel") {}
 
 BadChanKeyException::BadChanKeyException(const std::string& channelName):
-	IrcException(476,  std::vector<std::string>(1, channelName), "Cannot join channel (+k)") {}
+	IrcException(475,  std::vector<std::string>(1, channelName), "Cannot join channel (+k)") {}
 
 BadChanMaskException::BadChanMaskException(const std::string& channelName):
 	IrcException(476,  std::vector<std::string>(1, channelName), "Bad Channel Mask") {}
