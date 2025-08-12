@@ -33,7 +33,7 @@ Channel& ModeCmd::checkCmd(const Command& cmd, const int senderSocket) const
 
 	if (!channel.isConnected(senderSocket))
 	{
-		const std::string& nickname = UserManager::getInstance().getUserNickname(senderSocket);
+		const std::string& nickname = UserManager::getInstance().findUserNickname(senderSocket);
 		throw UserNotInChannelException(nickname, channelName);
 	}
 	if (!channel.isOperator(senderSocket))
@@ -195,7 +195,7 @@ bool ModeCmd::operatorMode(Channel& channel, const Option& option) const
 	int targetSocket = UserManager::getInstance().findUserSocket(option.argument);
 	if (!channel.isConnected(targetSocket))
 	{
-		const std::string& nickname = UserManager::getInstance().getUserNickname(targetSocket);
+		const std::string& nickname = UserManager::getInstance().findUserNickname(targetSocket);
 		throw UserNotInChannelException(nickname, channel.getName());
 	}
 	if (option.isAddFlag)

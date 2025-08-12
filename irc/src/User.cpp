@@ -28,6 +28,8 @@ const std::string User::getDefaultNickname() { return "*"; }
 
 const std::string User::getDefaultPrefix() { return "*!*@localhost"; }
 
+const std::string User::getDefaultUsername() { return ""; }
+
 /**
  * @brief Returns the user's nickname.
  *
@@ -69,8 +71,6 @@ const std::string User::getPrefix() const
 	prefix.append("@localhost");
 	return prefix;
 }
-
-const std::string User::getDefaultUsername() const { return ""; }
 
 /**
  * @brief Returns the user's username.

@@ -17,7 +17,7 @@ void NickCmd::execute(const Command& cmd, const int senderSocket, const Status& 
 	const std::string nickname = checkCmd(cmd);
 	if (userStatus >= IDENTIFIED)
 		ChanServ::getInstance().sendBroacastToLinkedUsers(senderSocket, cmd);
-	User& user = UserManager::getInstance().getUser(senderSocket);
+	User& user = UserManager::getInstance().findUser(senderSocket);
 	updateUser(user, nickname, userStatus);
 }
 

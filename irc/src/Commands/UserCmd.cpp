@@ -14,7 +14,7 @@ void UserCmd::execute(const Command &cmd, const int senderSocket, const Status& 
 {
 	checkUserStatus(userStatus);
 	checkCmd(cmd);
-	User& user = UserManager::getInstance().getUser(senderSocket);
+	User& user = UserManager::getInstance().findUser(senderSocket);
 	UpdateUser(user, cmd.arg.at(0), cmd.arg.at(2));
 	sendHandshakeValidation(senderSocket);
 }
@@ -63,7 +63,7 @@ void UserCmd::sendHandshakeValidation(const int socket) const
 	const int DATE_CODE = 3;
 	const int MODE_CODE = 4;
 
-	std::string prefix = UserManager::getInstance().getUserPrefix(socket);
+	std::string prefix = UserManager::getInstance().findUserPrefix(socket);
 	MsgServ::getInstance().sendNumericReply(socket, WELCOME_CODE, "Welcome to the Internet Relay Network " + prefix);
 
 	MsgServ::getInstance().sendNumericReply(socket, HOST_CODE, "Your host is ircserv, running version 1.0");

@@ -34,19 +34,16 @@ public:
 	bool isNickUsed(const std::string& nickname);
 	void listenClients();
 	void checkActivities();
-	int reiceveFromClient(int i);
-	void executeCommandsClient(int i);
-	int findUserSocket(std::string nickname);
+	int findUserSocket(const std::string& nickname);
+	User& findUser(const int userSocket);
+	const std::string findUserNickname(const int userSocket) const;
+	const std::string findUserName(const int userSocket) const;
+	const std::string findUserPrefix(const int userSocket) const;
 	void closeAllConnection();
 	void closeConnectionBySocket(const int userSocket);
 
-	bool serverReiceveData() const;
 	void checkNewConnections();
 	int getNbUserEvent() const;
-	User& getUser(const int userSocket);
-	const std::string getUserNickname(const int userSocket) const;
-	const std::string getUserName(const int userSocket) const;
-	const std::string getUserPrefix(const int userSocket) const;
 	void updateLastActivity(const int userSocket);
 	void validatePongResponse(const int userSocket);
 
@@ -62,11 +59,15 @@ private:
 	UserManager(const UserManager& other);
 	UserManager& operator=(const UserManager& other);
 
+	int reiceveFromClient(const int index);
+	void executeCommandsClient(const int index);
+	bool serverHasReiceveData() const;
 	bool hasDataToRead(const int index) const;
 	void closeConnection(const int index);
+	void displayLogDisconnection(const int index) const;
 	void closeServer();
 	void deleteUser(const int index);
-	size_t getIndex(const int userSocket);
+	std::size_t findIndex(const int userSocket) const;
 
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;

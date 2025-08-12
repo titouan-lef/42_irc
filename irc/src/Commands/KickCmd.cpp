@@ -41,7 +41,7 @@ const std::string KickCmd::buildMessage(const Command& cmd, const int senderSock
 {
 	if (cmd.arg.size() == nbArgMax_)
 		return cmd.arg.at(2);
-	const std::string& nickname = UserManager::getInstance().getUserNickname(senderSocket);
+	const std::string& nickname = UserManager::getInstance().findUserNickname(senderSocket);
 	return ("Kicked by " + nickname);
 }
 

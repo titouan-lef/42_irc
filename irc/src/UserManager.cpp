@@ -31,26 +31,12 @@ void UserManager::initUserManager(const int serverSocket, const struct sockaddr_
 	addNewUser(serverSocket, serverAddr);
 }
 
-/**
- * @brief Returns the singleton instance of UserManager.
- *
- * This method ensures that only one instance of UserManager exists
- * throughout the program lifetime.
- *
- * @return Reference to the single ChanServ instance.
- */
 UserManager& UserManager::getInstance()
 {
 	static UserManager instance;
 	return instance;
 }
 
-/**
- * @brief Adds a new user to the manager by creating a User and pollfd entry.
- *
- * @param clientSocket The socket descriptor of the new client.
- * @param clientAddr The socket address information of the new client.
- */
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
 	for (std::size_t i = 0; i < pollfdList_.size(); i++) /** Protection for tester @todo remove before push */
@@ -78,15 +64,7 @@ bool UserManager::isNickUsed(const std::string &nickname)
 	return isServiceName(nickname);
 }
 
-bool UserManager::isServiceName(const std::string &name)
-{
-	for (std::set<std::string>::iterator it = serviceNames_.begin(); it != serviceNames_.end(); ++it)
-	{
-		if (*it == name)
-			return true;
-	}
-	return false;
-}
+bool UserManager::isServiceName(const std::string &name) { return (serviceNames_.find(name) != serviceNames_.end()); }
 
 void UserManager::sendCommandToService(const int senderSocket, const std::string &name, const std::string &message)
 {
@@ -97,7 +75,7 @@ void UserManager::sendCommandToService(const int senderSocket, const std::string
 /**
  * @brief Listens for incoming messages from connected clients and processes complete commands.
  *
- * Iterates through all connected clients, reads available data, and processes commands found in
+ * @details Iterates through all connected clients, reads available data, and processes commands found in
  * their buffers. Handles client disconnection cleanly.
  */
 void UserManager::listenClients()
@@ -106,7 +84,7 @@ void UserManager::listenClients()
 	{
 		if (!hasDataToRead(i) || reiceveFromClient(i))
 			continue;
-		while (MsgServ::getInstance().isCommandReady(i))
+		while (MsgServ::getInstance().isCommandReady(i))/** @todo why a "while" ? why "if (i >= userList_.size())" ? */
 		{
 			executeCommandsClient(i);
 			if (i >= userList_.size()) /** @todo better management quit */
@@ -140,56 +118,49 @@ void UserManager::checkActivities()
  *
  * Handles disconnections and receive-related errors gracefully.
  *
- * @param i Index of the user from whom data is expected.
+ * @param index Index of the user from whom data is expected.
  * 
  * @return 1 if the user has disconnected and the connection was closed, 0 otherwise.
  */
-int UserManager::reiceveFromClient(int i)
+int UserManager::reiceveFromClient(const int index)
 {
 	try
 	{
-		MsgServ::getInstance().recvMsg(pollfdList_.at(i).fd, i);
+		MsgServ::getInstance().recvMsg(pollfdList_.at(index).fd, index);
 	}
 	catch(const ClientDisconnectedException& e)
 	{
-		closeConnection(i);
+		closeConnection(index);
 		return 1;
 	}
 	catch(const IrcException& e)
 	{
-		e.sendError(pollfdList_.at(i).fd);
+		e.sendError(pollfdList_.at(index).fd);
+		/** @todo not return 1 ? */
 	}
 	return 0;
 }
 
-/**
- * @brief Executes all complete commands contained in the buffer of the specified user.
- *
- * @param i Index of the user in userList_ and pollfdList_.
- */
-void UserManager::executeCommandsClient(int i)
+void UserManager::executeCommandsClient(const int index)
 {
-	std::string command = MsgServ::getInstance().getCommand(i);
+	std::string command = MsgServ::getInstance().getCommand(index);
 	std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 	try
 	{
-		CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd, userList_.at(i).getStatus());
+		CommandManager::getInstance().interpretData(command, pollfdList_.at(index).fd, userList_.at(index).getStatus());
 	}
 	catch(const IrcException& e)
 	{
-		e.sendError(pollfdList_.at(i).fd);
+		e.sendError(pollfdList_.at(index).fd);
 	}
 }
 
 /**
- * @brief Finds the socket descriptor associated with a user by their nickname.
- *
  * @param nickname The nickname of the user to find.
- * 
- * @return The socket descriptor if found, or -1 if no matching user exists.
-
+ * @return The socket descriptor of user.
+ * @throw NoSuchNickException.
  */
-int UserManager::findUserSocket(std::string nickname)
+int UserManager::findUserSocket(const std::string& nickname)
 {
 	for (std::size_t i = 1; i < userList_.size(); ++i)
 	{
@@ -200,30 +171,85 @@ int UserManager::findUserSocket(std::string nickname)
 }
 
 /**
- * @brief Closes all client connections.
+ * @param userSocket The socket descriptor of the user.
+ * @return A reference of the user.
+ * @throw NoSuchNickException.
  */
+User& UserManager::findUser(const int userSocket)
+{
+	ssize_t index = findIndex(userSocket);
+	if (index <= 0)
+	{
+		const std::string nickname = User::getDefaultNickname();/** @todo check if is the good function (call before findUserNickname()) */
+		throw NoSuchNickException(nickname);
+	}
+	return userList_.at(index);
+}
+
+/**
+ * @param userSocket The socket descriptor of the user.
+ * @return The user nickname (or default user nickname if not found).
+ */
+const std::string UserManager::findUserNickname(const int userSocket) const
+{
+	ssize_t index = findIndex(userSocket);
+	if (index <= 0)
+		return User::getDefaultNickname(); /** @todo not better option */
+	return userList_.at(index).getNickname();
+}
+
+/**
+ * @param userSocket The socket descriptor of the user.
+ * @return The user name (or default user name if not found).
+ */
+const std::string UserManager::findUserName(const int userSocket) const
+{
+	ssize_t index = findIndex(userSocket);
+	if (index <= 0)
+		return User::getDefaultUsername(); /** @todo not better option */
+	return userList_.at(index).getUsername();
+}
+
+/**
+ * @param userSocket The socket descriptor of the user.
+ * @return The user prefix (or default user prefix if not found).
+ */
+const std::string UserManager::findUserPrefix(const int userSocket) const
+{
+	ssize_t index = findIndex(userSocket);
+	if (index <= 0)
+		return User::getDefaultPrefix(); /** @todo not better option */
+	return userList_.at(index).getPrefix();
+}
+
+/**
+ * @param userSocket The socket descriptor of the user.
+ * @return The index of socket user, 0 if is not found.
+ */
+std::size_t UserManager::findIndex(const int userSocket) const
+{
+	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
+	{
+		if (pollfdList_.at(i).fd == userSocket)
+			return i;
+	}
+	return 0; /** @todo not better option */
+}
+
 void UserManager::closeAllConnection()
 {
-	for (std::size_t i = userList_.size() - 1; i > 0; --i)/** @todo see to one instruction but size_t >= 0 (/!\ --i) */
+	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 		closeConnection(i);
 	closeServer();
 }
 
-/**
- * @brief Closes the user connection at the given socket.
- *
- * Logs the disconnection event using the user's nickname if available,
- * otherwise logs the client IP and port.
- *
- * @param socket The Socket of the connection/user to close.
- */
 void UserManager::closeConnectionBySocket(const int userSocket)
 {
-	int index = getIndex(userSocket);
-	if (index == -1)
+	int index = findIndex(userSocket);
+	if (index <= 0)
 	{
 		std::cerr << "socket not found" << std::endl; /** @todo exception or just a log */
-		return ;
+		return;
 	}
 	closeConnection(index);
 }
@@ -240,107 +266,28 @@ int UserManager::getNbUserEvent() const
 	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
 }
 
-/**
- * @brief Retrieves a reference to the user associated with the given socket.
- *
- * @param socket The socket descriptor of the user.
- * 
- * @return A reference to the corresponding User. If not found, returns the default user at index 0.
- * 
- * @note Returning userList_[0] is ugly: Maybe throwing an exception or returning a pointer instead.
- */
-User& UserManager::getUser(const int userSocket)
-{
-	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
-	{
-		if (pollfdList_.at(i).fd == userSocket)
-			return userList_.at(i);
-	}
-	throw NoSuchNickException(UserManager::getInstance().getUserNickname(userSocket));
-}
-
-/**
- * @brief Retrieves the nickname of the user associated with the given socket.
- *
- * @param socket The socket descriptor of the user.
- * 
- * @return A reference to the nickname string. Returns a default nickname if not found.
- */
-const std::string UserManager::getUserNickname(const int userSocket) const
-{
-	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
-	{
-		if (pollfdList_.at(i).fd == userSocket)
-			return userList_.at(i).getNickname();
-	}
-	return User::getDefaultNickname(); /** @todo not better option */
-}
-
-/**
- * @brief Retrieves the nickname of the user associated with the given socket.
- *
- * @param socket The socket descriptor of the user.
- * 
- * @return A reference to the nickname string. Returns a default nickname if not found.
- */
-const std::string UserManager::getUserName(const int userSocket) const
-{
-	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
-	{
-		if (pollfdList_.at(i).fd == userSocket)
-			return userList_.at(i).getUsername();
-	}
-	return User::getDefaultNickname(); /** @todo not better option */
-}
-
-/**
- * @brief Retrieves the full IRC prefix (nickname!user@host) for the given socket.
- *
- * @param socket The socket descriptor of the user.
- * 
- * @return The IRC prefix string. Returns a default prefix if the user is not found.
- */
-const std::string UserManager::getUserPrefix(const int userSocket) const
-{
-	for (std::size_t i = 1; i < pollfdList_.size(); ++i)
-	{
-		if (pollfdList_.at(i).fd == userSocket)
-			return userList_.at(i).getPrefix();
-	}
-	return User::getDefaultPrefix(); /** @todo not better option */
-}
-
 void UserManager::updateLastActivity(const int userSocket)
 {
-	size_t index = getIndex(userSocket);
-	if (!lastActivities_.at(index).pingSend)
+	std::size_t index = findIndex(userSocket);
+	if (lastActivities_.at(index).pingSend == false)/** @todo no security ? */
 		lastActivities_.at(index).timeLastActivity = time(NULL);
 }
 
 void UserManager::validatePongResponse(const int userSocket)
 {
-	size_t index = getIndex(userSocket);
+	std::size_t index = findIndex(userSocket);/** @todo no security ? */
 	lastActivities_.at(index).pingSend = false;
 }
 
-/**
- * @brief Checks if the server socket has data available to read.
- *
- * @return true if data is available on the server socket, false otherwise.
- */
-bool UserManager::serverReiceveData() const
-{
-	return (getInstance().hasDataToRead(0));
-}
+bool UserManager::serverHasReiceveData() const { return (hasDataToRead(0)); }
 
 /**
  * @brief Accepts and handles a new incoming client connection.
- *
  * @throws std::runtime_error if accept or fcntl fails.
  */
 void UserManager::checkNewConnections()
 {
-	if (!UserManager::getInstance().serverReiceveData())
+	if (UserManager::getInstance().serverHasReiceveData() == false)
 		return;
 	struct sockaddr_in clientAddr;
 	socklen_t clientLen = sizeof(clientAddr);
@@ -354,8 +301,6 @@ void UserManager::checkNewConnections()
 }
 
 /**
- * @brief Checks if there is data available to read on the user socket at the given index.
- *
  * @param index Index of the user socket in the pollfd list.
  * @return true if data is ready to read, false otherwise.
  */
@@ -364,45 +309,30 @@ bool UserManager::hasDataToRead(const int index) const
 	return (pollfdList_.at(index).revents & POLLIN);
 }
 
-/**
- * @brief Closes the user connection at the given index.
- *
- * Logs the disconnection event using the user's nickname if available,
- * otherwise logs the client IP and port.
- *
- * @param index The index of the connection/user to close.
- */
 void UserManager::closeConnection(const int index)
 {
 	int socket = pollfdList_.at(index).fd;
 	ChanServ::getInstance().quit(socket);
-	if (Server::getInstance().isUp())
-	{
-		User user = userList_.at(index);
-		if (user.getStatus() >= IDENTIFIED)
-			std::cout << user.getNickname() + " disconnected" << std::endl;
-		else if (index != 0)
-		{
-			struct sockaddr_in addr = addressList_.at(index);
-			std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
-		}
-	}
+	if (Server::getInstance().isUp() && index != 0)/** @todo "index != 0" useless ? */
+		displayLogDisconnection(index);
 	close(pollfdList_.at(index).fd); /** @todo check with Lucien before this line is under else if */
 	deleteUser(index);
 }
 
-void UserManager::closeServer()
+void UserManager::displayLogDisconnection(const int index) const
 {
-	close(pollfdList_.at(0).fd);
+	User user = userList_.at(index);
+	if (user.getStatus() >= IDENTIFIED)
+		std::cout << user.getNickname() + " disconnected" << std::endl;
+	else
+	{
+		struct sockaddr_in addr = addressList_.at(index);
+		std::cout << "Client " << inet_ntoa(addr.sin_addr) << ":" << ntohs(addr.sin_port) << " disconnected" << std::endl;
+	}
 }
 
-/**
- * @brief Removes a user from the server's tracking lists by index.
- *
- * Erases the user and their corresponding pollfd entry from their respective vectors.
- * 
- * @param index The index of the user to delete (must be valid).
- */
+void UserManager::closeServer() { close(pollfdList_.at(0).fd); }
+
 void UserManager::deleteUser(const int index)
 {
 	if (index <= 0 || index >= static_cast<int>(userList_.size()))
@@ -412,20 +342,4 @@ void UserManager::deleteUser(const int index)
 	addressList_.erase(addressList_.begin() + index);
 	lastActivities_.erase(lastActivities_.begin() + index);
 	MsgServ::getInstance().removeBuffer(index);
-}
-
-
-/**
- * @brief Find the index of socket user
- * 
- * @param index The index of socket user, -1 if is not found;
- */
-size_t UserManager::getIndex(const int userSocket)
-{
-	for (size_t i = 1; i < pollfdList_.size(); ++i)
-	{
-		if (pollfdList_.at(i).fd == userSocket)
-			return i;
-	}
-	return -1; /** @todo not better option */
 }

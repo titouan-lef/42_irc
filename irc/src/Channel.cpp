@@ -105,7 +105,7 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 {
 	if (isConnected(socketNewUser))
 	{
-		std::string username = UserManager::getInstance().getUser(socketNewUser).getUsername();
+		std::string username = UserManager::getInstance().findUser(socketNewUser).getUsername();
 		throw UserOnChannelException(username, name_);
 	}
 	if (isPasswordProtected() && password != password_)
@@ -132,7 +132,7 @@ bool Channel::disconnectUser(const int socketUser)
 {
 	if (!isConnected(socketUser))
 	{
-		const std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
+		const std::string nickname = UserManager::getInstance().findUserNickname(socketUser);
 		throw UserNotInChannelException(nickname, name_);
 	}
 	removeOperator(socketUser);
@@ -155,7 +155,7 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 		throw ChannelPrivilegesNeeded(name_);
 	if (isConnected(invitedSocket))
 	{
-		const std::string username = UserManager::getInstance().getUserNickname(invitedSocket);
+		const std::string username = UserManager::getInstance().findUserNickname(invitedSocket);
 		throw UserOnChannelException(username, name_);
 	}
 	socketInvitedUsers_.insert(invitedSocket);
@@ -163,7 +163,7 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 
 void Channel::managePartMessage(const int socketUser, const char* message) const
 {
-	std::string nickname = UserManager::getInstance().getUserNickname(socketUser);
+	std::string nickname = UserManager::getInstance().findUserNickname(socketUser);
 	if (!isConnected(socketUser))
 		throw UserNotInChannelException(nickname, name_);
 	Command cmd;
@@ -380,7 +380,7 @@ bool Channel::disableTopicRestriction()
 void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
 	if (!isConnected(socketUser))
-		throw UserNotInChannelException(UserManager::getInstance().getUserNickname(socketUser), name_);
+		throw UserNotInChannelException(UserManager::getInstance().findUserNickname(socketUser), name_);
 	if (isTopicRestricted() && !isOperator(socketUser))
 		throw ChannelPrivilegesNeeded(name_);
 	topic_ = newTopic;
@@ -427,7 +427,7 @@ const std::string Channel::builtUsersString() const
 			users += " ";
 		if (isOperator(socketConnectedUsers_[i]))
 			users += "@";
-		users += UserManager::getInstance().getUserNickname(socketConnectedUsers_[i]);
+		users += UserManager::getInstance().findUserNickname(socketConnectedUsers_[i]);
 	}
 	return users;
 }

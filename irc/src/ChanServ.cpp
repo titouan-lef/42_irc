@@ -195,7 +195,7 @@ void ChanServ::part(const std::size_t index, const int loggedOutSocket, const ch
 
 void ChanServ::kick(const std::size_t index, const int loggedOutSocket, const int senderSocket, const std::string& message)
 {
-	const std::string username = UserManager::getInstance().getUserName(loggedOutSocket);
+	const std::string username = UserManager::getInstance().findUserName(loggedOutSocket);
 	channelList_.at(index).manageKickMessage(senderSocket, username, message);
 	logOut(index, loggedOutSocket);
 }

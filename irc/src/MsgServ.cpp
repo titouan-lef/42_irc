@@ -49,7 +49,7 @@ void MsgServ::recvMsg(int socket, int buffer_index)
 	buffer[bytes_received] = '\0';
 	std::cout << "Received message: " << buffer << std::endl;
 	if (completeMsg(buffer_index, buffer))
-		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException(); */
+		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException(); clear buffer ? */
 }
 
 /**
@@ -100,7 +100,7 @@ void MsgServ::sendNumericReply(const int receiverSocket, const int code, Message
 {
 	const std::string SERVER_PREFIX = "ircserv";
 
-	const std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
+	const std::string nickname = UserManager::getInstance().findUserNickname(receiverSocket);
 	msg.arg.insert(msg.arg.begin(), nickname);
 	msg.receiverSocket = receiverSocket;
 	msg.senderPrefix = SERVER_PREFIX;
@@ -156,7 +156,7 @@ void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket,
 
 void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const
 {
-	msg.senderPrefix = UserManager::getInstance().getUserPrefix(senderSocket);
+	msg.senderPrefix = UserManager::getInstance().findUserPrefix(senderSocket);
 	msg.receiverSocket = receiverSocket;
 	msg.commandId = commandId;
 	sendReply(msg);
@@ -164,7 +164,7 @@ void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket,
 
 void MsgServ::sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing)
 {
-	std::string nickname = UserManager::getInstance().getUserNickname(receiverSocket);
+	std::string nickname = UserManager::getInstance().findUserNickname(receiverSocket);
 	Message msg;
 	msg.receiverSocket = receiverSocket;
 	msg.senderPrefix = serviceName;

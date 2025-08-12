@@ -30,7 +30,7 @@ void PassCmd::execute(const Command& cmd, const int senderSocket, const Status& 
 {
 	checkUserStatus(userStatus);
 	checkCmd(cmd);
-	User& user = UserManager::getInstance().getUser(senderSocket);
+	User& user = UserManager::getInstance().findUser(senderSocket);
 	user.passToNextConnectionStep();
 }
 
