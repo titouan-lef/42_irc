@@ -19,14 +19,6 @@ ChanServ::ChanServ(): Service("ChanServ")
 	helpNoticeMap_["help KICK"] = &ChanServ::sendHelpKickNotice;
 }
 
-/**
- * @brief Returns the singleton instance of ChanServ.
- *
- * This method ensures that only one instance of ChanServ exists
- * throughout the program lifetime.
- *
- * @return Reference to the single ChanServ instance.
- */
 ChanServ &ChanServ::getInstance()
 {
 	static ChanServ instance;
@@ -44,26 +36,21 @@ void ChanServ::receiveCommand(const int senderSocket, const std::string& cmd)
 		(this->*it->second)(senderSocket);
 }
 
-/**
- * @brief Creates a new channel with the given name and initial user.
- *
- * @param name The name of the new channel.
- * @param user The user who creates the channel.
- *
- * @return Reference to the newly created channel stored in the channels list.
- */
-Channel& ChanServ::createChannelWithOperator(const std::string& name, const int socketOperator)
+Channel& ChanServ::createChannelWithOperator(const std::string& channelName, const int socketOperator)
 {
-	Channel newChannel(name, socketOperator);
+	Channel newChannel(channelName, socketOperator);
 	channelList_.push_back(newChannel);
 	return channelList_.back();
 }
 
-Channel* ChanServ::searchChannel(const std::string& name)
+/**
+ * @return channel adress if channel exist, NULL otherwise.
+ */
+Channel* ChanServ::searchChannel(const std::string& channelName)
 {
 	try
 	{
-		Channel& chan = findChannel(name);
+		Channel& chan = findChannel(channelName);
 		return &chan;
 	}
 	catch(const NoSuchChannelException& e)
@@ -72,9 +59,13 @@ Channel* ChanServ::searchChannel(const std::string& name)
 	}
 }
 
-Channel& ChanServ::findChannel(const std::string& name)
+/**
+ * @brief Find channel by its name.
+ * @throw NoSuchChannelException.
+ */
+Channel& ChanServ::findChannel(const std::string& channelName)
 {
-	std::size_t index = findChannelIndex(name);
+	std::size_t index = findChannelIndex(channelName);
 	return channelList_.at(index);
 }
 
@@ -95,10 +86,8 @@ void ChanServ::listAllChannels(const int socketUser) const
 
 /**
  * @brief Quit all channel where the user was connected.
- *
  * @param msg The message to send of all member of the channel to find.
- * @param socket The socket of the user quit the server.
- *
+ * @param loggedOutSocket The socket of the user quit the server.
  */
 void ChanServ::partAllChannels(const int loggedOutSocket, const char* message)
 {

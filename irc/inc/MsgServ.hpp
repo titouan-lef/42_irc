@@ -13,7 +13,7 @@ class MsgServ: public Service
 {
 public:
 	static MsgServ& getInstance();
-	void recvMsg(int socket, int buffer_index);
+	void recvMsg(int receiverSocket, int buffer_index);
 	bool isMsgComplete(std::string& msg);
 
 	void sendNumericReply(const int receiverSocket, const int code) const;

@@ -12,14 +12,6 @@
 
 MsgServ::MsgServ(): Service("MsgServ") {}
 
-/**
- * @brief Returns the singleton instance of UserManager.
- *
- * This method ensures that only one instance of UserManager exists
- * throughout the program lifetime.
- *
- * @return Reference to the single ChanServ instance.
- */
 MsgServ& MsgServ::getInstance()
 {
 	static MsgServ instance;
@@ -27,21 +19,15 @@ MsgServ& MsgServ::getInstance()
 }
 
 /**
- * @brief Receives a message from the specified socket.
- *
- * @param socket The socket file descriptor to receive data from.
- *
- * @return The received message as a std::string.
- *
- * @throws ReiceveException if an error occurs during receiving.
- * @throws ClientDisconnectedException if the client has closed the connection.
- *
- * @note Currently uses a temporary nickname placeholder for exception reporting.
+ * @brief Receives a message from the specified socket and stock it in its buffer.
+ * @param receiverSocket The socket file descriptor to receive data from.
+ * @param buffer_index Index of the buffer in buffer list.
+ * @throws ReiceveException, ClientDisconnectedException.
  */
-void MsgServ::recvMsg(int socket, int buffer_index)
+void MsgServ::recvMsg(int receiverSocket, int buffer_index)
 {
 	char buffer[BUFFER_SIZE];
-	int bytes_received = recv(socket, buffer, sizeof(buffer) - 1, 0);
+	int bytes_received = recv(receiverSocket, buffer, sizeof(buffer) - 1, 0);
 	if (bytes_received < 0)
 		throw ReiceveException();
 	if (bytes_received == 0) // Connection closed by client
@@ -52,17 +38,7 @@ void MsgServ::recvMsg(int socket, int buffer_index)
 		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException(); clear buffer ? */
 }
 
-/**
- * @brief Checks if the message contains the end-of-message delimiter "\r\n".
- *
- * @param msg The message string to check.
- *
- * @return true if the message contains "\r\n", false otherwise.
- */
-bool MsgServ::isMsgComplete(std::string& msg)
-{
-	return (msg.find("\r\n") != std::string::npos);
-}
+bool MsgServ::isMsgComplete(std::string& msg) { return (msg.find("\r\n") != std::string::npos); }
 
 void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
 {
@@ -248,7 +224,6 @@ void MsgServ::addNewBuffer()
 
 /**
  * @brief Check if the this user has received a complete command ready to execute.
- *
  * @return true if the buffer contain at least one complete command, 0 otherwise.
  */
 bool MsgServ::isCommandReady(int buffer_index) const
@@ -259,12 +234,7 @@ bool MsgServ::isCommandReady(int buffer_index) const
 
 /**
  * @brief Add the reiceved message to the user's buffer.
- * 
- * If the buffer was containing the beggin of a command, if will complete the command.
- * If the buffer was empty, it will simply sto the received message in the buffer.
- *
  * @return 1 if the total length of the current command is longer that 512, 0 otherwize.
- * 
  * @note You must the return value of this funciton and throw MessageToLongException() if true.
  */
 int MsgServ::completeMsg(int buffer_index, const std::string &msg)

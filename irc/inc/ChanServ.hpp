@@ -15,7 +15,7 @@ public:
 
 	static ChanServ& getInstance();
 	
-	Channel& createChannelWithOperator(const std::string& name, const int socketModerator);
+	Channel& createChannelWithOperator(const std::string& channelName, const int socketModerator);
 	Channel* searchChannel(const std::string& name);
 	Channel& findChannel(const std::string& name);
 	void deleteChannel(const std::string& name);
