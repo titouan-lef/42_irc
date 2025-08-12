@@ -9,9 +9,6 @@
 #include "UserManager.hpp"
 #include "IrcException.hpp"
 
-#define MIN_PORT_VALUE 1023
-#define MAX_PORT_VALUE 65535
-
 Server& Server::getInstance()
 {
 	static Server instance;
@@ -34,7 +31,6 @@ void Server::initServerConnection(std::string port, std::string password)
 }
 std::string Server::getDate() const
 {
-
 	std::time_t now = std::time(NULL);
 	char* dt = std::ctime(&now);
 	if (dt)
@@ -139,6 +135,9 @@ void Server::defineSocketOnlistening(int serverSocket)
 
 int Server::parsePort(const std::string& port)
 {
+	const int MIN_PORT_VALUE = 1023;
+	const int MAX_PORT_VALUE = 65535;
+
 	if (port.empty())
 		throw std::runtime_error("Error: Invalid port");
 	int portNumber = std::atoi(port.c_str());
@@ -169,7 +168,7 @@ void Server::onEvent()
 	if (poll_count < 0)// Interrupted by something else that a signal /** @todo keep because of errno not allowed in correction ?? */
 	{
 		running_ = false;
-		if (errno != EINTR)
+		if (errno != EINTR)/** @todo errno authorized ? */
 			std::cerr << "Error: poll" << std::endl;
 		return;
 	}
