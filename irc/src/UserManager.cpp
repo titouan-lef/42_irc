@@ -6,6 +6,7 @@
 #include <poll.h>
 
 #include "Server.hpp"
+#include "Service.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "CommandManager.hpp"
@@ -13,10 +14,7 @@
 #include "ClientDisconnectedException.hpp"
 #include "NoSuchNickException.hpp"
 
-UserManager::UserManager()
-{
-	serviceNames_.insert("ChanServ");
-}
+UserManager::UserManager() {}
 
 /**
  * @brief Initializes the user manager by adding the server as the first user.
@@ -61,15 +59,7 @@ bool UserManager::isNickUsed(const std::string &nickname)
 		if (userList_.at(i).is(nickname))
 			return true;
 	}
-	return isServiceName(nickname);
-}
-
-bool UserManager::isServiceName(const std::string &name) { return (serviceNames_.find(name) != serviceNames_.end()); }
-
-void UserManager::sendCommandToService(const int senderSocket, const std::string &name, const std::string &message)
-{
-	if (name == "ChanServ")
-		ChanServ::getInstance().receiveCommand(senderSocket, message);
+	return Service::serviceExist(nickname);
 }
 
 /**

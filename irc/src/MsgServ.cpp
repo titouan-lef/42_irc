@@ -10,7 +10,7 @@
 #include "UserManager.hpp"
 #include "command.hpp"
 
-MsgServ::MsgServ() {}
+MsgServ::MsgServ(): Service("MsgServ") {}
 
 /**
  * @brief Returns the singleton instance of UserManager.
@@ -62,6 +62,12 @@ void MsgServ::recvMsg(int socket, int buffer_index)
 bool MsgServ::isMsgComplete(std::string& msg)
 {
 	return (msg.find("\r\n") != std::string::npos);
+}
+
+void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
+{
+	(void) senderSocket;
+	(void) cmd;
 }
 
 void MsgServ::sendNumericReply(const int receiverSocket, const int code) const

@@ -13,7 +13,6 @@ class MsgServ: public Service
 {
 public:
 	static MsgServ& getInstance();
-
 	void recvMsg(int socket, int buffer_index);
 	bool isMsgComplete(std::string& msg);
 
@@ -52,6 +51,7 @@ private:
 	MsgServ(const MsgServ& other);
 	MsgServ& operator=(const MsgServ& other);
 
+	void receiveCommand(const int senderSocket, const std::string& cmd);
 	void sendNumericReply(const int receiverSocket, const int code, Message& msg) const;
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const;
 	void sendReply(const Message& msg) const;

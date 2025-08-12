@@ -2,6 +2,7 @@
 
 #include "command.hpp"
 #include "status.hpp"
+#include "Service.hpp"
 #include "MsgServ.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
@@ -56,8 +57,8 @@ void PrivmsgCmd::sendToTarget(const Command& cmd, const int senderSocket, const 
 {
 	if (isMsgToChannel(target))
 		sendMsgToChannel(cmd, senderSocket, target);
-	else if (isMsgToService(target))
-		sendMsgToService(cmd.arg.at(1), senderSocket, target);
+	else if (Service::serviceExist(target))
+		Service::sendCommandToService(target, senderSocket, cmd.arg.at(1));
 	else
 		sendMsgToUser(cmd, senderSocket, target);
 }
@@ -68,13 +69,6 @@ void PrivmsgCmd::sendMsgToChannel(const Command &cmd, const int senderSocket, co
 {
 	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
 	channel.sendMessageToAllUsers(senderSocket, cmd);
-}
-
-bool PrivmsgCmd::isMsgToService(const std::string &target) const { return UserManager::getInstance().isServiceName(target); }
-
-void PrivmsgCmd::sendMsgToService(const std::string &message, const int senderSocket, const std::string &serviceName) const
-{
-	UserManager::getInstance().sendCommandToService(senderSocket, serviceName, message);
 }
 
 void PrivmsgCmd::sendMsgToUser(const Command &cmd, const int senderSocket, const std::string &nickname) const

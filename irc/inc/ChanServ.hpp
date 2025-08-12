@@ -14,8 +14,6 @@ class ChanServ: public Service
 public:
 
 	static ChanServ& getInstance();
-
-	void receiveCommand(const int senderSocket, const std::string& message);
 	
 	Channel& createChannelWithOperator(const std::string& name, const int socketModerator);
 	Channel* searchChannel(const std::string& name);
@@ -37,6 +35,8 @@ private:
 	
 	ChanServ();
 	// ~ChanServ();
+
+	void receiveCommand(const int senderSocket, const std::string& message);
 	std::size_t findChannelIndex(const std::string& channelName) const;
 	void deleteChannel(const std::size_t index);
 	void part(const std::size_t index, const int loggedOutSocket, const char* message);
@@ -59,5 +59,4 @@ private:
 
 	std::vector<Channel> channelList_;
 	this_func_map_t helpNoticeMap_;
-
 };

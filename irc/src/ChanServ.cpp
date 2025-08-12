@@ -5,7 +5,7 @@
 #include "NoSuchChannelException.hpp"
 #include "command.hpp"
 
-ChanServ::ChanServ()
+ChanServ::ChanServ(): Service("ChanServ")
 {
 	helpNoticeMap_["help"] = &ChanServ::sendHelpNotice;
 	helpNoticeMap_["help JOIN"] = &ChanServ::sendHelpJoinNotice;
