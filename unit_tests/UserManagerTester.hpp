@@ -34,11 +34,11 @@ private:
 		UserManager& um = UserManager::getInstance();
 
 		um.addNewUser(10, dummyAddr(4242));
-		um.getUser(10).setNickname("testNick");
+		um.findUser(10).setNickname("testNick");
 		Tester::assertExpectedEqualsActual(10, um.findUserSocket("testNick"));
 
 		um.addNewUser(11, dummyAddr(4243));
-		um.getUser(11).setNickname("testNick2");
+		um.findUser(11).setNickname("testNick2");
 		Tester::assertExpectedEqualsActual(10, um.findUserSocket("testNick"));
 		Tester::assertExpectedEqualsActual(11, um.findUserSocket("testNick2"));
 		
@@ -53,15 +53,15 @@ private:
 		UserManager& um = UserManager::getInstance();
 
 		um.addNewUser(10, dummyAddr(4242));
-		User& u = um.getUser(10);
+		User& u = um.findUser(10);
 		u.setNickname("test");
-		Tester::assertExpectedEqualsActual(um.getUserNickname(10), std::string("test"));
+		Tester::assertExpectedEqualsActual(um.findUserNickname(10), std::string("test"));
 		u.setUsername("tester");
-		Tester::assertExpectedEqualsActual(um.getUserPrefix(10), std::string("test!tester@localhost"));
+		Tester::assertExpectedEqualsActual(um.findUserPrefix(10), std::string("test!tester@localhost"));
 		u.setNickname("test2");
-		Tester::assertExpectedEqualsActual(um.getUserNickname(10), std::string("test2"));
+		Tester::assertExpectedEqualsActual(um.findUserNickname(10), std::string("test2"));
 		u.setUsername("tester2");
-		Tester::assertExpectedEqualsActual(um.getUserPrefix(10), std::string("test2!tester2@localhost"));
+		Tester::assertExpectedEqualsActual(um.findUserPrefix(10), std::string("test2!tester2@localhost"));
 
 		um.deleteUser(1);
 	}

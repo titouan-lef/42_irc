@@ -38,7 +38,7 @@ public:
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		UserManager::getInstance().getUser(10).setNickname("user1");
+		UserManager::getInstance().findUser(10).setNickname("user1");
 		cmd = {"INVITE", {"user1", "#testre"}, false};
 		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
@@ -61,7 +61,7 @@ public:
 
 			chan.enableInviteRestriction();
 			UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-			UserManager::getInstance().getUser(10).setNickname("user1");
+			UserManager::getInstance().findUser(10).setNickname("user1");
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
 			Command cmd = {"INVITE", {"user1", "#test"}, false};

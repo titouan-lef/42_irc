@@ -29,39 +29,39 @@ public:
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 
 		Command cmd = {"USER", {"0", "*", "RealName"}, true};
-		Tester::assertThrows<PasswordMismatchException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<PasswordMismatchException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
-		UserManager::getInstance().getUser(10).passToNextConnectionStep();
+		UserManager::getInstance().findUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"0", "*", "RealName"}, true};
-		Tester::assertThrows<NotRegisteredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NotRegisteredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
-		UserManager::getInstance().getUser(10).setNickname("nickname");
-		UserManager::getInstance().getUser(10).passToNextConnectionStep();
+		UserManager::getInstance().findUser(10).setNickname("nickname");
+		UserManager::getInstance().findUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"0", "*"}, false};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
 		cmd = {"USER", {"0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
 		cmd = {"USER", {"0","0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
 		cmd = {"USER", {"username","*","*", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
 		cmd = {"USER", {"username","0","0", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
 		cmd = {"USER", {"username","1","*", "RealName"}, true};
-		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});
+		Tester::assertThrows<NeedMoreParamsException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});
 
-		UserManager::getInstance().getUser(10).setUsername("username");
-		UserManager::getInstance().getUser(10).passToNextConnectionStep();
+		UserManager::getInstance().findUser(10).setUsername("username");
+		UserManager::getInstance().findUser(10).passToNextConnectionStep();
 
 		cmd = {"USER", {"username","0","*", "RealName"}, true};
-		Tester::assertThrows<AlreadyRegistredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().getUser(10).getStatus());});\
+		Tester::assertThrows<AlreadyRegistredException>([&]() {userCmd.execute(cmd, 10, UserManager::getInstance().findUser(10).getStatus());});\
 
 		UserManager::getInstance().deleteUser(1);
 	};
@@ -72,7 +72,7 @@ public:
 
 		UserCmd userCmd;
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		User& user = UserManager::getInstance().getUser(10);
+		User& user = UserManager::getInstance().findUser(10);
 		std::vector<std::string> validUsernames =
 		{
 			"a", "Z", "a1", "abc123", "xYz", "Bob123", "User1", "User1234", "TestUser", "Nick42", "Alpha9", "Z9", "U0U0", "JohnDoe", "x9y8z7",

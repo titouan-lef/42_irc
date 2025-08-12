@@ -34,7 +34,7 @@ public:
 		Command cmd = {"QUIT", {"Bye"}, true};
 		Tester::assertDoNotThrows([&]() {quit.execute(cmd, 10, CONNECTED);});
 		Tester::assertThrows<NoSuchChannelException>([&]() {ChanServ::getInstance().findChannel("#join");});
-		Tester::assertThrows<NoSuchNickException>([&]() {UserManager::getInstance().getUser(10);});
+		Tester::assertThrows<NoSuchNickException>([&]() {UserManager::getInstance().findUser(10);});
 	};
 
 	void testQuitReply()

@@ -123,9 +123,9 @@ public:
 		{
 			ModeCmd mode;
 			UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-			UserManager::getInstance().getUser(10).setNickname("Alice");
+			UserManager::getInstance().findUser(10).setNickname("Alice");
 			UserManager::getInstance().addNewUser(11, dummyAddr(4243));
-			UserManager::getInstance().getUser(11).setNickname("Bob");
+			UserManager::getInstance().findUser(11).setNickname("Bob");
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 

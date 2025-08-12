@@ -49,7 +49,7 @@ public:
 		Tester::startTest("KICK users from channels");
 
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		UserManager::getInstance().getUser(10).setNickname("Bob");
+		UserManager::getInstance().findUser(10).setNickname("Bob");
 		KickCmd kick;
 		Command cmd;
 		{
