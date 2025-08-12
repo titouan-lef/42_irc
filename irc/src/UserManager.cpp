@@ -13,9 +13,6 @@
 #include "ClientDisconnectedException.hpp"
 #include "NoSuchNickException.hpp"
 
-#define INACTIVITY_TIMEOUT 360
-#define INACTIVITY_PING_LIMIT 240
-
 UserManager::UserManager()
 {
 	serviceNames_.insert("ChanServ");
@@ -24,7 +21,7 @@ UserManager::UserManager()
 /**
  * @brief Initializes the user manager by adding the server as the first user.
  *
- * The first pollfd in the list must be the server socket for the poll() function to work correctly.
+ * @details The first pollfd in the list must be the server socket for the poll() function to work correctly.
  *
  * @param serverSocket The server's listening socket file descriptor.
  * @param serverAddr The server's socket address information.
@@ -62,14 +59,12 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 			throw std::runtime_error("fd already register");
 	}
 
-	Activity userActivity;
-	userActivity.timeLastActivity = time(NULL);
-	userActivity.pingSend = false;
-	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
-	userList_.push_back(User());
-	pollfdList_.push_back(newPollfd);
-	addressList_.push_back(clientAddr);
+	Activity userActivity = {time(NULL), false};
 	lastActivities_.push_back(userActivity);
+	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
+	pollfdList_.push_back(newPollfd);
+	userList_.push_back(User());
+	addressList_.push_back(clientAddr);
 	MsgServ::getInstance().addNewBuffer();
 }
 
@@ -122,22 +117,21 @@ void UserManager::listenClients()
 
 void UserManager::checkActivities()
 {
+	const time_t INACTIVITY_PING_LIMIT = 240;
+	const time_t INACTIVITY_TIMEOUT = 360;
+
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
-		Activity& user = lastActivities_.at(i);
-		time_t elapsed = time(NULL) - user.timeLastActivity;
-		if (elapsed > INACTIVITY_PING_LIMIT && !user.pingSend)
+		Activity& userActivity = lastActivities_.at(i);
+		time_t elapsed = time(NULL) - userActivity.timeLastActivity;
+		if (elapsed > INACTIVITY_PING_LIMIT && userActivity.pingSend == false)
 		{
 			int socket = pollfdList_.at(i).fd;
 			MsgServ::getInstance().sendMessageReply(socket, socket, "PING", std::vector<std::string>(1, "ircserv"));
-			user.pingSend = true;
-			continue;
+			userActivity.pingSend = true;
 		}
-		if (elapsed > INACTIVITY_TIMEOUT)
-		{
+		else if (elapsed > INACTIVITY_TIMEOUT)
 			closeConnection(i);
-			continue;
-		}
 	}
 }
 
@@ -175,10 +169,10 @@ int UserManager::reiceveFromClient(int i)
  */
 void UserManager::executeCommandsClient(int i)
 {
+	std::string command = MsgServ::getInstance().getCommand(i);
+	std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 	try
 	{
-		std::string command = MsgServ::getInstance().getCommand(i);
-		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 		CommandManager::getInstance().interpretData(command, pollfdList_.at(i).fd, userList_.at(i).getStatus());
 	}
 	catch(const IrcException& e)
