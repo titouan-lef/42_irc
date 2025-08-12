@@ -470,7 +470,7 @@ void Channel::removeConnectedUser(const int socketUser)
 
 void Channel::eraseUser(std::vector<int> &socketArray, const int socketUser)
 {
-	std::vector<int>::iterator it = findUser(socketArray, socketUser);;
+	std::vector<int>::iterator it = findUser(socketArray, socketUser);
 	if (it != socketArray.end())
 		socketArray.erase(it);
 }

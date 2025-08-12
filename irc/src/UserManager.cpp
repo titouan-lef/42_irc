@@ -136,7 +136,7 @@ void UserManager::checkActivities()
 		if (elapsed > INACTIVITY_TIMEOUT)
 		{
 			closeConnection(i);
-			continue;;
+			continue;
 		}
 	}
 }
