@@ -46,102 +46,71 @@ void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
 	(void) cmd;
 }
 
-void MsgServ::sendNumericReply(const int receiverSocket, const int code) const
-{
-	Message msg;
-	msg.hasTrailing = false;
-	sendNumericReply(receiverSocket, code, msg);
-}
-
 void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const
-{
-	Message msg;
-	msg.hasTrailing = true;
-	msg.trailing = trailing;
-	sendNumericReply(receiverSocket, code, msg);
-}
+	{ sendNumericReply(receiverSocket, code, NULL, &trailing); }
 
 void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg) const
-{
-	Message msg;
-	msg.arg = arg;
-	msg.hasTrailing = false;
-	sendNumericReply(receiverSocket, code, msg);
-}
+	{ sendNumericReply(receiverSocket, code, &arg); }
 
 void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string> &arg, const std::string &trailing) const
-{
-	Message msg;
-	msg.arg = arg;
-	msg.hasTrailing = true;
-	msg.trailing = trailing;
-	sendNumericReply(receiverSocket, code, msg);
-}
+	{ sendNumericReply(receiverSocket, code, &arg, &trailing); }
 
-void MsgServ::sendNumericReply(const int receiverSocket, const int code, Message& msg) const
+void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>* arg, const std::string* trailing) const
 {
 	const std::string SERVER_PREFIX = "ircserv";
 
+	Message msg = initMessage(receiverSocket, SERVER_PREFIX, convertCodeToCommandId(code), trailing);
 	const std::string nickname = UserManager::getInstance().findUserNickname(receiverSocket);
-	msg.arg.insert(msg.arg.begin(), nickname);
-	msg.receiverSocket = receiverSocket;
-	msg.senderPrefix = SERVER_PREFIX;
-	msg.commandId = convertCodeToCommandId(code);
+	msg.arg.push_back(nickname);
+	if (arg != NULL)
+		msg.arg.insert(msg.arg.end(), arg->begin(), arg->end());
 	sendReply(msg);
 }
 
 void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const Command& cmd) const
 {
-	Message msg;
-	msg.arg = cmd.arg;
-	msg.hasTrailing = cmd.hasTrailing;
-	if (msg.hasTrailing)
+	if (cmd.hasTrailing)
 	{
-		msg.arg.pop_back();
-		msg.trailing = cmd.arg.back();
+		std::vector<std::string> arg = cmd.arg;
+		arg.pop_back();
+		sendMessageReply(senderSocket, receiverSocket, cmd.name, &arg, &cmd.arg.back());
 	}
-	sendMessageReply(senderSocket, receiverSocket, cmd.name, msg);
-}
-
-void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId) const
-{
-	Message msg;
-	msg.hasTrailing = false;
-	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
+	else
+		sendMessageReply(senderSocket, receiverSocket, cmd.name, &cmd.arg);
 }
 
 void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::string &trailing) const
-{
-	Message msg;
-	msg.hasTrailing = true;
-	msg.trailing = trailing;
-	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
-}
+	{ sendMessageReply(senderSocket, receiverSocket, commandId, NULL, &trailing); }
 
 void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg) const
-{
-	Message msg;
-	msg.arg = arg;
-	msg.hasTrailing = false;
-	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
-}
+	{ sendMessageReply(senderSocket, receiverSocket, commandId, &arg); }
 
-void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg,
-	const std::string& trailing) const
-{
-	Message msg;
-	msg.arg = arg;
-	msg.hasTrailing = true;
-	msg.trailing = trailing;
-	sendMessageReply(senderSocket, receiverSocket, commandId, msg);
-}
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg, const std::string& trailing) const
+	{ sendMessageReply(senderSocket, receiverSocket, commandId, &arg, &trailing); }
 
-void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const
+void MsgServ::sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, const std::vector<std::string>* arg, const std::string* trailing) const
 {
-	msg.senderPrefix = UserManager::getInstance().findUserPrefix(senderSocket);
-	msg.receiverSocket = receiverSocket;
-	msg.commandId = commandId;
+	const std::string senderPrefix = UserManager::getInstance().findUserPrefix(senderSocket);
+	Message msg = initMessage(receiverSocket, senderPrefix, commandId, trailing);
+	if (arg != NULL)
+		msg.arg = *arg;
 	sendReply(msg);
+}
+
+MsgServ::Message MsgServ::initMessage(const int receiverSocket, const std::string &senderPrefix, const std::string &commandId, const std::string *trailing) const
+{
+	Message msg;
+	msg.receiverSocket = receiverSocket;
+	msg.senderPrefix = senderPrefix;
+	msg.commandId = commandId;
+	if (trailing == NULL)
+		msg.hasTrailing = false;
+	else
+	{
+		msg.hasTrailing = true;
+		msg.trailing = *trailing;
+	}
+	return msg;
 }
 
 void MsgServ::sendNoticeReply(const std::string serviceName, const int receiverSocket, const std::string &trailing)

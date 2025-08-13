@@ -16,13 +16,11 @@ public:
 	void recvMsg(int receiverSocket, int buffer_index);
 	bool isMsgComplete(std::string& msg);
 
-	void sendNumericReply(const int receiverSocket, const int code) const;
 	void sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const;
 	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg) const;
 	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg, const std::string& trailing) const;
 
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const Command& cmd) const;
-	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId) const;
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::string& trailing) const;
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg) const;
 	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string& commandId, const std::vector<std::string>& arg,
@@ -52,8 +50,11 @@ private:
 	MsgServ& operator=(const MsgServ& other);
 
 	void receiveCommand(const int senderSocket, const std::string& cmd);
-	void sendNumericReply(const int receiverSocket, const int code, Message& msg) const;
-	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId, Message& msg) const;
+	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>* arg = NULL,
+		const std::string* trailing = NULL) const;
+	void sendMessageReply(const int senderSocket, const int receiverSocket, const std::string &commandId,
+		const std::vector<std::string>* arg = NULL, const std::string* trailing = NULL) const;
+	Message initMessage(const int receiverSocket, const std::string& senderPrefix, const std::string& commandId, const std::string* trailing) const;
 	void sendReply(const Message& msg) const;
 	std::string formatMsg(const Message &msg) const;
 	void sendMsg(int socket, std::string& msg) const;
