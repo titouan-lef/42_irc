@@ -67,11 +67,6 @@ void Channel::sendActualModes(const int socket) const
 	MsgServ::getInstance().sendNumericReply(socket, 324, arg);
 }
 
-/**
- * @brief Sends a message to all users connected to the channel.
- *
- * @param cmd The command structure with name, trailing and agrs.
- */
 void Channel::sendMessageToAllUsers(const int senderSocket, const Command& cmd) const
 {
 	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
@@ -82,24 +77,11 @@ void Channel::sendMessageToAllUsers(const int senderSocket, const Command& cmd) 
 	}
 }
 
-/*void Channel::sendMessageToAllUsers(const int senderSocket, const std::string &cmdName, const std::vector<std::string> &arg) const
-{
-	for (size_t i = 0; i < socketConnectedUsers_.size(); i++)
-	{
-		if (senderSocket == socketConnectedUsers_.at(i))
-			continue ;
-		MsgServ::getInstance().sendMessageReply(senderSocket, socketConnectedUsers_.at(i), cmdName, arg);
-	}
-}*/
-
 /**
  * @brief Adds a user to the list of connected users in the channel.
- *
- * @param newUser Reference to the user being connected.
- * @param password Reference to the password the user is trying to connect with.
- * 
- * @throws PasswordMismatchException if the given password is incorect.
- * @throws ChannelIsFullException if the maximum number of users is reached.
+ * @param socketNewUser Socket of the user trying to log in.
+ * @param password Password used by the user to log in.
+ * @throws UserOnChannelException, BadChanKeyException, InviteOnlyException, ChannelIsFullException.
  */
 void Channel::connectUser(int socketNewUser, const std::string& password)
 {
@@ -122,11 +104,8 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 }
 
 /**
- * @brief Removes a user from the list of connected users by nickname.
- *
- * @param nickname The nickname of the user to disconnect.
- *
- * @throws NoSuchNickException If no user with the given nickname is found in the channel.
+ * @param socketUser Socket of the user who must be disconnected.
+ * @throws UserNotInChannelException.
  */
 bool Channel::disconnectUser(const int socketUser)
 {
@@ -142,12 +121,9 @@ bool Channel::disconnectUser(const int socketUser)
 
 /**
  * @brief Invite user to join the channel.
- *
- * @param invitedSocket The socket of the user invited on the channel.
- * @param socketSender The socket os the user who is inviting.
- * 
- * @throw ChannelPrivilegesNeeded if socketSender is not operator.
- * @throw UserOnChannelException if invitedSocket is already connected on the channel.
+ * @param invitedSocket Socket of the user invited on the channel.
+ * @param socketSender Socket of the user who is inviting.
+ * @throws ChannelPrivilegesNeeded, UserOnChannelException.
  */
 void Channel::inviteUser(int invitedSocket, int socketSender)
 {
@@ -161,6 +137,12 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 	socketInvitedUsers_.insert(invitedSocket);
 }
 
+/**
+ * @brief Send message on channel when a user part of this one.
+ * @param socketUser Socket of the user who part the channel.
+ * @param message Message which must be send.
+ * @throws UserNotInChannelException.
+ */
 void Channel::managePartMessage(const int socketUser, const char* message) const
 {
 	std::string nickname = UserManager::getInstance().findUserNickname(socketUser);
@@ -187,13 +169,7 @@ void Channel::manageKickMessage(const int socketUser, const std::string &usernam
 }
 
 /**
- * @brief Adds a new operator to the channel.
- *
- * @param newOperator Reference to the user to be added as operator.
- *
- * @return -1 if the user is not connected to the channel, 0 otherwise.
- * 
- * @note You must throw UserNotInChannelException if it returns -1.
+ * @return false if user is already an operator, true otherwise.
  */
 bool Channel::addNewOperator(const int socketNewOperator)
 {
@@ -204,11 +180,7 @@ bool Channel::addNewOperator(const int socketNewOperator)
 }
 
 /**
- * @brief Removes a operator from the channel by nickname.
- *
- * @param nickname The nickname of the operator to remove.
- *
- * @throws NoSuchNickException if no operator with the given nickname is found.
+ * @return false if user is not an operator, true otherwise.
  */
 bool Channel::removeOperator(const int socketUser)
 {
@@ -218,22 +190,10 @@ bool Channel::removeOperator(const int socketUser)
 	return true;
 }
 
-/**
- * @brief Get the name of the channel.
- *
- * @return A constant reference to the channel's name.
- */
 const std::string& Channel::getName() const { return name_; }
 
 bool Channel::is(const std::string& name) const { return name_ == name; }
 
-/**
- * @brief Checks if a user is a channel operator by nickname.
- *
- * @param nickname The nickname to check.
- *
- * @return True if the user is a operator, false otherwise.
- */
 bool Channel::isConnected(const int socketUser) const { return findUser(socketConnectedUsers_, socketUser) != socketConnectedUsers_.end(); }
 
 void Channel::insertConnectedUsers(std::set<int>& list)
@@ -242,24 +202,15 @@ void Channel::insertConnectedUsers(std::set<int>& list)
 		list.insert(socketConnectedUsers_.at(i));
 }
 
-/**
- * @brief Checks if a user is a channel operator by nickname.
- *
- * @param nickname The nickname to check.
- *
- * @return True if the user is a operator, false otherwise.
- */
 bool Channel::isOperator(const int socketUser) const { return findUser(socketOperators_, socketUser) != socketOperators_.end(); }
 
-/**
- * @brief Check if a password is needed to access the channel.
- *
- * @return true if the channel is password protected, false otherwise.
- */
 bool Channel::isPasswordProtected() const { return !password_.empty(); }
 
 /**
  * @brief Disables the channel password.
+ * @param password Current password.
+ * @return true if password use is the current password, false otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::disablePassword(const std::string& password)
 {
@@ -270,9 +221,8 @@ bool Channel::disablePassword(const std::string& password)
 }
 
 /**
- * @brief Sets a new password for the channel.
- *
- * @param newPassword The new password to protect the channel.
+ * @return false if password is already defined, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool  Channel::setPassword(const std::string& newPassword)
 {
@@ -283,9 +233,8 @@ bool  Channel::setPassword(const std::string& newPassword)
 }
 
 /**
- * @brief Disables the user limit on the channel.
- *
- * Sets the maximum user count to 0, meaning no limit.
+ * @return false if limit is not defined, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::disableLimitNbUsers()
 {
@@ -296,13 +245,8 @@ bool Channel::disableLimitNbUsers()
 }
 
 /**
- * @brief Sets the maximum number of users allowed in the channel.
- *
- * @param nbUserMax The maximum user count to set.
- * 
- * @return 1 if the given nbUserMax is below 1, 0 otherwise.
- * 
- * @warning you need to throw InvalidModeParamException if it returns 1.
+ * @return false if limit is not defined or new limit is invalid, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::setLimitNbUsers(const std::size_t newNbMaxUsers)
 {
@@ -313,10 +257,8 @@ bool Channel::setLimitNbUsers(const std::size_t newNbMaxUsers)
 }
 
 /**
- * @brief Restrict connection to invited users only.
- *
- * @note This function should be called by the MODE command.
- *	   Ensure the user has operator privileges before applying this mode.
+ * @return false if invitation are already restricted, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::enableInviteRestriction()
 {
@@ -327,10 +269,8 @@ bool Channel::enableInviteRestriction()
 }
 
 /**
- * @brief Allow all users to join the channel.
- *
- * @note This function should be called by the MODE command.
- *	   Ensure the user has operator privileges before applying this mode.
+ * @return false if invitation are not restricted, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::disableInviteRestriction()
 {
@@ -341,10 +281,8 @@ bool Channel::disableInviteRestriction()
 }
 
 /**
- * @brief Restrict topic changes to channel operators only.
- *
- * @note This function should be called by the MODE command.
- *	   Ensure the user has operator privileges before applying this mode.
+ * @return false if topic is already restricted, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::enableTopicRestriction()
 {
@@ -355,10 +293,8 @@ bool Channel::enableTopicRestriction()
 }
 
 /**
- * @brief Allow all users to change the channel topic.
- *
- * @note This function should be called by the MODE command.
- *	   Ensure the user has operator privileges before applying this mode.
+ * @return false if topic are not restricted, true otherwise.
+ * @note Ensure the user has operator privileges.
  */
 bool Channel::disableTopicRestriction()
 {
@@ -369,13 +305,7 @@ bool Channel::disableTopicRestriction()
 }
 
 /**
- * @brief Sets the channel's topic to a new value.
- *
- * @param newTopic The new topic string to assign to the channel.
- * @param user The user trying to change the topic.
- * 
- * @throws ChannelPrivilegesNeeded is the topic is restricted to operators
- *		 and that the given user is not moderateur.
+ * @throws UserNotInChannelException, ChannelPrivilegesNeeded.
  */
 void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
@@ -402,20 +332,6 @@ void Channel::manageCmdMessage(const int socketUser, const Command& cmd) const
 	sendMessageToAllUsers(socketUser, cmd);
 	MsgServ::getInstance().sendMessageReply(socketUser, socketUser, cmd);
 }
-
-/**
- * @brief Sends a numeric to all users connected to the channel.
- *
- * @param cmd The command structure with name, trailing and agrs.
- */
-/*void Channel::sendNumericToAllUsers(const Command& cmd)
-{
-	(void) cmd;
-	for (std::vector<User>::iterator it = connectedUser_.begin(); it < connectedUser_.end(); ++it)
-	{
-		MsgServ::sendNumericReply(it->getSocket(), cmd, it->getNickname());
-	}
-}*/
 
 const std::string Channel::builtUsersString() const
 {
@@ -497,30 +413,10 @@ std::vector<int>::const_iterator Channel::findUser(const std::vector<int> &socke
 	return it;
 }
 
-/**
- * @brief Checks if the channel has reached the maximum allowed number of users.
- *
- * @return true if the number of connected users equals the maximum limit, false otherwise.
- */
 bool Channel::isFull() const { return (nbMaxUsers_ != 0 && socketConnectedUsers_.size() >= nbMaxUsers_); }
 
-/**
- * @brief Checks if the channel is invite-only.
- *
- * @return True if the channel has invite-only restriction enabled, false otherwise.
- */
 bool Channel::isInvited(const int socketNewUser) const { return socketInvitedUsers_.find(socketNewUser) != socketInvitedUsers_.end(); }
 
-/**
- * @brief Checks if the channel is invite-only.
- *
- * @return True if the channel has invite-only restriction enabled, false otherwise.
- */
 bool Channel::isInviteRestricted() const { return inviteRestricted_; }
 
-/**
- * @brief Checks if the channel's topic can only be changed by operators.
- *
- * @return True if topic changes are restricted to operators, false otherwise.
- */
 bool Channel::isTopicRestricted() const { return topicRestricted_; }
