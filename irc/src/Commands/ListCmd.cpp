@@ -11,12 +11,12 @@ ListCmd::ListCmd(): ACommand(CONNECTED, CONNECTED, 0, 1) {}
 /**
  * @brief Executes the LIST command to display available channels or specific channel summaries.
  *
- * @param cmd The command object containing the LIST request and its arguments.
+ * @param cmd The command object containing the list request and its arguments.
  * @param senderSocket The socket descriptor of the user requesting the channel list.
  * @param userStatus The sender user status.
  * 
- * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * 
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NoSuchChannelException
  */
 void ListCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

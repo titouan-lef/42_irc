@@ -21,8 +21,8 @@ ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
  * @param senderSocket The socket descriptor of the user requesting the channel mode.
  * @param userStatus The sender user status.
  * 
- * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throw Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeeded, UnknownModeException
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeeded, UnknownModeException
  * @todo ErrKeySet / maybe KeySet(467), NoChanModes(477) ?
  * 
  */

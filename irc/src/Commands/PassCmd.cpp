@@ -11,20 +11,13 @@ PassCmd::PassCmd(): ACommand(DISCONNECTED, DISCONNECTED, 1, 1) {}
 
 /**
  * @brief Executes the PASS command to authenticate a user with the server password.
- *
- * This function handles the PASS command, which is used to provide a connection password
- * before registration is completed. If the user is already fully registered, the command
- * is rejected. Otherwise, the function checks whether the provided password matches the
- * server’s expected password.
- *
- * If the password is valid, the user's connection is marked as authenticated. If the
- * password is incorrect, a `PasswordMismatchException` is thrown.
- *
- * @param cmd The command object containing the PASS request and password as the last parameter.
+ * 
+ * @param cmd The command object containing the pass request and password as the last parameter.
  * @param socket The socket descriptor of the user attempting to authenticate.
+ * @param userStatus The sender user status.
  *
- * @throws AlreadyRegistredException If the user is already registered.
- * @throws PasswordMismatchException If the provided password does not match the server’s password.
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: PasswordMismatchException
  */
 void PassCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

@@ -6,6 +6,16 @@
 
 TopicCmd::TopicCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
+/**
+ * @brief Executes the TOPIC command used to change or view the topic of a channel.
+ * 
+ * @param cmd The command object containing the topic request and password as the last parameter.
+ * @param socket The socket descriptor of the user attempting to authenticate.
+ * @param userStatus The sender user status.
+ *
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command:
+ */
 void TopicCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);

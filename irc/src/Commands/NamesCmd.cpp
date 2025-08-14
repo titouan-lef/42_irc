@@ -9,11 +9,12 @@ NamesCmd::NamesCmd(): ACommand(CONNECTED, CONNECTED, 0, 1) {}
 /**
  * @brief Executes the NAMES command to list users in specified channels or all channels.
  *
- * @param cmd The command object containing the NAMES request and its arguments.
+ * @param cmd The command object containing the names request and its arguments.
  * @param socket The socket descriptor of the user requesting the user lists.
  * @param userStatus The sender user status.
  * 
- * @throw Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NoSuchChannelException.
  */
 void NamesCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
@@ -22,7 +23,7 @@ void NamesCmd::execute(const Command& cmd, const int senderSocket, const Status&
 	if (cmd.arg.size() == nbArgMin_)
 		sendListUserInEachChannel(senderSocket);
 	else
-		sendListUserInSpecificChannel(cmd, senderSocket);
+			sendListUserInSpecificChannel(cmd, senderSocket);
 }
 
 void NamesCmd::sendListUserInEachChannel(const int senderSocket) const

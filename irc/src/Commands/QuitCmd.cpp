@@ -8,8 +8,14 @@
 QuitCmd::QuitCmd(): ACommand(CONNECTED, CONNECTED, 0, -1) {}
 
 /**
- * @brief Execute Quit command. Quit the server and send a essage to all channel if is in parameters
- * thhis funcion quit all time and throw none error.
+ * @brief Executes the QUIT command to exit Quit the server and send a essage to all channel if is in parameters
+ * 
+ * @param cmd The command object containing the pong request and password as the last parameter.
+ * @param socket The socket descriptor of the user attempting to authenticate.
+ * @param userStatus The sender user status.
+ *
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @todo need throw if is not connect.
  */
 void QuitCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

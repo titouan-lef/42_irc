@@ -12,18 +12,12 @@ PartCmd::PartCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 /**
  * @brief Executes the PART command to remove a user from one or more channels.
  *
- * This function processes the PART command, which allows a user to leave one or more channels.
- * The command must include exactly one argument containing a comma-separated list of channel names.
- * An optional parting message can be included in the trailing portion of the command.
- *
- * For each specified channel, the function attempts to remove the user (identified by the socket)
- * and send the optional message. If an error occurs (e.g., the channel does not exist or the user
- * is not a member), the corresponding IRC error is sent back to the user.
- *
- * @param cmd The command object containing the PART request, its arguments, and optional message.
+ * @param cmd The command object containing the part request, its arguments, and optional message.
  * @param socket The socket descriptor of the user issuing the PART command.
- *
- * @throws NeedMoreParamsException If the command does not contain exactly one argument.
+ * @param userStatus The sender user status.
+ * 
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NeedMoreParamsException, NoSuchChannelException
  */
 void PartCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
