@@ -5,6 +5,7 @@
 #include <netdb.h>				// gethostbyname, getprotobyname, htons, htonl
 #include <sys/socket.h>			// socket, bind, accept, listen
 #include <cstdlib>
+#include <unistd.h>
 
 #include "UserManager.hpp"
 #include "IrcException.hpp"
@@ -124,13 +125,19 @@ struct sockaddr_in Server::createAddress(int port)
 void Server::bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr)
 {
 	if (bind(serverSocket, serverAddr, sizeof(*serverAddr)) < 0)
+	{
+		close (serverSocket);
 		throw std::runtime_error("Error: bind failed");
+	}
 }
 
 void Server::defineSocketOnlistening(int serverSocket)
 {
-	if (listen(serverSocket, SOMAXCONN) < 0) 
+	if (listen(serverSocket, SOMAXCONN) < 0)
+	{
+		close (serverSocket);
 		throw std::runtime_error("Error: listen failed");
+	}
 }
 
 int Server::parsePort(const std::string& port)

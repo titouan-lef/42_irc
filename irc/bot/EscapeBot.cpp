@@ -28,6 +28,7 @@ int EscapeBot::up(std::string port,std::string password)
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
+		stop();
 		return 1;
 	}
 	run();
