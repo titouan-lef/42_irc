@@ -9,7 +9,7 @@ PongCmd::PongCmd(): ACommand(CONNECTED, CONNECTED, 1, 1) {}
 /**
  * @brief Executes the PONG command for reply to ping message.
  * 
- * @param cmd The command object containing the pong request and password as the last parameter.
+ * @param cmd The command object containing the pong request and its arguments.
  * @param socket The socket descriptor of the user attempting to authenticate.
  * @param userStatus The sender user status.
  *

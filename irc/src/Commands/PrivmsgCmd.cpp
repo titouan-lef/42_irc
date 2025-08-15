@@ -12,6 +12,17 @@
 
 PrivmsgCmd::PrivmsgCmd(): ACommand(CONNECTED, CONNECTED, 2, 2) {}
 
+/**
+ * @brief Executes the PRIVMSG command for send message to user or/and #channel.
+ * 
+ * @param cmd The command object containing the privmsg request and its arguments.
+ * @param socket The socket descriptor of the user attempting to authenticate.
+ * @param userStatus The sender user status.
+ *
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NoTextToSendException, TooManyTargetsException, NoRecipientException
+ */
+
 void PrivmsgCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);

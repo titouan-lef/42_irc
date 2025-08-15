@@ -10,6 +10,16 @@
 
 UserCmd::UserCmd(): ACommand(IDENTIFIED, IDENTIFIED, 4, 4) {}
 
+/**
+ * @brief Executes the USER command to specify the username, hostname and realname of a new user.
+ * 
+ * @param cmd The command object containing the user request and its arguments.
+ * @param socket The socket descriptor of the user attempting to authenticate.
+ * @param userStatus The sender user status.
+ *
+ * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
+ * @throws Command: NeedMoreParamsException
+ */
 void UserCmd::execute(const Command &cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);
