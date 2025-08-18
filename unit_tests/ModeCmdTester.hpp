@@ -611,7 +611,7 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test +k password");
 
 			user2.sendCommand("JOIN #test");
-			user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
+			user2.assertReply(":ircserv 475 user2 #test :Cannot join channel (+k)");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -627,7 +627,7 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test +k password");
 
 			user2.sendCommand("JOIN #test");
-			user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
+			user2.assertReply(":ircserv 475 user2 #test :Cannot join channel (+k)");
 
 			user2.sendCommand("JOIN #test password");
 			user2.assertReply(":user2!user2@localhost JOIN :#test");
@@ -797,7 +797,7 @@ public:
 		user1.assertReply(":ircserv 324 user1 #test +iktl password 1");
 
 		user2.sendCommand("JOIN #test");
-		user2.assertReply(":ircserv 476 user2 #test :Cannot join channel (+k)");
+		user2.assertReply(":ircserv 475 user2 #test :Cannot join channel (+k)");
 
 		user2.sendCommand("JOIN #test password");
 		user2.assertReply(":ircserv 473 user2 #test :You're not invited to join this channel");
