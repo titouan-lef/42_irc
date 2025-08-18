@@ -100,7 +100,6 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
 		socketInvitedUsers_.erase(socketNewUser);
 	socketConnectedUsers_.push_back(socketNewUser);
 	manageJoinMessage(socketNewUser);
-	/** @todo send message to all user about new connection (refacto needed) */
 }
 
 /**

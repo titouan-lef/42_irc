@@ -34,7 +34,7 @@ public:
 	bool addNewOperator(const int socketNewOperator);
 	bool removeOperator(const int socketUser);
 
-	const std::string& getName() const; /** @todo getters inprivate */
+	const std::string& getName() const;
 	bool is(const std::string& name) const;
 
 	bool isConnected(const int socketUser) const;

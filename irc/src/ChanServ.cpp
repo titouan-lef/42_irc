@@ -94,7 +94,7 @@ void ChanServ::partAllChannels(const int loggedOutSocket, const char* message)
 	for (int i = channelList_.size() - 1; i >= 0; --i)
 	{
 		if (channelList_.at(i).isConnected(loggedOutSocket))
-			part(i, loggedOutSocket, message); /** @todo no channel name in the quit message */
+			part(i, loggedOutSocket, message);
 	}
 }
 

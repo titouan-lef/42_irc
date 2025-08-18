@@ -20,7 +20,7 @@ QuitCmd::QuitCmd(): ACommand(CONNECTED, CONNECTED, 0, -1) {}
 void QuitCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
 	checkUserStatus(userStatus);
-	const char* msg = (cmd.arg.empty() ? NULL : cmd.arg.at(0).c_str());/** @todo param 0 is the message ? */
+	const char* msg = (cmd.arg.empty() ? NULL : cmd.arg.at(0).c_str());
 	ChanServ::getInstance().quit(senderSocket, msg);
 	UserManager::getInstance().closeConnectionBySocket(senderSocket);
 }

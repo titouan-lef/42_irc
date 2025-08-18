@@ -80,7 +80,7 @@ NoSuchChannelException::NoSuchChannelException(const std::string& channelName):
 	IrcException(403, std::vector<std::string>(1, channelName), "No such channel") {}
 
 TooManyTargetsException::TooManyTargetsException(const std::string& target):
-	IrcException(407, std::vector<std::string>(1, target), "To many target") {} /** @todo it is a good message ? */
+	IrcException(407, std::vector<std::string>(1, target), "To many target") {}
 
 NoRecipientException::NoRecipientException(const std::string& commandName):
 	IrcException(411, std::vector<std::string>(1, commandName), "No recipient given") {}
@@ -157,4 +157,4 @@ SendException::SendException(const std::vector<std::string>& arg, const std::str
 	IrcException(1, arg, "Impossible to send data from " + nickname) {}
 
 InvalidModeParamException::InvalidModeParamException(const std::vector<std::string>& arg):
-	/** @todo check this maybe ERR_UNKNOWNMODE 472*/ IrcException(696, arg, "Invalid parameter for mode") {}
+	IrcException(696, arg, "Invalid parameter for mode") {}

@@ -27,7 +27,6 @@ public:
 	void part(const std::string& channelName, const int loggedOutSocket, const char* message = NULL);
 	void kick(const std::string& channelName, const int loggedOutSocket, const int senderSocket, const std::string& message);
 	bool isValidChannelName(const std::string& channelName) const;
-	/** @todo add possibiliti to ask help to ChanServ */
 
 private:
 	typedef void (ChanServ::*this_method_t)(int) const;
