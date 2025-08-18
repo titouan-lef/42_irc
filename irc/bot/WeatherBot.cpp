@@ -1,4 +1,4 @@
-#include "EscapeBot.hpp"
+#include "WeatherBot.hpp"
 
 #include <cstring>
 #include <arpa/inet.h>
@@ -13,13 +13,13 @@
 #define MIN_PORT_VALUE 1023
 #define MAX_PORT_VALUE 65535
 
-EscapeBot& EscapeBot::getInstance()
+WeatherBot& WeatherBot::getInstance()
 {
-	static EscapeBot instance;
+	static WeatherBot instance;
 	return instance;
 }
 
-int EscapeBot::up(std::string port,std::string password)
+int WeatherBot::up(std::string port,std::string password)
 {
 	try
 	{
@@ -35,7 +35,7 @@ int EscapeBot::up(std::string port,std::string password)
 	return 0;
 }
 
-void EscapeBot::sendCommand(const std::string& cmd)
+void WeatherBot::sendCommand(const std::string& cmd)
 {
 	std::string fullCmd = cmd + "\r\n";
 	ssize_t sent = send(socketBot_, fullCmd.c_str(), fullCmd.length(), 0);
@@ -45,20 +45,19 @@ void EscapeBot::sendCommand(const std::string& cmd)
 		std::cerr << "Error, the message sent is incomplete" << std::endl;
 }
 
-EscapeBot::EscapeBot(): socketBot_(-1), running_(false) {}
+WeatherBot::WeatherBot(): socketBot_(-1), running_(false) {}
 
-void EscapeBot::run()
+void WeatherBot::run()
 {
 	running_ = true;
 	while (running_)
 	{
 		std::string recvMsg = listenToServer();
-		std::cout << recvMsg << std::endl;
 		interpretMsg(recvMsg);
 	}
 }
 
-void EscapeBot::initServerConnection(std::string port,std::string password)
+void WeatherBot::initServerConnection(std::string port,std::string password)
 {
 	int portNumber = parsePort(port);
 	socketBot_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -79,12 +78,12 @@ void EscapeBot::initServerConnection(std::string port,std::string password)
 		throw std::runtime_error("Error: impossible to connect to the server");
 
 	sendCommand("PASS " + password);
-	sendCommand("NICK escapeBot");
-	sendCommand("USER escapeBot 0 * :Master of the universe");
+	sendCommand("NICK WthBot");
+	sendCommand("USER weatherBot 0 * :Master of the universe");
 	running_ = true;
 }
 
-int EscapeBot::parsePort(const std::string& port)
+int WeatherBot::parsePort(const std::string& port)
 {
 	if (port.empty())
 		throw std::runtime_error("Error: Invalid port");
@@ -96,7 +95,7 @@ int EscapeBot::parsePort(const std::string& port)
 	return portNumber;
 }
 
-std::string EscapeBot::listenToServer()
+std::string WeatherBot::listenToServer()
 {
 	char buf[512];
 	std::memset(buf, 0, sizeof(buf));
@@ -117,7 +116,7 @@ std::string EscapeBot::listenToServer()
 	return buf;
 }
 
-void EscapeBot::stop()
+void WeatherBot::stop()
 {
 	if (socketBot_ >= 0)
 	{
@@ -125,18 +124,18 @@ void EscapeBot::stop()
 		socketBot_ = -1;
 	}
 	running_ = false;
-	std::cout << std::endl << "Shutting down EscapeBot..." << std::endl;
+	std::cout << std::endl << "Shutting down WeatherBot..." << std::endl;
 }
 
-/********************************************* interpreteur msg ************************************************/
-void EscapeBot::interpretMsg(const std::string& recvMsg)
+/********************************************* interpret msg ************************************************/
+void WeatherBot::interpretMsg(const std::string& recvMsg)
 {
 	Msg message;
-	EscapeBot::parseMsg(recvMsg, message);
-	EscapeBot::msgExec(message);
+	WeatherBot::parseMsg(recvMsg, message);
+	WeatherBot::msgExec(message);
 }
 
-void EscapeBot::EscapeBot::parseMsg(const std::string& recvMsg, Msg& message)
+void WeatherBot::WeatherBot::parseMsg(const std::string& recvMsg, Msg& message)
 {
 	if (recvMsg.empty())
 		return ;
@@ -146,7 +145,7 @@ void EscapeBot::EscapeBot::parseMsg(const std::string& recvMsg, Msg& message)
 	extractRequest(recvMsg, message);
 }
 
-std::string EscapeBot::extractNickname(const std::string& recvMsg)
+std::string WeatherBot::extractNickname(const std::string& recvMsg)
 {
 	std::string nickname;
 	size_t start;
@@ -156,12 +155,12 @@ std::string EscapeBot::extractNickname(const std::string& recvMsg)
 	size_t end;
 	end = recvMsg.find('!');
 	if (end == std::string::npos || end == recvMsg.size())
-		return nickname;
+		return recvMsg.substr(start + 1);
 	nickname = recvMsg.substr(start + 1, end -1);
 	return nickname;
 }
 
-void EscapeBot::extractRequest(const std::string& recvMsg, Msg& message)
+void WeatherBot::extractRequest(const std::string& recvMsg, Msg& message)
 {
 	const char delimiter = ' ';
 	size_t start = recvMsg.find(delimiter, 0);
@@ -176,22 +175,26 @@ void EscapeBot::extractRequest(const std::string& recvMsg, Msg& message)
 	message.restOfMsg_ = recvMsg.substr(end, recvMsg.size() - end);
 }
 
-void EscapeBot::msgExec(Msg& message)
+void WeatherBot::msgExec(Msg& message)
 {
-	if (message.cmd_ == "PING")
+	if (message.cmd_ == "433" || message.cmd_ == "451" )
 	{
-		sendCommand("PONG " + message.restOfMsg_);
-		return ;
+		std::cerr << "Impossible to connect to the server" << std::endl;
+		stop();
 	}
-	if (!message.cmd_.empty())
+	else if (message.cmd_ == "PING")
+		sendCommand("PONG " + message.restOfMsg_);
+	else if (message.cmd_ == "PRIVMSG")
 	{
 		std::string replyMsg;
 		replyMsg = getReplyMsg(message.restOfMsg_);
 		sendCommand("PRIVMSG "+ message.nickSender_ + " :" + replyMsg);
 	}
+	else
+		return;
 }
 
-/********************************************* Get Meteo ************************************************/
+/********************************************* Get Weather ************************************************/
 bool checkInputSafety(const std::string& city)
 {
 	for (std::string::const_iterator it = city.begin(); it != city.end(); ++it)
@@ -204,29 +207,29 @@ bool checkInputSafety(const std::string& city)
 
 std::string getText()
 {
-	std::ifstream meteo;
-	meteo.open(".txt");
+	std::ifstream weather;
+	weather.open(".txt");
 	std::string data;
-	std::getline(meteo, data);
-	meteo.close();
+	std::getline(weather, data);
+	weather.close();
 	return (data);
 }
 
-std::string getMeteo(const std::string& city)
+std::string getWeather(const std::string& city)
 {
 	std::string cityName = city.substr(0, city.size() - 2);
 	if (!checkInputSafety(cityName))
 		return ("Try with a valid name of city");
-	const std::string cmd = ("curl -s \"https://wttr.in/" + cityName + "?format=3\" > .txt");
-	int cr = system(cmd.c_str()); /** @todo check if is good*/
+	const std::string cmd = ("/bin/curl -s \"https://wttr.in/" + cityName + "?format=3\" > .txt");
+	int cr = system(cmd.c_str());
 	if (cr != 0)
-		return ("You can't consult the meteo bsh failed");
-	std::string meteo;
-	meteo = getText();
-	cr = system("rm .txt");
+		return ("An error has occured, the weather is unaccessible");
+	std::string weather;
+	weather = getText();
+	cr = unlink(".txt");
 	if (cr != 0)
-		return ("You can't consult the meteo");
-	return (meteo);
+		return ("An error has occured, the weather is unaccessible");
+	return (weather);
 }
 
 std::vector<std::string> splitOnSpace(std::string msg)
@@ -246,29 +249,17 @@ std::vector<std::string> splitOnSpace(std::string msg)
 		else
 			current += msg[i];
 	}
-	if (!current.empty()) {
+	if (!current.empty())
 		result.push_back(current);
-	}
 	return result;
 }
 
-std::string EscapeBot::getReplyMsg(std::string msg)
+std::string WeatherBot::getReplyMsg(std::string msg)
 {
-	std::vector<std::string> args;
-	args = splitOnSpace(msg);
+	std::vector<std::string> args = splitOnSpace(msg);
 	if (args.size() != 3)
-		return "Please try with METEO city name.";
-	if (args[1] == ":METEO")
-	{
-		std::cout << args[2] << std::endl;
-		return getMeteo(args[2]);
-	}
-	else
-		return "Please try with METEO city name.";
+		return "Please try with WEATHER city name.";
+	if (args[1] == ":WEATHER")
+		return getWeather(args[2]);
+	return "Please try with WEATHER city name.";
 }
-/**
- * 
- format des message reçu :
- 
- :pchalmin1!pchalmin1@localhost PRIVMSG escapeBot :: HELP
- */

@@ -7,7 +7,7 @@
 # IRC
 .build
 ircserv
-escapeBot
+weatherBot
 
 # IRC_TESTER
 *.a

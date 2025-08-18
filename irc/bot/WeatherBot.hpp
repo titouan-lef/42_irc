@@ -4,19 +4,19 @@
 
 struct Msg;
 
-class EscapeBot
+class WeatherBot
 {
 public:
 
-	static EscapeBot& getInstance();
+	static WeatherBot& getInstance();
 
 	int up(std::string port,std::string password);
 	void stop();
 
 private:
 
-	EscapeBot();
-	~EscapeBot() {};
+	WeatherBot();
+	~WeatherBot() {};
 
 	void run();
 	void initServerConnection(std::string port,std::string password);

@@ -16,9 +16,9 @@ SRC				:= $(addsuffix .cpp, $(SRC))
 
 #==================== BONUS =====================#
 
-BOT_NAME		:= escapeBot
+BOT_NAME		:= weatherBot
 BOT_DIR			:= ./bot/
-SRC_BOT			:= bot_main EscapeBot
+SRC_BOT			:= bot_main WeatherBot
 SRC_BOT			:= $(addsuffix .cpp, $(SRC_BOT))
 
 #==================== OBJECT ====================#

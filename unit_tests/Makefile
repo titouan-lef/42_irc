@@ -55,7 +55,7 @@ $(NAME):	ircserv.a ircserv $(OBJ)
 
 run:	$(NAME)
 	@./ircserv 4343 password > /dev/null 2>&1 & echo $$! > ircserv.pid
-	@valgrind ./$(NAME) 4343 password || true
+	@valgrind --track-fds=yes ./$(NAME) 4343 password || true
 	@pid=$$(cat ircserv.pid); if kill -0 $$pid 2>/dev/null; then kill $$pid; fi
 	@rm -f ircserv.pid
 
