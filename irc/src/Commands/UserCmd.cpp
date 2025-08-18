@@ -25,7 +25,7 @@ void UserCmd::execute(const Command &cmd, const int senderSocket, const Status& 
 	checkUserStatus(userStatus);
 	checkCmd(cmd);
 	User& user = UserManager::getInstance().findUser(senderSocket);
-	UpdateUser(user, cmd.arg.at(0), cmd.arg.at(2));
+	updateUser(user, cmd.arg.at(0));
 	sendHandshakeValidation(senderSocket);
 }
 
@@ -33,14 +33,13 @@ void UserCmd::checkCmd(const Command& cmd) const
 {
 	checkArgSize(cmd);
 	if (!validParam(cmd.arg))
-		throw NeedMoreParamsException(cmd.name); /** @todo parse "0 *" */
+		throw NeedMoreParamsException(cmd.name);
 	if (!validUsername(cmd.arg.at(0)))
 		throw NeedMoreParamsException(cmd.name);
-	/** @todo parse real name ? */
 }
 
 /**
- * @brief Verifie if the mode are "0" and "*" if is not return false
+ * @brief Check if the mode are "0" and "*".
  */
 bool UserCmd::validParam(const std::vector<std::string>& param) const
 {
@@ -50,19 +49,20 @@ bool UserCmd::validParam(const std::vector<std::string>& param) const
 /** @todo tcheck  */
 bool UserCmd::validUsername(const std::string& username) const
 {
-	for (size_t i = 0; i < username.length(); ++i)
+	if (username.empty())
+		return false;
+	for (std::size_t i = 0; i < username.length(); ++i)
 	{
 		unsigned char c = username[i];
-		if (!isalnum(c))
+		if (c == '\0' || c == '\r' || c == '\n' || c == ' ' || c == ':')
 			return false;
 	}
 	return true;
 }
 
-void UserCmd::UpdateUser(User& user, const std::string& username, const std::string& realName) const
+void UserCmd::updateUser(User& user, const std::string& username) const
 {
 	user.setUsername(username);
-	user.setRealName(realName);
 	user.passToNextConnectionStep();
 }
 

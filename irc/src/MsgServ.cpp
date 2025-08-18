@@ -35,7 +35,7 @@ void MsgServ::recvMsg(int receiverSocket, int buffer_index)
 	buffer[bytes_received] = '\0';
 	std::cout << "Received message: " << buffer << std::endl;
 	if (completeMsg(buffer_index, buffer))
-		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException(); clear buffer ? */
+		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException();*/
 }
 
 bool MsgServ::isMsgComplete(std::string& msg) { return (msg.find("\r\n") != std::string::npos); }
@@ -137,10 +137,7 @@ void MsgServ::sendReply(const Message &msg) const
 	{
 		if (!Server::getInstance().isUp()) /** @todo skip for tester */
 			return;
-		std::cerr << e.what();
-		//if (!target.empty())
-			//std::cerr << " to: " << target;
-		std::cerr << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 }
 
@@ -169,12 +166,11 @@ std::string MsgServ::formatMsg(const Message &msg) const
  */
 void MsgServ::sendMsg(int receiverSocket, std::string& msg) const
 {
-	/** std::string nickname = "tmpNickname"; @todo find right nickname or simply get a reference to user so that we can access nickname and socket ??*/
 	if (msg.empty())
 		return;
 	ssize_t sent = send(receiverSocket, msg.c_str(), msg.size(), MSG_NOSIGNAL);
 	if (sent == -1 && errno != EAGAIN)
-		throw std::runtime_error("Error: cannot send message"); /** @todo it s a right exeption ? */
+		throw std::runtime_error("Error: cannot send message");
 	if (sent > 0)
 		msg.erase(0, sent);
 }

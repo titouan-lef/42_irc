@@ -126,7 +126,6 @@ int UserManager::reiceveFromClient(const int index)
 	catch(const IrcException& e)
 	{
 		e.sendError(pollfdList_.at(index).fd);
-		/** @todo not return 1 ? */
 	}
 	return 0;
 }
@@ -170,7 +169,7 @@ User& UserManager::findUser(const int userSocket)
 	ssize_t index = findIndex(userSocket);
 	if (index <= 0)
 	{
-		const std::string nickname = User::getDefaultNickname();/** @todo check if is the good function (call before findUserNickname()) */
+		const std::string nickname = User::getDefaultNickname();
 		throw NoSuchNickException(nickname);
 	}
 	return userList_.at(index);
@@ -184,7 +183,7 @@ const std::string UserManager::findUserNickname(const int userSocket) const
 {
 	ssize_t index = findIndex(userSocket);
 	if (index <= 0)
-		return User::getDefaultNickname(); /** @todo not better option */
+		return User::getDefaultNickname();
 	return userList_.at(index).getNickname();
 }
 
@@ -196,7 +195,7 @@ const std::string UserManager::findUserName(const int userSocket) const
 {
 	ssize_t index = findIndex(userSocket);
 	if (index <= 0)
-		return User::getDefaultUsername(); /** @todo not better option */
+		return User::getDefaultUsername();
 	return userList_.at(index).getUsername();
 }
 
@@ -208,7 +207,7 @@ const std::string UserManager::findUserPrefix(const int userSocket) const
 {
 	ssize_t index = findIndex(userSocket);
 	if (index <= 0)
-		return User::getDefaultPrefix(); /** @todo not better option */
+		return User::getDefaultPrefix();
 	return userList_.at(index).getPrefix();
 }
 
@@ -223,7 +222,7 @@ std::size_t UserManager::findIndex(const int userSocket) const
 		if (pollfdList_.at(i).fd == userSocket)
 			return i;
 	}
-	return 0; /** @todo not better option */
+	return 0;
 }
 
 void UserManager::closeAllConnection()
@@ -238,7 +237,7 @@ void UserManager::closeConnectionBySocket(const int userSocket)
 	int index = findIndex(userSocket);
 	if (index <= 0)
 	{
-		std::cerr << "socket not found" << std::endl; /** @todo exception or just a log */
+		std::cerr << "socket not found" << std::endl;
 		return;
 	}
 	closeConnection(index);
@@ -259,13 +258,23 @@ int UserManager::getNbUserEvent() const
 void UserManager::updateLastActivity(const int userSocket)
 {
 	std::size_t index = findIndex(userSocket);
-	if (lastActivities_.at(index).pingSend == false)/** @todo no security ? */
+	if (index <= 0)
+	{
+		std::cerr << "socket not found" << std::endl;
+		return;
+	}
+	if (lastActivities_.at(index).pingSend == false)
 		lastActivities_.at(index).timeLastActivity = time(NULL);
 }
 
 void UserManager::validatePongResponse(const int userSocket)
 {
-	std::size_t index = findIndex(userSocket);/** @todo no security ? */
+	std::size_t index = findIndex(userSocket);
+	if (index <= 0)
+	{
+		std::cerr << "socket not found" << std::endl;
+		return;
+	}
 	lastActivities_.at(index).pingSend = false;
 }
 
@@ -303,9 +312,9 @@ void UserManager::closeConnection(const int index)
 {
 	int socket = pollfdList_.at(index).fd;
 	ChanServ::getInstance().quit(socket);
-	if (Server::getInstance().isUp() && index != 0)/** @todo "index != 0" useless ? */
+	if (Server::getInstance().isUp())
 		displayLogDisconnection(index);
-	close(pollfdList_.at(index).fd); /** @todo check with Lucien before this line is under else if */
+	close(pollfdList_.at(index).fd);
 	deleteUser(index);
 }
 
@@ -325,8 +334,8 @@ void UserManager::closeServer() { close(pollfdList_.at(0).fd); }
 
 void UserManager::deleteUser(const int index)
 {
-	if (index <= 0 || index >= static_cast<int>(userList_.size()))
-		return; /** @todo or throw std::out_of_range("Invalid index in deleteUser"); */
+	if (index <= 0 || index >= (int)userList_.size())
+		return;
 	pollfdList_.erase(pollfdList_.begin() + index);
 	userList_.erase(userList_.begin() + index);
 	addressList_.erase(addressList_.begin() + index);

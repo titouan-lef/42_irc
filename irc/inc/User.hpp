@@ -24,14 +24,12 @@ public:
 	const std::string& getUsername() const;
 	const Status& getStatus() const;
 	void setNickname(const std::string& nickname);
-	void setUsername(const std::string& username); /** @todo ignore ?? */
-	void setRealName(const std::string& realname);
+	void setUsername(const std::string& username);
 	bool is(const std::string& nickname) const;
 
 private:
 	std::string nickname_;
 	std::string username_;
-	std::string realName_; /** @todo ignore ?? */
 	Status status_;
 
 	friend class UserTester;/** @todo remove before push */

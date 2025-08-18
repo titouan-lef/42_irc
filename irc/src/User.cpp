@@ -4,7 +4,8 @@ User::User(): nickname_(getDefaultNickname()), username_(getDefaultUsername()), 
 
 void User::passToNextConnectionStep()
 {
-	/** @todo do exception to not overflow ? */
+	if (status_ == CONNECTED)
+		return;
 	status_ = (Status)(status_ + 1);
 }
 
@@ -34,7 +35,5 @@ const Status& User::getStatus() const { return status_; }
 void User::setNickname(const std::string& nickname) { nickname_ = nickname; }
 
 void User::setUsername(const std::string& username) { username_ = username; }
-
-void User::setRealName(const std::string& realname) { realName_ = realname; }
 
 bool User::is(const std::string& nickname) const { return (nickname_ == nickname); }

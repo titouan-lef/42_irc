@@ -21,6 +21,6 @@ private:
 	void checkCmd(const Command& cmd) const;
 	bool validParam(const std::vector<std::string>& param) const;
 	bool validUsername(const std::string& username) const;
-	void UpdateUser(User& user, const std::string& username, const std::string& realName) const;
+	void updateUser(User& user, const std::string& username) const;
 	void sendHandshakeValidation(const int socket) const;
 };
