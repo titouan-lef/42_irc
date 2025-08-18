@@ -76,7 +76,11 @@ public:
 		std::vector<std::string> validUsernames =
 		{
 			"a", "Z", "a1", "abc123", "xYz", "Bob123", "User1", "User1234", "TestUser", "Nick42", "Alpha9", "Z9", "U0U0", "JohnDoe", "x9y8z7",
-			"abcDEF123", "X1X2X3X4", "Valid123", "A1B2C3", "Z999999999"
+			"abcDEF123", "X1X2X3X4", "Valid123", "A1B2C3", "Z999999999", "user@name", "hello!", "name*", "user#",
+			"comma,name", "user.name", "semi;colon", "quote\"", "tick'", "slash/", "back\\slash", "left[bracket", "right]bracket",
+			"brace{open", "brace}close", "pipe|bar", "caret^", "tilde~", "equals=", "plus+", "dash-", "underscore_", "user$", "percent%",
+			"exclaim!", "123!", "!", "........", "user\tname", "tab\tchar", "user😀", "中文", "русский", "bell\a", "\bbackspace", "vertical\vtab",
+			"form\ffeed", "\\rtest"
 		};
 		for (std::size_t i = 0; i < validUsernames.size(); ++i)
 		{
@@ -97,10 +101,7 @@ public:
 		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
 		std::vector<std::string> invalidUsernames =
 		{
-			"user name", "user@name", "hello!", "name*", "line\nbreak", "carriage\r", "tab\tchar", "user\n", "user#",
-			"comma,name", "user.name", "semi;colon", "quote\"", "tick'", "slash/", "back\\slash", "left[bracket", "right]bracket",
-			"brace{open", "brace}close", "pipe|bar", "caret^", "tilde~", "equals=", "plus+", "dash-", "underscore_", "user$", "percent%",
-			"exclaim!", "user😀", "中文", "русский", "123!", "!", " ", "........", "user\tname"
+			"user name", "line\nbreak", "carriage\r", "user\n", " ", "user:name", ":", ""
 		};
 
 		for (std::size_t i = 0; i < invalidUsernames.size(); ++i)
