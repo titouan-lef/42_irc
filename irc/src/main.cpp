@@ -6,8 +6,7 @@
 void signalHandler(int sig)
 {
 	if (sig == SIGINT)
-		Server::getInstance().stop();
-	std::cerr << std::endl;
+		Server::getInstance().applySigInt();
 }
 
 int main(int argc, char** argv)

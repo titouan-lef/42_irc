@@ -1,6 +1,5 @@
 #include "Server.hpp"
 
-#include <cerrno>
 #include <cstring>				// memset
 #include <netdb.h>				// gethostbyname, getprotobyname, htons, htonl
 #include <sys/socket.h>			// socket, bind, accept, listen
@@ -73,6 +72,11 @@ int Server::up(std::string port,std::string password)
 	return (0);
 }
 
+void Server::applySigInt()
+{
+	sigIntDetected_ = 1;
+}
+
 void Server::run()
 {
 	running_ = true;
@@ -86,9 +90,8 @@ void Server::stop()
 	closeServerConnection(); // isn't this can cause a pb if the server do thing beffore ending the while loop ?
 }
 
-Server::Server(): running_(false)
+Server::Server(): creationDate_(getDate()), running_(false), sigIntDetected_(0)
 {
-	creationDate_ = getDate();
 	// Initialize pollfd for listening socket
 }
 
@@ -172,17 +175,16 @@ void Server::parsePasswordChar(const unsigned char c)
 void Server::onEvent()
 {
 	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
-	if (poll_count < 0)// Interrupted by something else that a signal /** @todo keep because of errno not allowed in correction ?? */
+	if (poll_count < 0)// Signal detected or error poll execution
 	{
-		running_ = false;
-		if (errno != EINTR)/** @todo errno authorized ? */
+		if (sigIntDetected_ == 0)
 			std::cerr << "Error: poll" << std::endl;
+		stop();
 		return;
 	}
 	UserManager::getInstance().checkActivities();
 	if (poll_count > 0)
 		manageEvent();
-
 }
 
 void Server::manageEvent()
