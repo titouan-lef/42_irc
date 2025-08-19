@@ -14,7 +14,6 @@ class MsgServ: public Service
 public:
 	static MsgServ& getInstance();
 	void recvMsg(int receiverSocket, int buffer_index);
-	bool isMsgComplete(std::string& msg);
 
 	void sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const;
 	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>& arg) const;
@@ -30,10 +29,8 @@ public:
 
 	void addNewBuffer();
 	bool isCommandReady(int buffer_index) const;
-	int completeMsg(int buffer_index, const std::string &msg);
 	std::string getCommand(int buffer_index);
 	void removeBuffer(int buffer_index);
-
 
 private:
 	struct Message {
@@ -46,8 +43,6 @@ private:
 	};
 
 	MsgServ();
-	MsgServ(const MsgServ& other);
-	MsgServ& operator=(const MsgServ& other);
 
 	void receiveCommand(const int senderSocket, const std::string& cmd);
 	void sendNumericReply(const int receiverSocket, const int code, const std::vector<std::string>* arg = NULL,
@@ -59,6 +54,8 @@ private:
 	std::string formatMsg(const Message &msg) const;
 	void sendMsg(int socket, std::string& msg) const;
 	const std::string convertCodeToCommandId(const int code) const;
+	bool completeMsg(int buffer_index, const std::string &msg);
+
 
 	static const std::size_t BUFFER_SIZE = 512;
 	std::vector<std::string> buffers_;

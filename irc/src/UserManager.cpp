@@ -16,6 +16,12 @@
 
 UserManager::UserManager() {}
 
+UserManager& UserManager::getInstance()
+{
+	static UserManager instance;
+	return instance;
+}
+
 /**
  * @brief Initializes the user manager by adding the server as the first user.
  *
@@ -29,12 +35,6 @@ void UserManager::initUserManager(const int serverSocket, const struct sockaddr_
 	addNewUser(serverSocket, serverAddr);
 }
 
-UserManager& UserManager::getInstance()
-{
-	static UserManager instance;
-	return instance;
-}
-
 void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& clientAddr)
 {
 	for (std::size_t i = 0; i < pollfdList_.size(); i++) /** Protection for tester @todo remove before push */
@@ -44,8 +44,8 @@ void UserManager::addNewUser(const int clientSocket, const struct sockaddr_in& c
 	}
 
 	Activity userActivity = {time(NULL), false};
-	lastActivities_.push_back(userActivity);
-	struct pollfd newPollfd = {clientSocket, POLLIN, 0};
+	activityList_.push_back(userActivity);
+	struct pollfd newPollfd = {clientSocket, POLLIN, 0}; // returned events = 0
 	pollfdList_.push_back(newPollfd);
 	userList_.push_back(User());
 	addressList_.push_back(clientAddr);
@@ -90,16 +90,18 @@ void UserManager::checkActivities()
 
 	for (std::size_t i = userList_.size() - 1; i >= 1; --i)
 	{
-		Activity& userActivity = lastActivities_.at(i);
+		Activity& userActivity = activityList_.at(i);
 		time_t elapsed = time(NULL) - userActivity.timeLastActivity;
-		if (elapsed > INACTIVITY_PING_LIMIT && userActivity.pingSend == false)
+		if (elapsed > INACTIVITY_TIMEOUT)
 		{
-			int socket = pollfdList_.at(i).fd;
-			MsgServ::getInstance().sendMessageReply(socket, socket, "PING", std::vector<std::string>(1, "ircserv"));
-			userActivity.pingSend = true;
-		}
-		else if (elapsed > INACTIVITY_TIMEOUT)
 			closeConnection(i);
+			continue;
+		}
+		if (userActivity.pingSend == true || elapsed <= INACTIVITY_PING_LIMIT)
+			continue;
+		int socket = pollfdList_.at(i).fd;
+		MsgServ::getInstance().sendMessageReply(socket, socket, "PING", std::vector<std::string>(1, "ircserv"));
+		userActivity.pingSend = true;
 	}
 }
 
@@ -166,8 +168,8 @@ int UserManager::findUserSocket(const std::string& nickname)
  */
 User& UserManager::findUser(const int userSocket)
 {
-	ssize_t index = findIndex(userSocket);
-	if (index <= 0)
+	std::size_t index = findIndex(userSocket);
+	if (index == 0)
 	{
 		const std::string nickname = User::getDefaultNickname();
 		throw NoSuchNickException(nickname);
@@ -181,8 +183,8 @@ User& UserManager::findUser(const int userSocket)
  */
 const std::string UserManager::findUserNickname(const int userSocket) const
 {
-	ssize_t index = findIndex(userSocket);
-	if (index <= 0)
+	std::size_t index = findIndex(userSocket);
+	if (index == 0)
 		return User::getDefaultNickname();
 	return userList_.at(index).getNickname();
 }
@@ -193,8 +195,8 @@ const std::string UserManager::findUserNickname(const int userSocket) const
  */
 const std::string UserManager::findUserName(const int userSocket) const
 {
-	ssize_t index = findIndex(userSocket);
-	if (index <= 0)
+	std::size_t index = findIndex(userSocket);
+	if (index == 0)
 		return User::getDefaultUsername();
 	return userList_.at(index).getUsername();
 }
@@ -205,8 +207,8 @@ const std::string UserManager::findUserName(const int userSocket) const
  */
 const std::string UserManager::findUserPrefix(const int userSocket) const
 {
-	ssize_t index = findIndex(userSocket);
-	if (index <= 0)
+	std::size_t index = findIndex(userSocket);
+	if (index == 0)
 		return User::getDefaultPrefix();
 	return userList_.at(index).getPrefix();
 }
@@ -232,10 +234,12 @@ void UserManager::closeAllConnection()
 	closeServer();
 }
 
+void UserManager::closeServer() { close(pollfdList_.at(0).fd); }
+
 void UserManager::closeConnectionBySocket(const int userSocket)
 {
-	int index = findIndex(userSocket);
-	if (index <= 0)
+	std::size_t index = findIndex(userSocket);
+	if (index == 0)
 	{
 		std::cerr << "socket not found" << std::endl;
 		return;
@@ -258,24 +262,24 @@ int UserManager::getNbUserEvent() const
 void UserManager::updateLastActivity(const int userSocket)
 {
 	std::size_t index = findIndex(userSocket);
-	if (index <= 0)
+	if (index == 0)
 	{
 		std::cerr << "socket not found" << std::endl;
 		return;
 	}
-	if (lastActivities_.at(index).pingSend == false)
-		lastActivities_.at(index).timeLastActivity = time(NULL);
+	if (activityList_.at(index).pingSend == false)
+		activityList_.at(index).timeLastActivity = time(NULL);
 }
 
 void UserManager::validatePongResponse(const int userSocket)
 {
 	std::size_t index = findIndex(userSocket);
-	if (index <= 0)
+	if (index == 0)
 	{
 		std::cerr << "socket not found" << std::endl;
 		return;
 	}
-	lastActivities_.at(index).pingSend = false;
+	activityList_.at(index).pingSend = false;
 }
 
 bool UserManager::serverHasReiceveData() const { return (hasDataToRead(0)); }
@@ -293,7 +297,7 @@ void UserManager::checkNewConnections()
 	int clientSocket = accept(pollfdList_.at(0).fd, (struct sockaddr*)&clientAddr, &clientLen);
 	if (clientSocket < 0)
 		throw std::runtime_error("Error: accept failed, cannot connect client");
-	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0) //set clientSocket non blocking on system calls
 		throw std::runtime_error("Error: fcntl failed, cannot connect client");
 	addNewUser(clientSocket, clientAddr);
 	std::cout << "Accepted connection from " << inet_ntoa(clientAddr.sin_addr) << ":" << ntohs(clientAddr.sin_port) << std::endl << std::endl;
@@ -305,7 +309,7 @@ void UserManager::checkNewConnections()
  */
 bool UserManager::hasDataToRead(const int index) const
 {
-	return (pollfdList_.at(index).revents & POLLIN);
+	return (pollfdList_.at(index).revents & POLLIN); /** @todo comment explanation */
 }
 
 void UserManager::closeConnection(const int index)
@@ -320,7 +324,7 @@ void UserManager::closeConnection(const int index)
 
 void UserManager::displayLogDisconnection(const int index) const
 {
-	User user = userList_.at(index);
+	const User& user = userList_.at(index);
 	if (user.getStatus() >= IDENTIFIED)
 		std::cout << user.getNickname() + " disconnected" << std::endl;
 	else
@@ -330,8 +334,6 @@ void UserManager::displayLogDisconnection(const int index) const
 	}
 }
 
-void UserManager::closeServer() { close(pollfdList_.at(0).fd); }
-
 void UserManager::deleteUser(const int index)
 {
 	if (index <= 0 || index >= (int)userList_.size())
@@ -339,6 +341,6 @@ void UserManager::deleteUser(const int index)
 	pollfdList_.erase(pollfdList_.begin() + index);
 	userList_.erase(userList_.begin() + index);
 	addressList_.erase(addressList_.begin() + index);
-	lastActivities_.erase(lastActivities_.begin() + index);
+	activityList_.erase(activityList_.begin() + index);
 	MsgServ::getInstance().removeBuffer(index);
 }

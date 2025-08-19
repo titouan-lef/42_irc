@@ -13,7 +13,6 @@ public:
 
 protected:
 	Service(const std::string& serviceName);
-	// ~Service();
 
 	virtual void receiveCommand(const int senderSocket, const std::string& cmd) = 0;
 

@@ -45,7 +45,6 @@ public:
 	void validatePongResponse(const int userSocket);
 
 private:
-
 	struct Activity
 	{
 		time_t timeLastActivity;
@@ -53,8 +52,6 @@ private:
 	};
 
 	UserManager();
-	UserManager(const UserManager& other);
-	UserManager& operator=(const UserManager& other);
 
 	int reiceveFromClient(const int index);
 	void executeCommandsClient(const int index);
@@ -69,7 +66,7 @@ private:
 	std::vector<User> userList_;
 	std::vector<struct pollfd> pollfdList_;
 	std::vector<struct sockaddr_in> addressList_;
-	std::vector<Activity> lastActivities_;
+	std::vector<Activity> activityList_;
 
 	friend class CommandTester; /** @todo remove before push */
 	friend class PrivMsgTester; /** @todo remove before push */

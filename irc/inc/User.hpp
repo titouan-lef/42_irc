@@ -12,7 +12,6 @@ class User: public Client
 {
 public:
 	User();
-	// ~User();
 
 	void passToNextConnectionStep();
 	

@@ -1,0 +1,9 @@
+- Revoir MsgServ::receiveCommand
+
+- Supprimer MsgServ::sendNumericReply / MsgServ::sendMessageReply non utilisés (Titou)
+
+- Check if nickname ircserv does not cause any trouble
+
+- Check what appends to the command send after a PING
+
+- 

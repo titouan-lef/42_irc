@@ -38,8 +38,6 @@ void MsgServ::recvMsg(int receiverSocket, int buffer_index)
 		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException();*/
 }
 
-bool MsgServ::isMsgComplete(std::string& msg) { return (msg.find("\r\n") != std::string::npos); }
-
 void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
 {
 	(void) senderSocket;
@@ -161,18 +159,18 @@ std::string MsgServ::formatMsg(const Message &msg) const
  * @param msg The message to send; the sent part will be erased from this string.
  *
  * @throws SendException if sending fails for reasons other than EAGAIN.
- *
- * @note Currently uses a temporary nickname placeholder for error reporting.
  */
 void MsgServ::sendMsg(int receiverSocket, std::string& msg) const
 {
 	if (msg.empty())
 		return;
-	ssize_t sent = send(receiverSocket, msg.c_str(), msg.size(), MSG_NOSIGNAL);
-	if (sent == -1 && errno != EAGAIN)
+	ssize_t sent = send(receiverSocket, msg.c_str(), msg.size(), MSG_NOSIGNAL); // MSG_NOSIGNAL -> no SIGPIPE is connection is closed
+	if (sent == 0)
+		return;
+	if (sent == -1 && errno != EAGAIN) /** @todo check EAGAIN and commant it */
 		throw std::runtime_error("Error: cannot send message");
 	if (sent > 0)
-		msg.erase(0, sent);
+		msg.erase(0, sent); // remove only the data from the mesaage how have been sent
 }
 
 const std::string MsgServ::convertCodeToCommandId(const int code) const
@@ -193,7 +191,7 @@ void MsgServ::addNewBuffer()
  */
 bool MsgServ::isCommandReady(int buffer_index) const
 {
-	std::string buffer = buffers_.at(buffer_index);
+	const std::string& buffer = buffers_.at(buffer_index);
 	return buffer.find("\r\n") != std::string::npos || buffer.find("\n") != std::string::npos;
 }
 
@@ -202,16 +200,16 @@ bool MsgServ::isCommandReady(int buffer_index) const
  * @return 1 if the total length of the current command is longer that 512, 0 otherwize.
  * @note You must the return value of this funciton and throw MessageToLongException() if true.
  */
-int MsgServ::completeMsg(int buffer_index, const std::string &msg)
+bool MsgServ::completeMsg(int buffer_index, const std::string &msg)
 {
 	std::string& buffer = buffers_.at(buffer_index);
 	buffer += msg;
 	if (buffer.size() > BUFFER_SIZE)
 	{
 		buffer.clear();
-		return 1;
+		return true;
 	}
-	return 0;
+	return false;
 }
 
 /**
@@ -244,6 +242,6 @@ std::string MsgServ::getCommand(int buffer_index)
 void MsgServ::removeBuffer(int buffer_index)
 {
 	if (buffer_index <= 0 || buffer_index >= static_cast<int>(buffers_.size()))
-		return; // or throw std::out_of_range("Invalid index in deleteUser");
+		return;
 	buffers_.erase(buffers_.begin() + buffer_index);
 }
