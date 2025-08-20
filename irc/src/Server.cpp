@@ -24,7 +24,7 @@ void Server::initServerConnection(std::string port, std::string password)
 	int serverSocket = createSocket();
 	defineSocketOption(serverSocket);
 	struct sockaddr_in serverAddr = createAddress(portNumber);
-	bindSocketOnAdress(serverSocket, (sockaddr*)&serverAddr);
+	bindSocketOnAddress(serverSocket, (sockaddr*)&serverAddr);
 	defineSocketOnlistening(serverSocket);
 	UserManager::getInstance().initUserManager(serverSocket, serverAddr);
 	std::cout << "Server listening on port " << port << " ..." << std::endl;
@@ -97,7 +97,7 @@ Server::Server(): creationDate_(getDate()), running_(false), sigIntDetected_(0)
 
 int Server::createSocket()
 {
-	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); /** @todo explain param*/
 	if (serverSocket < 0)
 		throw std::runtime_error("Error: cannot open socket");
 	return serverSocket;
@@ -107,25 +107,29 @@ void Server::defineSocketOption(int serverSocket)
 {
 	// Set SO_REUSEADDR to avoid "address already in use" error on restart
 	int opt = 1;
-	int result = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+	int result = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)); /** @todo explain */
 	if (result < 0)
+	{
+		close(serverSocket);
 		throw std::runtime_error("Error: setsockopt failed");
+	}
 }
 
 struct sockaddr_in Server::createAddress(int port)
 {
 	struct sockaddr_in serverAddr;
 	std::memset(&serverAddr, 0, sizeof(serverAddr));
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(port); // h stant for host
-	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); // inet_pton("127.0.0.1")
+	serverAddr.sin_family = AF_INET; // Local network (localhost)
+	//convert values between host and network byte order
+	serverAddr.sin_port = htons(port); // h stand for host
+	serverAddr.sin_addr.s_addr = htonl(INADDR_ANY); // corresponding to inet_pton("127.0.0.1")
 	return serverAddr;
 }
 
 /**
  * @brief Associates the socket with the local address.
  */
-void Server::bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr)
+void Server::bindSocketOnAddress(int serverSocket, struct sockaddr* serverAddr)
 {
 	if (bind(serverSocket, serverAddr, sizeof(*serverAddr)) < 0)
 	{
@@ -133,7 +137,7 @@ void Server::bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr)
 		throw std::runtime_error("Error: bind failed");
 	}
 }
-
+/** @todo explain function */
 void Server::defineSocketOnlistening(int serverSocket)
 {
 	if (listen(serverSocket, SOMAXCONN) < 0)
@@ -145,15 +149,13 @@ void Server::defineSocketOnlistening(int serverSocket)
 
 int Server::parsePort(const std::string& port)
 {
-	const int MIN_PORT_VALUE = 1023;
+	const int MIN_PORT_VALUE = 1024; //Well Known Ports (0, 1023)
 	const int MAX_PORT_VALUE = 65535;
 
 	if (port.empty())
 		throw std::runtime_error("Error: Invalid port");
 	int portNumber = std::atoi(port.c_str());
-	if (portNumber <= MIN_PORT_VALUE)
-		throw std::runtime_error("Error: Invalid port");
-	if (portNumber > MAX_PORT_VALUE)
+	if (portNumber < MIN_PORT_VALUE || portNumber > MAX_PORT_VALUE)
 		throw std::runtime_error("Error: Invalid port");
 	return portNumber;
 }
@@ -169,12 +171,12 @@ void Server::parsePassword(const std::string& password)
 void Server::parsePasswordChar(const unsigned char c)
 {
 	if (c <= 32 || c > 126)
-		throw std::runtime_error("Error: Use just ascii value 33 at 126");
+		throw std::runtime_error("Error: Use just ascii value from 33 to 126");
 }
 
 void Server::onEvent()
 {
-	int poll_count = UserManager::getInstance().getNbUserEvent(); // 5 sec timeout
+	int poll_count = UserManager::getInstance().getUsersEvent(); // 5 sec timeout
 	if (poll_count < 0)// Signal detected or error poll execution
 	{
 		if (sigIntDetected_ == 0)
