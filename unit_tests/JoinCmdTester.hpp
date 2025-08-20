@@ -5,7 +5,7 @@
 #include "JoinCmd.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "NoSuchChannelException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "InviteOnlyException.hpp"

@@ -6,9 +6,10 @@
 #include "UserNotInChannelException.hpp"
 #include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "InviteOnlyException.hpp"
 #include "UserOnChannelException.hpp"
+#include "NotOnChannelException.hpp"
 
 #include "UserTester.hpp"	// dummyAddr()
 
@@ -57,10 +58,11 @@ public:
 		chan.enableInviteRestriction();
 		Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(11);});
 		Tester::assertFalse(chan.isConnected(11));
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {chan.inviteUser(11, 12);});
+		Tester::assertThrows<NotOnChannelException>([&]() {chan.inviteUser(12, 11);});
 		Tester::assertDoNotThrows([&]() {chan.inviteUser(11, 10);});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 		Tester::assertTrue(chan.isConnected(11));
+		Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {chan.inviteUser(12, 11);});
 		Tester::assertThrows<UserOnChannelException>([&]() {chan.inviteUser(11, 10);});
 		Tester::assertDoNotThrows([&]() {chan.disconnectUser(11);});
 		Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(11);});
@@ -94,12 +96,12 @@ public:
 
 		Channel chan("secure", 10);
 
-		Tester::assertThrows<UserNotInChannelException>([&]() {chan.setTopic("This is a test!", 11);});
+		Tester::assertThrows<NotOnChannelException>([&]() {chan.setTopic("This is a test!", 11);});
 		Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 		Tester::assertDoNotThrows([&]() {chan.setTopic("This is a test!", 11);});
 		Tester::assertExpectedEqualsActual(std::string("This is a test!"), chan.topic_);
 		chan.enableTopicRestriction();
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {chan.setTopic("Changing topic error", 11);});
+		Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {chan.setTopic("Changing topic error", 11);});
 		Tester::assertDoNotThrows([&]() {chan.setTopic("Changing topic good", 10);});
 		Tester::assertExpectedEqualsActual(std::string("Changing topic good"), chan.topic_);
 		chan.disableTopicRestriction();

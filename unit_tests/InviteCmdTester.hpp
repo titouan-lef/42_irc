@@ -43,10 +43,11 @@ public:
 		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		cmd = {"INVITE", {"user1", "#test"}, false};
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {invite.execute(cmd,10, CONNECTED);});
+		Tester::assertThrows<NotOnChannelException>([&]() {invite.execute(cmd,10, CONNECTED);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 		cmd = {"INVITE", {"user1", "#test"}, false};
+		Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {invite.execute(cmd,10, CONNECTED);});
 		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		UserManager::getInstance().deleteUser(1);

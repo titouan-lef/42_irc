@@ -4,7 +4,7 @@
 #include "ChanServ.hpp"
 #include "ModeCmd.hpp"
 #include "UserNotInChannelException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "NoSuchChannelException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "InviteOnlyException.hpp"
@@ -39,12 +39,12 @@ public:
 			Tester::assertThrows<NeedMoreParamsException>([&]() {mode.execute(cmd, 10, CONNECTED);});
 			
 			cmd = {"MODE", {"#test"}, false};
-			Tester::assertThrows<UserNotInChannelException>([&]() {mode.execute(cmd, 10, CONNECTED);});
+			Tester::assertThrows<NotOnChannelException>([&]() {mode.execute(cmd, 10, CONNECTED);});
 
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			
 			cmd = {"MODE", {"#test"}, false};
-			Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {mode.execute(cmd, 10, CONNECTED);});
+			Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {mode.execute(cmd, 10, CONNECTED);});
 
 			cmd = {"MODE", {"#testre"}, false};
 			Tester::assertThrows<NoSuchChannelException>([&]() {mode.execute(cmd, 1, CONNECTED);});
@@ -67,7 +67,7 @@ public:
 			user1.sendCommand("JOIN #test");
 			user1.skipReplies(4);
 			user2.sendCommand("MODE #test");
-			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
+			user2.assertReply(":ircserv 442 user2 #test :You're not on that channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");
@@ -531,7 +531,7 @@ public:
 			user1.assertReply(":ircserv 324 user1 #test +t");
 
 			user2.sendCommand("TOPIC #test :Changing topic");
-			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
+			user2.assertReply(":ircserv 442 user2 #test :You're not on that channel");
 
 			user2.sendCommand("JOIN #test");
 			user2.skipReplies(4);

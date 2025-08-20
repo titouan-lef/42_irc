@@ -51,7 +51,7 @@ void IrcException::displayError(const int receiverSocket) const
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "UnknownCmdException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "NicknameInUseException.hpp"
 #include "ErroneUsNicknameException.hpp"
 #include "NeedMoreParamsException.hpp"
@@ -144,7 +144,7 @@ BadChanKeyException::BadChanKeyException(const std::string& channelName):
 BadChanMaskException::BadChanMaskException(const std::string& channelName):
 	IrcException(476,  std::vector<std::string>(1, channelName), "Bad Channel Mask") {}
 
-ChannelPrivilegesNeeded::ChannelPrivilegesNeeded(const std::string& channelName):
+ChannelPrivilegesNeededException::ChannelPrivilegesNeededException(const std::string& channelName):
 	IrcException(482, std::vector<std::string>(1, channelName), "You're not channel operator") {}
 
 ClientDisconnectedException::ClientDisconnectedException():

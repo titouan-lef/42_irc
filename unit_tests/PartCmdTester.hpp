@@ -5,7 +5,7 @@
 #include "PartCmd.hpp"
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "NoSuchChannelException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "InviteOnlyException.hpp"
@@ -101,7 +101,7 @@ public:
 			user2.sendCommand("JOIN #CHAN1");
 			user2.skipReplies(4);
 			user1.sendCommand("PART #CHAN1 :salut !");
-			user1.assertReply(":ircserv 441 user1 user1 #CHAN1 :They aren't on that channel");
+			user1.assertReply(":ircserv 442 user1 #CHAN1 :You're not on that channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");

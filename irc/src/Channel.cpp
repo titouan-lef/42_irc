@@ -4,10 +4,11 @@
 #include "UserManager.hpp"
 #include "BadChanKeyException.hpp"
 #include "ChannelIsFullException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "InviteOnlyException.hpp"
 #include "UserNotInChannelException.hpp"
 #include "UserOnChannelException.hpp"
+#include "NotOnChannelException.hpp"
 #include "command.hpp"
 
 #include <sstream>
@@ -108,11 +109,6 @@ void Channel::connectUser(int socketNewUser, const std::string& password)
  */
 bool Channel::disconnectUser(const int socketUser)
 {
-	if (!isConnected(socketUser))
-	{
-		const std::string nickname = UserManager::getInstance().findUserNickname(socketUser);
-		throw UserNotInChannelException(nickname, name_);
-	}
 	removeOperator(socketUser);
 	removeConnectedUser(socketUser);
 	return (socketConnectedUsers_.empty());
@@ -122,12 +118,14 @@ bool Channel::disconnectUser(const int socketUser)
  * @brief Invite user to join the channel.
  * @param invitedSocket Socket of the user invited on the channel.
  * @param socketSender Socket of the user who is inviting.
- * @throws ChannelPrivilegesNeeded, UserOnChannelException.
+ * @throws ChannelPrivilegesNeededException, UserOnChannelException.
  */
 void Channel::inviteUser(int invitedSocket, int socketSender)
 {
+	if (!isConnected(socketSender))
+		throw NotOnChannelException(name_);
 	if (!isOperator(socketSender))
-		throw ChannelPrivilegesNeeded(name_);
+		throw ChannelPrivilegesNeededException(name_);
 	if (isConnected(invitedSocket))
 	{
 		const std::string username = UserManager::getInstance().findUserNickname(invitedSocket);
@@ -144,9 +142,8 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
  */
 void Channel::managePartMessage(const int socketUser, const char* message) const
 {
-	std::string nickname = UserManager::getInstance().findUserNickname(socketUser);
 	if (!isConnected(socketUser))
-		throw UserNotInChannelException(nickname, name_);
+		throw NotOnChannelException(name_);
 	Command cmd;
 	cmd.name = "PART";
 	cmd.arg.push_back(name_);
@@ -156,8 +153,14 @@ void Channel::managePartMessage(const int socketUser, const char* message) const
 	manageCmdMessage(socketUser, cmd);
 }
 
-void Channel::manageKickMessage(const int socketUser, const std::string &username, const std::string& message) const
+void Channel::manageKickMessage(const int socketUser, const int loggedOutSocket, const std::string& message) const
 {
+	if (!isConnected(loggedOutSocket))
+	{
+		std::string nickname = UserManager::getInstance().findUserNickname(loggedOutSocket);
+		throw UserNotInChannelException(nickname, name_);
+	}
+	const std::string username = UserManager::getInstance().findUserName(loggedOutSocket);
 	Command cmd;
 	cmd.name = "KICK";
 	cmd.arg.push_back(name_);
@@ -304,14 +307,14 @@ bool Channel::disableTopicRestriction()
 }
 
 /**
- * @throws UserNotInChannelException, ChannelPrivilegesNeeded.
+ * @throws UserNotInChannelException, ChannelPrivilegesNeededException.
  */
 void Channel::setTopic(const std::string& newTopic, const int socketUser)
 {
 	if (!isConnected(socketUser))
-		throw UserNotInChannelException(UserManager::getInstance().findUserNickname(socketUser), name_);
+		throw NotOnChannelException(name_);
 	if (isTopicRestricted() && !isOperator(socketUser))
-		throw ChannelPrivilegesNeeded(name_);
+		throw ChannelPrivilegesNeededException(name_);
 	topic_ = newTopic;
 }
 

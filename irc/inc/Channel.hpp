@@ -29,7 +29,7 @@ public:
 	void inviteUser(int invitedSocket, int socketSender);
 
 	void managePartMessage(const int socketUser, const char* message) const;
-	void manageKickMessage(const int senderSocket, const std::string &username, const std::string& message) const;
+	void manageKickMessage(const int senderSocket, const int loggedOutSocket, const std::string& message) const;
 
 	bool addNewOperator(const int socketNewOperator);
 	bool removeOperator(const int socketUser);

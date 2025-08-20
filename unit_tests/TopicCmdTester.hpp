@@ -6,7 +6,7 @@
 #include "UserManager.hpp"
 #include "UserManagerTester.hpp"
 #include "UserNotInChannelException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "NoSuchChannelException.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "command.hpp"
@@ -41,13 +41,13 @@ public:
 		Tester::assertThrows<NoSuchChannelException>([&]() {topic.execute(cmd, 1, CONNECTED);});
 
 		cmd = {"TOPIC", {"#test", "New topic"}, true};
-		Tester::assertThrows<UserNotInChannelException>([&]() {topic.execute(cmd, 10, CONNECTED);});
+		Tester::assertThrows<NotOnChannelException>([&]() {topic.execute(cmd, 10, CONNECTED);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 
 		chan.enableTopicRestriction();
 		cmd = {"TOPIC", {"#test", "New topic"}, true};
-		Tester::assertThrows<ChannelPrivilegesNeeded>([&]() {topic.execute(cmd, 10, CONNECTED);});
+		Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {topic.execute(cmd, 10, CONNECTED);});
 		chan.disableTopicRestriction();
 
 		ChanServ::getInstance().partAllChannels(10);
@@ -95,7 +95,7 @@ public:
 			user1.skipReplies(4);
 
 			user2.sendCommand("TOPIC #test :Changing topic");
-			user2.assertReply(":ircserv 441 user2 user2 #test :They aren't on that channel");
+			user2.assertReply(":ircserv 442 user2 #test :You're not on that channel");
 		}
 		{
 			ReplyTester user1(4343, "password", "user1");

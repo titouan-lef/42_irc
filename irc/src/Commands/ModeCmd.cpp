@@ -8,9 +8,10 @@
 #include "ChanServ.hpp"
 #include "NeedMoreParamsException.hpp"
 #include "UnknownModeException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 #include "InvalidModeParamException.hpp"
 #include "UserNotInChannelException.hpp"
+#include "NotOnChannelException.hpp"
 
 ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
 
@@ -22,7 +23,7 @@ ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeeded, UnknownModeException
+ * @throws Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeededException, UnknownModeException
  * @todo ErrKeySet / maybe KeySet(467), NoChanModes(477) ?
  * 
  */
@@ -44,12 +45,9 @@ Channel& ModeCmd::checkCmd(const Command& cmd, const int senderSocket) const
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
 
 	if (!channel.isConnected(senderSocket))
-	{
-		const std::string& nickname = UserManager::getInstance().findUserNickname(senderSocket);
-		throw UserNotInChannelException(nickname, channelName);
-	}
+		throw NotOnChannelException(channelName);
 	if (!channel.isOperator(senderSocket))
-		throw ChannelPrivilegesNeeded(channelName);
+		throw ChannelPrivilegesNeededException(channelName);
 
 	return channel;
 }

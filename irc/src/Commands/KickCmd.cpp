@@ -5,7 +5,8 @@
 #include "ChanServ.hpp"
 #include "UserManager.hpp"
 #include "NeedMoreParamsException.hpp"
-#include "ChannelPrivilegesNeeded.hpp"
+#include "NotOnChannelException.hpp"
+#include "ChannelPrivilegesNeededException.hpp"
 
 KickCmd::KickCmd(): ACommand(CONNECTED, CONNECTED, 2, 3) {}
 
@@ -17,8 +18,7 @@ KickCmd::KickCmd(): ACommand(CONNECTED, CONNECTED, 2, 3) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParamsException, ChannelPrivilegesNeeded
- * @todo NoSuchChannelException 403, BadChanKeyException 476, UserNotInChannel 441, ERR_NOTONCHANNEL 442
+ * @throws Command: NeedMoreParamsException, ChannelPrivilegesNeededException
  */
 void KickCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
@@ -79,6 +79,8 @@ void KickCmd::kickOneChannel(const int senderSocket, const std::string& channelN
 void KickCmd::checkChannel(const int senderSocket, const std::string& channelName) const
 {
 	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
+	if (!channel.isConnected(senderSocket))
+		throw NotOnChannelException(channelName);
 	if (!channel.isOperator(senderSocket))
-		throw ChannelPrivilegesNeeded(channelName);
+		throw ChannelPrivilegesNeededException(channelName);
 }

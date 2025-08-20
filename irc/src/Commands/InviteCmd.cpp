@@ -16,8 +16,7 @@ InviteCmd::InviteCmd(): ACommand(CONNECTED, CONNECTED, 2, 2) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException
- * @todo execption forbiden : NotonChannel(442) ChannelPrivilegesNeeded(482)/ may be 341 RPL_INVITING
+ * @throws Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException, NotonChannelExcetion, ChannelPrivilegesNeededException
  */
 void InviteCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
