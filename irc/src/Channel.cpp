@@ -124,7 +124,7 @@ void Channel::inviteUser(int invitedSocket, int socketSender)
 {
 	if (!isConnected(socketSender))
 		throw NotOnChannelException(name_);
-	if (!isOperator(socketSender))
+	if (isInviteRestricted() && !isOperator(socketSender))
 		throw ChannelPrivilegesNeededException(name_);
 	if (isConnected(invitedSocket))
 	{
