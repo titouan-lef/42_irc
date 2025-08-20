@@ -60,7 +60,9 @@ $(OBJ_DIR):
 tester:	$(OBJ)
 	@ar rcs $(NAME).a $(OBJ)
 
-bonus: $(NAME) $(OBJ_BONUS)
+bonus: $(BOT_NAME)
+
+$(BOT_NAME): $(NAME) $(OBJ_BONUS)
 	@$(CXX) $(CXXFLAGS) $(OBJ_BONUS) -o $(BOT_NAME)
 	@echo "$(GREEN)$(BOT_NAME) ready ✅️$(INIT)"
 
@@ -80,6 +82,9 @@ fclean:	clean
 	@if [ -f $(NAME) ]; then\
 		echo "$(RED)Removing : $(MAGENTA)$(NAME)$(INIT)";\
 		rm -f $(NAME);\
+	fi;
+	@if [ -f $(BOT_NAME) ]; then\
+		echo "$(RED)Removing : $(MAGENTA)$(BOT_NAME)$(INIT)";\
 		rm -f $(BOT_NAME);\
 	fi;
 
@@ -115,6 +120,6 @@ $(DISPLAY_TRACKER):
 	@sleep 0.5
 	@touch $(DISPLAY_TRACKER)
 
-.PHONY	= all clean fclean re
+.PHONY: all clean fclean re bonus
 
 -include $(DEP)
