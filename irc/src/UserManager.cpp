@@ -254,9 +254,9 @@ void UserManager::closeConnectionBySocket(const int userSocket)
  *
  * @return The number of file descriptors with events, 0 on timeout, or -1 on error.
  */
-int UserManager::getNbUserEvent() const
+int UserManager::getNbUserEvent()
 {
-	return poll((struct pollfd*)pollfdList_.data(), pollfdList_.size(), 5000);/** @todo cast */
+	return poll(pollfdList_.data(), pollfdList_.size(), 5000);
 }
 
 void UserManager::updateLastActivity(const int userSocket)
