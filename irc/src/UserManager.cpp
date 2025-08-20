@@ -74,12 +74,9 @@ void UserManager::listenClients()
 	{
 		if (!hasDataToRead(i) || reiceveFromClient(i))
 			continue;
-		while (MsgServ::getInstance().isCommandReady(i))/** @todo why a "while" ? why "if (i >= userList_.size())" ? */
-		{
+		const std::size_t currentNbUser = pollfdList_.size();
+		while (userIsStillConnected(currentNbUser) && MsgServ::getInstance().isCommandReady(i))
 			executeCommandsClient(i);
-			if (i >= userList_.size()) /** @todo better management quit */
-				break;
-		}
 	}
 }
 
@@ -134,10 +131,10 @@ int UserManager::reiceveFromClient(const int index)
 
 void UserManager::executeCommandsClient(const int index)
 {
-	std::string command = MsgServ::getInstance().getCommand(index);
-	std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 	try
 	{
+		std::string command = MsgServ::getInstance().getCommand(index);
+		std::cout << "Executing command: " << command << " -> size: " << command.size() << std::endl << std::endl;
 		CommandManager::getInstance().interpretData(command, pollfdList_.at(index).fd, userList_.at(index).getStatus());
 	}
 	catch(const IrcException& e)
@@ -310,6 +307,16 @@ void UserManager::checkNewConnections()
 bool UserManager::hasDataToRead(const int index) const
 {
 	return (pollfdList_.at(index).revents & POLLIN); /** @todo comment explanation */
+}
+
+/**
+ * @details If the user is deconnected (use QUIT command), the old and current number of user are different.
+ * Another user who quits server in another way (signal, close windiw, ...) will be remove of UserManager
+ * when server read its data (so current number of use not change).
+ */
+bool UserManager::userIsStillConnected(const std::size_t currentNbUser) const
+{
+	return currentNbUser == pollfdList_.size();
 }
 
 void UserManager::closeConnection(const int index)

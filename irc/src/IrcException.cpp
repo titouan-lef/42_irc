@@ -69,6 +69,7 @@ void IrcException::displayError(const int receiverSocket) const
 #include "UserOnChannelException.hpp"
 #include "NoTextToSendException.hpp"
 #include "TooManyTargetsException.hpp"
+#include "MessageTooLongException.hpp"
 #include "NoRecipientException.hpp"
 
 #include "User.hpp"
@@ -155,6 +156,9 @@ ReiceveException::ReiceveException():
 
 SendException::SendException(const std::vector<std::string>& arg, const std::string& nickname):
 	IrcException(1, arg, "Impossible to send data from " + nickname) {}
+
+MessageTooLongException::MessageTooLongException():
+	IrcException(686, "Message send is too long") {}
 
 InvalidModeParamException::InvalidModeParamException(const std::vector<std::string>& arg):
 	IrcException(696, arg, "Invalid parameter for mode") {}

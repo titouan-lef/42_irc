@@ -54,7 +54,6 @@ private:
 	std::string formatMsg(const Message &msg) const;
 	void sendMsg(int socket, std::string& msg) const;
 	const std::string convertCodeToCommandId(const int code) const;
-	bool completeMsg(int buffer_index, const std::string &msg);
 
 
 	static const std::size_t BUFFER_SIZE = 512;

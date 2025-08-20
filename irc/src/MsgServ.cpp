@@ -7,6 +7,7 @@
 #include "Server.hpp"
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
+#include "MessageTooLongException.hpp"
 #include "UserManager.hpp"
 #include "command.hpp"
 
@@ -34,8 +35,7 @@ void MsgServ::recvMsg(int receiverSocket, int buffer_index)
 		throw ClientDisconnectedException();
 	buffer[bytes_received] = '\0';
 	std::cout << "Received message: " << buffer << std::endl;
-	if (completeMsg(buffer_index, buffer))
-		throw std::runtime_error("Error: msg too long.");/** @todo throw MessageToLongException();*/
+	buffers_.at(buffer_index) += buffer;
 }
 
 void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
@@ -196,28 +196,13 @@ bool MsgServ::isCommandReady(int buffer_index) const
 }
 
 /**
- * @brief Add the reiceved message to the user's buffer.
- * @return 1 if the total length of the current command is longer that 512, 0 otherwize.
- * @note You must the return value of this funciton and throw MessageToLongException() if true.
- */
-bool MsgServ::completeMsg(int buffer_index, const std::string &msg)
-{
-	std::string& buffer = buffers_.at(buffer_index);
-	buffer += msg;
-	if (buffer.size() > BUFFER_SIZE)
-	{
-		buffer.clear();
-		return true;
-	}
-	return false;
-}
-
-/**
  * @brief Extracts and returns the next complete command from the buffer.
  * 
  * The function removes the command from the internal buffer after extraction.
  * 
  * @return The next command if available, or an empty string if no complete command is found.
+ * 
+ * @throw MessageTooLongException.
  * 
  * @note According to the IRC protocol, "\r\n" is the standard line ending.
  *       If only "\n" is found (non-standard), it is still accepted for flexibility (netcat).
@@ -236,6 +221,8 @@ std::string MsgServ::getCommand(int buffer_index)
 	}
 	const std::string command = buffer.substr(0, pos);
 	buffer = buffer.substr(pos + posOffset);
+	if (command.size() > BUFFER_SIZE - posOffset)
+		throw MessageTooLongException();
 	return command;
 }
 

@@ -57,6 +57,7 @@ private:
 	void executeCommandsClient(const int index);
 	bool serverHasReiceveData() const;
 	bool hasDataToRead(const int index) const;
+	bool userIsStillConnected(const std::size_t currentNbUser) const;
 	void closeConnection(const int index);
 	void displayLogDisconnection(const int index) const;
 	void closeServer();
