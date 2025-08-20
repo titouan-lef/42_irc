@@ -1,7 +1,3 @@
 - Revoir MsgServ::receiveCommand
-
-- Supprimer MsgServ::sendNumericReply / MsgServ::sendMessageReply non utilisés (Titou)
-
 - Check what appends to the command send after a PING -> le command fonctionnent mais le client est quand meme kick
 
-- 

@@ -24,8 +24,6 @@ ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
  * @throws Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeededException, UnknownModeException
- * @todo ErrKeySet / maybe KeySet(467), NoChanModes(477) ?
- * 
  */
 void ModeCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

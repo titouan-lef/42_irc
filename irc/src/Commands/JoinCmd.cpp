@@ -18,8 +18,7 @@ JoinCmd::JoinCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException, BadChanMaskException
- * @todo  execption forbiden : ERR_INVITEONLYCHAN 473, ERR_BADCHANNELKEY 475, ERR_CHANNELISFULL 471, ERR_NOSUCHCHANNEL 403/ maybe KeySet(467) ?
+ * @throws Command: NeedMoreParamsException, UserOnChannelException, NoSuchNickException, BadChanMaskException, InviteOnlyException, BadChanKeyException, ChannelIsFullException, NoSuchChannelException
  */
 void JoinCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
