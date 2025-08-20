@@ -3,6 +3,7 @@
 #include "Tester.hpp"
 #include "command.hpp"
 #include "MsgServ.hpp"
+#include "MessageTooLongException.hpp"
 
 #include <iostream>
 
@@ -14,6 +15,7 @@ public:
 		formatMsgReplyTest();
 		formatNumericReplyTest();
 		testCompleteMsgAndCommandExtraction();
+		getCommandTest();
 	}
 
 private:
@@ -171,7 +173,7 @@ private:
 		MsgServ& manager = MsgServ::getInstance();
 
 		manager.addNewBuffer();
-		Tester::assertTrue(manager.completeMsg(0, "PASS password\r\nNICK nick\r\n") == 0);
+		manager.buffers_.at(0) += "PASS password\r\nNICK nick\r\n";
 		Tester::assertTrue(manager.isCommandReady(0));
 		std::string cmd = manager.getCommand(0);
 		Tester::assertExpectedEqualsActual(cmd, std::string("PASS password"));
@@ -180,20 +182,35 @@ private:
 		Tester::assertExpectedEqualsActual(cmd, std::string("NICK nick"));
 
 		manager.addNewBuffer();
-		Tester::assertTrue(manager.completeMsg(1, "\r\n") == 0);
+		manager.buffers_.at(1) += "\r\n";
 		Tester::assertTrue(manager.isCommandReady(1));
 		cmd = manager.getCommand(1);
 		Tester::assertExpectedEqualsActual(cmd, std::string(""));
 
-		Tester::assertTrue(manager.completeMsg(0, "USER ") == 0);
+		manager.buffers_.at(0) += "USER ";
 		Tester::assertFalse(manager.isCommandReady(0));
-		Tester::assertTrue(manager.completeMsg(0, "test ") == 0);
+		manager.buffers_.at(0) += "test ";
 		Tester::assertFalse(manager.isCommandReady(0));
-		Tester::assertTrue(manager.completeMsg(0, "0 * ") == 0);
+		manager.buffers_.at(0) += "0 * ";
 		Tester::assertFalse(manager.isCommandReady(0));
-		Tester::assertTrue(manager.completeMsg(0, ":This is a test\r\n") == 0);
+		manager.buffers_.at(0) += ":This is a test\r\n";
 		Tester::assertTrue(manager.isCommandReady(0));
 		cmd = manager.getCommand(0);
 		Tester::assertExpectedEqualsActual(cmd, std::string("USER test 0 * :This is a test"));
+	}
+
+	void getCommandTest()
+	{
+		Tester::startTest("MsgServ getCommand()");
+
+		MsgServ& manager = MsgServ::getInstance();
+
+		manager.addNewBuffer();
+		manager.buffers_.at(0) += "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut ex ipsum, auctor sagittis arcu ut, venenatis varius orci. Pellentesque at enim elit. Nam a pulvinar quam. Proin ultricies ipsum ac semper lacinia. Aenean ligula justo, pellentesque vestibulum mi quis, consectetur venenatis eros. Phasellus aliquam metus sapien, ut vulputate eros egestas nec. Praesent facilisis vulputate mauris, at volutpat orci dignissim vel. Mauris dapibus consectetur augue vitae lobortis. Phasellus gravida enim eros, non porttitor\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Proin gravida hendrerit nulla quis blandit. Curabitur rutrum bibendum sem in eleifend. Nullam eleifend elit ut sem mattis, non lobortis sem ullamcorper. Donec ut nulla sodales, commodo urna et, ultrices leo. Duis aliquam tincidunt ante ut pellentesque. Vestibulum eu pretium risus. Sed ultricies rutrum ultrices. Proin condimentum nisi vel nisi commodo, ac mollis mi mattis. Maecenas nulla ipsum, tempus sagittis mi et, feugiat finibus orci. Donec tellus\n";
+		Tester::assertTrue(manager.isCommandReady(0));
+		Tester::assertThrows<MessageTooLongException>([&]() {manager.getCommand(0);});
+		Tester::assertTrue(manager.isCommandReady(0));
+		Tester::assertDoNotThrows([&]() {manager.getCommand(0);});
+		std::string cmd = manager.getCommand(0);
 	}
 };
