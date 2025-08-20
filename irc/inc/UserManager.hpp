@@ -40,7 +40,7 @@ public:
 	void closeConnectionBySocket(const int userSocket);
 
 	void checkNewConnections();
-	int getNbUserEvent();
+	int getUsersEvent();
 	void updateLastActivity(const int userSocket);
 	void validatePongResponse(const int userSocket);
 

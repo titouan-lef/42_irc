@@ -22,9 +22,6 @@ public:
 	
 private:
 	Server();
-	~Server(){}
-	Server(const Server& other);
-	Server& operator=(const Server& other);
 	
 	void run();
 	void stop();
@@ -33,7 +30,7 @@ private:
 	int createSocket();
 	void defineSocketOption(int serverSocket);
 	struct sockaddr_in createAddress(int port);
-	void bindSocketOnAdress(int serverSocket, struct sockaddr* serverAddr);
+	void bindSocketOnAddress(int serverSocket, struct sockaddr* serverAddr);
 	void defineSocketOnlistening(int serverSocket);
 	int parsePort(const std::string& port);
 	void definePassword(const std::string& password);

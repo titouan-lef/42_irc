@@ -12,7 +12,6 @@ struct Command;
 class ChanServ: public Service
 {
 public:
-
 	static ChanServ& getInstance();
 	
 	Channel& createChannelWithOperator(const std::string& channelName, const int socketModerator);
@@ -33,7 +32,6 @@ private:
 	typedef std::map<std::string, this_method_t> this_func_map_t;
 	
 	ChanServ();
-	// ~ChanServ();
 
 	void receiveCommand(const int senderSocket, const std::string& message);
 	std::size_t findChannelIndex(const std::string& channelName) const;

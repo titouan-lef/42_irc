@@ -1,8 +1,6 @@
 #include "IrcException.hpp"
 
 /***************************************************************************************************************************************************/
-#include <iomanip>
-#include <sstream>
 
 #include "Server.hpp"
 #include "MsgServ.hpp"

@@ -17,7 +17,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	std::signal(SIGINT, signalHandler); // Setup signal handler
-	std::signal(SIGQUIT, SIG_IGN);/** @todo Check with the team*/
 	std::signal(SIGTSTP, SIG_IGN);/** @todo Check with the team*/
 	int status = Server::getInstance().up(argv[1], argv[2]);
 	return status;
