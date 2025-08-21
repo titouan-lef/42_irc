@@ -21,12 +21,10 @@ public:
 private:
 	CommandManager();
 	virtual ~CommandManager();
-	CommandManager(const CommandManager& other);
-	CommandManager& operator=(const CommandManager& other);
 
 	Command parserCmd(const std::string& recv) const;
 	std::size_t createCmdName(const std::string& recv, std::string& cmdName) const;
-	bool cmdNotExist(const std::string& cmdName) const;
+	bool cmdDoNotExist(const std::string& cmdName) const;
 	void parserCmdElement(const std::string &recv, std::size_t start, Command& cmd) const;
 	std::size_t delimitParameter(const std::string &recv, std::size_t start, std::string& param) const;
 

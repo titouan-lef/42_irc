@@ -46,7 +46,6 @@ bool UserCmd::validParam(const std::vector<std::string>& param) const
 	return (param.at(1) == "0" && param.at(2) == "*");
 }
 
-/** @todo tcheck  */
 bool UserCmd::validUsername(const std::string& username) const
 {
 	if (username.empty())

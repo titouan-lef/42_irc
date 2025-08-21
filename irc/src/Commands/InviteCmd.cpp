@@ -32,6 +32,5 @@ void InviteCmd::inviteUserInChannel(const Command& cmd, const int senderSocket, 
 {
 	Channel& channel = ChanServ::getInstance().findChannel(channelName);
 	channel.inviteUser(invitedSocket, senderSocket);
-
 	MsgServ::getInstance().sendMessageReply(senderSocket, invitedSocket, cmd);
 }

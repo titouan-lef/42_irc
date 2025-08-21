@@ -45,7 +45,7 @@ void ListCmd::sendInfoOneChannel(const int senderSocket, const std::string &chan
 {
 	try
 	{
-		Channel& channel = ChanServ::getInstance().findChannel(channelName);
+		const Channel& channel = ChanServ::getInstance().findChannel(channelName);
 		channel.sendChannelSummary(senderSocket);
 	}
 	catch(const IrcException& e)

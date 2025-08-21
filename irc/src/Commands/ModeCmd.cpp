@@ -23,7 +23,7 @@ ModeCmd::ModeCmd(): ACommand(CONNECTED, CONNECTED, 1, -1) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParams, UserNotInChannel, ChannelPrivilegesNeededException, UnknownModeException
+ * @throws Command: NeedMoreParamsException, InvalidModeParamException, UserNotInChannelException, ChannelPrivilegesNeededException, UnknownModeException, NotOnChannelException
  */
 void ModeCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {
@@ -68,7 +68,7 @@ std::vector<ModeCmd::Option> ModeCmd::parseCommand(const Command& cmd, const int
 		addOptionInList(cmd, senderSocket, optionList, it);
 		++it;
 	}
-	return optionList;/** @warning max 3 arg */
+	return optionList;
 }
 
 void ModeCmd::addOptionInList(const Command& cmd, const int senderSocket, std::vector<Option>& optionList, argIterator& it) const
@@ -232,7 +232,7 @@ bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
 	return channel.setLimitNbUsers(limit);
 }
 
-int ModeCmd::getChannelLimit(const std::string &limitArg) const
+int ModeCmd::getChannelLimit(const std::string &limitArg) const /** @todo do the same for the server port */
 {
 	const std::string AUTHORIZED_CHAR = "0123456789";
 
@@ -251,7 +251,7 @@ std::string ModeCmd::builtBroadcastMsg(const std::vector<Option>& optionList) co
 std::string ModeCmd::builtOptionMsg(const std::vector<Option>& optionList) const
 {
 	std::string allOption, allOptionArg;
-	bool isAddFlag = (!optionList.at(0).isAddFlag);
+	bool isAddFlag = (!optionList.at(0).isAddFlag); // To always display first sign.
 	for (std::size_t i = 0; i < optionList.size(); ++i)
 	{
 		updateFlagMsg(optionList.at(i), allOption, isAddFlag);
@@ -265,7 +265,7 @@ void ModeCmd::updateFlagMsg(const Option &option, std::string& allOption, bool &
 	if (isAddFlag != option.isAddFlag)
 	{
 		allOption += (option.isAddFlag ? "+" : "-");
-		isAddFlag = option.isAddFlag;
+		isAddFlag = option.isAddFlag; // Update bool to know whal sign needed display after.
 	}
 	allOption += option.flag;
 }

@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-struct Msg;
-
 class WeatherBot
 {
 public:
@@ -14,6 +12,12 @@ public:
 	void stop();
 
 private:
+
+	struct Msg {
+		std::string nickSender_;
+		std::string cmd_;
+		std::string restOfMsg_;
+	};
 
 	WeatherBot();
 	~WeatherBot() {};

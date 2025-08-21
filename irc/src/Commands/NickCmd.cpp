@@ -15,7 +15,7 @@ NickCmd::NickCmd(): ACommand(VERIFIED, CONNECTED, 1, 1) {}
  * @brief Executes the NICK command to assign the new user's nickname.
  *
  * @param cmd The command object containing the nick request and its arguments.
- * @param socket The socket descriptor of the user requesting the user lists.
+ * @param senderSocket The socket descriptor of the user requesting the user lists.
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException

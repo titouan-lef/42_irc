@@ -87,13 +87,10 @@ void Server::run()
 void Server::stop()
 {
 	running_ = false;
-	closeServerConnection(); // isn't this can cause a pb if the server do thing beffore ending the while loop ?
+	closeServerConnection();
 }
 
-Server::Server(): creationDate_(getDate()), running_(false), sigIntDetected_(0)
-{
-	// Initialize pollfd for listening socket
-}
+Server::Server(): creationDate_(getDate()), running_(false), sigIntDetected_(0) {}
 
 int Server::createSocket()
 {

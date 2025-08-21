@@ -8,10 +8,6 @@
 #include <fstream>
 #include <string>
 
-#include "Msg.hpp"
-
-#define MIN_PORT_VALUE 1023
-#define MAX_PORT_VALUE 65535
 
 WeatherBot& WeatherBot::getInstance()
 {
@@ -60,7 +56,7 @@ void WeatherBot::run()
 void WeatherBot::initServerConnection(std::string port,std::string password)
 {
 	int portNumber = parsePort(port);
-	socketBot_ = socket(AF_INET, SOCK_STREAM, 0);
+	socketBot_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if(socketBot_ <= 0)
 		throw std::runtime_error("Error: impossible to create the socket");
 	int opt = 1;
@@ -73,22 +69,24 @@ void WeatherBot::initServerConnection(std::string port,std::string password)
 	server_addr.sin_port = htons(portNumber);
 	server_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
-	int res = connect(socketBot_, (sockaddr*)&server_addr, sizeof(server_addr));
+	int res = connect(socketBot_, (sockaddr*)&server_addr, sizeof(server_addr)); // connect to server address
 	if (res < 0)
 		throw std::runtime_error("Error: impossible to connect to the server");
 
 	sendCommand("PASS " + password);
 	sendCommand("NICK WthBot");
 	sendCommand("USER weatherBot 0 * :Master of the universe");
-	running_ = true;
 }
 
 int WeatherBot::parsePort(const std::string& port)
 {
+	const int MIN_PORT_VALUE = 1024;
+	const int MAX_PORT_VALUE = 65535;
+
 	if (port.empty())
 		throw std::runtime_error("Error: Invalid port");
-	int portNumber = std::atoi(port.c_str());
-	if (portNumber <= MIN_PORT_VALUE)
+	int portNumber = std::atoi(port.c_str()); /** @todo parse port like server */
+	if (portNumber < MIN_PORT_VALUE)
 		throw std::runtime_error("Error: Invalid port");
 	if (portNumber > MAX_PORT_VALUE)
 		throw std::runtime_error("Error: Invalid port");
@@ -168,6 +166,8 @@ void WeatherBot::extractRequest(const std::string& recvMsg, Msg& message)
 		return ;
 	++start;
 	size_t end = recvMsg.find(delimiter, start);
+	if (end == std::string::npos)
+		return ;
 	message.cmd_ = recvMsg.substr(start, end - start);
 	if (end == recvMsg.size())
 		return ;
@@ -177,7 +177,7 @@ void WeatherBot::extractRequest(const std::string& recvMsg, Msg& message)
 
 void WeatherBot::msgExec(Msg& message)
 {
-	if (message.cmd_ == "433" || message.cmd_ == "451" )
+	if (message.cmd_ == "433" || message.cmd_ == "451" || message.cmd_ == "464") // 433 : ERR_NICKNAMEINUSE , 451 : ERR_NOTREGISTERED, 464 : ERR_PASSWDMISMATCH
 	{
 		std::cerr << "Impossible to connect to the server" << std::endl;
 		stop();
@@ -190,8 +190,6 @@ void WeatherBot::msgExec(Msg& message)
 		replyMsg = getReplyMsg(message.restOfMsg_);
 		sendCommand("PRIVMSG "+ message.nickSender_ + " :" + replyMsg);
 	}
-	else
-		return;
 }
 
 /********************************************* Get Weather ************************************************/
@@ -220,7 +218,7 @@ std::string getWeather(const std::string& city)
 	std::string cityName = city.substr(0, city.size() - 2);
 	if (!checkInputSafety(cityName))
 		return ("Try with a valid name of city");
-	const std::string cmd = ("/bin/curl -s \"https://wttr.in/" + cityName + "?format=3\" > .txt");
+	const std::string cmd = ("/bin/curl -s \"https://wttr.in/" + cityName + "?format=3\" > .txt"); //-s silent function curl
 	int cr = system(cmd.c_str());
 	if (cr != 0)
 		return ("An error has occured, the weather is unaccessible");
@@ -234,32 +232,31 @@ std::string getWeather(const std::string& city)
 
 std::vector<std::string> splitOnSpace(std::string msg)
 {
-	std::vector<std::string> result;
-	std::string current;
-	for (size_t i = 0; i < msg.size(); ++i)
+	const char DELIMITER = ' ';
+
+	std::vector<std::string> targetList;
+	std::string target;
+	std::size_t start = 0;
+	std::size_t end = msg.find(DELIMITER);
+
+	while (end != std::string::npos)
 	{
-		if (msg[i] == ' ') 
-		{
-			if (!current.empty()) 
-			{
-				result.push_back(current);
-				current.clear();
-			}
-		}
-		else
-			current += msg[i];
+		target = msg.substr(start, end - start);
+		targetList.push_back(target);
+		start = end + 1;
+		end = msg.find(DELIMITER, start);
 	}
-	if (!current.empty())
-		result.push_back(current);
-	return result;
+	target = msg.substr(start);
+	targetList.push_back(target);
+	return targetList;
 }
 
 std::string WeatherBot::getReplyMsg(std::string msg)
 {
 	std::vector<std::string> args = splitOnSpace(msg);
 	if (args.size() != 3)
-		return "Please try with WEATHER city name.";
+		return "Please try with WEATHER one city name.";
 	if (args[1] == ":WEATHER")
 		return getWeather(args[2]);
-	return "Please try with WEATHER city name.";
+	return "Please try with WEATHER one city name.";
 }

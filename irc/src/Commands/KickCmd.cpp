@@ -18,7 +18,7 @@ KickCmd::KickCmd(): ACommand(CONNECTED, CONNECTED, 2, 3) {}
  * @param userStatus The sender user status.
  * 
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NeedMoreParamsException, ChannelPrivilegesNeededException
+ * @throws Command: NeedMoreParamsException, ChannelPrivilegesNeededException, NotOnChannelException
  */
 void KickCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

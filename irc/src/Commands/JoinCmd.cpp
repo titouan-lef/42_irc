@@ -9,7 +9,6 @@
 
 JoinCmd::JoinCmd(): ACommand(CONNECTED, CONNECTED, 1, 2) {}
 
-
 /**
  * @brief Executes the JOIN command to join or create a channel if is doesn't exist.
  *
@@ -78,7 +77,6 @@ void JoinCmd::connectToOneChannel(const int senderSocket, const std::string& cha
 	{
 		e.sendError(senderSocket);
 	}
-	
 }
 
 void JoinCmd::connectToNewChannel(const int senderSocket, const std::string &chanName) const
