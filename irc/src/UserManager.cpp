@@ -152,7 +152,7 @@ int UserManager::findUserSocket(const std::string& nickname)
 {
 	for (std::size_t i = 1; i < userList_.size(); ++i)
 	{
-		if (userList_.at(i).is(nickname))
+		if (userList_.at(i).is(nickname) && userList_.at(i).getStatus() == CONNECTED)
 			return pollfdList_.at(i).fd;
 	}
 	throw NoSuchNickException(nickname);
@@ -231,7 +231,11 @@ void UserManager::closeAllConnection()
 	closeServer();
 }
 
-void UserManager::closeServer() { close(pollfdList_.at(0).fd); }
+void UserManager::closeServer()
+{
+	if (!pollfdList_.empty())
+		close(pollfdList_.at(0).fd);
+}
 
 void UserManager::closeConnectionBySocket(const int userSocket)
 {
