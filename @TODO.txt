@@ -1,5 +1,1 @@
-- Tester tout les help possible
 - Supprimer le testeur du makefile et tout ce qui est en lien avec le testeur
-- @send msg verified fully register
-- creation exception with arg
-- procces connection bot

@@ -65,11 +65,12 @@ void PrivmsgCmd::sendToTarget(const Command& cmd, const int senderSocket, const 
 
 bool PrivmsgCmd::isMsgToChannel(const std::string &target) const { return ChanServ::getInstance().isValidChannelName(target); }
 
-void PrivmsgCmd::sendMsgToChannel(const Command &cmd, const int senderSocket, const std::string& channelName) const
+void PrivmsgCmd::sendMsgToChannel(Command cmd, const int senderSocket, const std::string& channelName) const
 {
 	try
 	{
 		const Channel& channel = ChanServ::getInstance().findChannel(channelName);
+		cmd.arg.at(0) = channel.getName();
 		channel.sendMessageToAllUsers(senderSocket, cmd);
 	}
 	catch(const IrcException& e)
@@ -78,11 +79,12 @@ void PrivmsgCmd::sendMsgToChannel(const Command &cmd, const int senderSocket, co
 	}
 }
 
-void PrivmsgCmd::sendMsgToUser(const Command &cmd, const int senderSocket, const std::string &nickname) const
+void PrivmsgCmd::sendMsgToUser(Command cmd, const int senderSocket, const std::string &nickname) const
 {
 	try
 	{
 		int receiverSocket = UserManager::getInstance().findUserSocket(nickname);
+		cmd.arg.at(0) = nickname;
 		MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd);
 	}
 	catch(const IrcException& e)

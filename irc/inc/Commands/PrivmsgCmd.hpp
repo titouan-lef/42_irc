@@ -20,6 +20,6 @@ private:
 	void checkNbTarget(const std::size_t nbTarget, const std::string &target) const;
 	void sendToTarget(const Command& cmd, const int senderSocket, const std::string& target) const;
 	bool isMsgToChannel(const std::string& target) const;
-	void sendMsgToChannel(const Command &cmd, const int senderSocket, const std::string& channelName) const;
-	void sendMsgToUser(const Command &cmd, const int senderSocket, const std::string& nickname) const;
+	void sendMsgToChannel(Command cmd, const int senderSocket, const std::string& channelName) const;
+	void sendMsgToUser(Command cmd, const int senderSocket, const std::string& nickname) const;
 };
