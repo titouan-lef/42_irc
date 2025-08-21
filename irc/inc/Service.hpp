@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Client.hpp"
-
 #include <iostream>
 #include <map>
 
-class Service: public Client
+class Service
 {
 public:
 	static bool serviceExist(const std::string& serviceName);

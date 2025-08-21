@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Client.hpp"
-
 #include <iostream>
 
 #include "status.hpp"
 
 class UserTester;/** @todo remove before push */
 
-class User: public Client
+class User
 {
 public:
 	User();

@@ -11,7 +11,7 @@
 #include "UserManager.hpp"
 #include "command.hpp"
 
-MsgServ::MsgServ(): Service("MsgServ") {}
+MsgServ::MsgServ() {}
 
 MsgServ& MsgServ::getInstance()
 {
@@ -36,12 +36,6 @@ void MsgServ::recvMsg(int receiverSocket, int buffer_index)
 	buffer[bytes_received] = '\0';
 	std::cout << "Received message: " << buffer << std::endl;
 	buffers_.at(buffer_index) += buffer;
-}
-
-void MsgServ::receiveCommand(const int senderSocket, const std::string& cmd)
-{
-	(void) senderSocket;
-	(void) cmd;
 }
 
 void MsgServ::sendNumericReply(const int receiverSocket, const int code, const std::string& trailing) const
@@ -167,7 +161,7 @@ void MsgServ::sendMsg(int receiverSocket, std::string& msg) const
 	ssize_t sent = send(receiverSocket, msg.c_str(), msg.size(), MSG_NOSIGNAL); // MSG_NOSIGNAL -> no SIGPIPE is connection is closed
 	if (sent == 0)
 		return;
-	if (sent == -1 && errno != EAGAIN) /** @todo check EAGAIN and commant it */
+	if (sent == -1 && errno != EAGAIN) // EAGAIN not fatal error, non-blocking socket's buffer is full and will try again later
 		throw std::runtime_error("Error: cannot send message");
 	if (sent > 0)
 		msg.erase(0, sent); // remove only the data from the mesaage how have been sent

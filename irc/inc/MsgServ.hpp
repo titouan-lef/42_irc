@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Service.hpp"
-
 #include <iostream>
 #include <vector>
 
@@ -9,7 +7,7 @@ class MsgServTester;/** @todo remove before push */
 
 struct Command;
 
-class MsgServ: public Service
+class MsgServ
 {
 public:
 	static MsgServ& getInstance();
