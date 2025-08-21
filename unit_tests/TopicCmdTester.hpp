@@ -120,7 +120,7 @@ public:
 			user1.assertReply(":ircserv 323 user1 :End of LIST");
 
 			user1.sendCommand("TOPIC #test :");
-			user1.assertReply(":user1!user1@localhost TOPIC #test :");/** @todo ':' must be in the reply ? */
+			user1.assertReply(":user1!user1@localhost TOPIC #test :");
 
 			user1.sendCommand("LIST #test");
 			user1.assertReply(":ircserv 322 user1 #test 1");

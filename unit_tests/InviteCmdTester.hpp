@@ -46,8 +46,16 @@ public:
 		Tester::assertThrows<NotOnChannelException>([&]() {invite.execute(cmd,10, CONNECTED);});
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
-		cmd = {"INVITE", {"user1", "#test"}, false};
+		
+		UserManager::getInstance().addNewUser(11, dummyAddr(4242));
+		UserManager::getInstance().findUser(11).setNickname("user2");
+		cmd = {"INVITE", {"user2", "#test"}, false};
+		Tester::assertDoNotThrows([&]() {invite.execute(cmd,10, CONNECTED);});
+		Tester::assertDoNotThrows([&]() {chan.enableInviteRestriction();});
 		Tester::assertThrows<ChannelPrivilegesNeededException>([&]() {invite.execute(cmd,10, CONNECTED);});
+		UserManager::getInstance().deleteUser(2);
+
+		cmd = {"INVITE", {"user1", "#test"}, false};
 		Tester::assertThrows<UserOnChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
 		UserManager::getInstance().deleteUser(1);
