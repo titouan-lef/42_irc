@@ -152,7 +152,7 @@ std::string MsgServ::formatMsg(const Message &msg) const
  * @param receiverSocket The socket file descriptor to send the message through.
  * @param msg The message to send; the sent part will be erased from this string.
  *
- * @throws SendException if sending fails for reasons other than EAGAIN.
+ * @throws runtime_error.
  */
 void MsgServ::sendMsg(int receiverSocket, std::string& msg) const
 {

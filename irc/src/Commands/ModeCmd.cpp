@@ -222,13 +222,7 @@ bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
 {
 	int limit = getChannelLimit(option.argument);
 	if (limit <= 0)
-	{
-		std::vector<std::string> args;
-		args.push_back(channel.getName());
-		args.push_back(std::string(1, option.flag));
-		args.push_back(option.argument);
-		throw InvalidModeParamException(args);
-	}
+		throw InvalidModeParamException(channel.getName(), option.flag, option.argument);
 	return channel.setLimitNbUsers(limit);
 }
 

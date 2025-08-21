@@ -3,12 +3,11 @@
 #include "IrcException.hpp"
 
 #include <iostream>
-#include <vector>
 
 class InvalidModeParamException: public IrcException
 {
 public:
 	virtual ~InvalidModeParamException() throw() {}
 
-	InvalidModeParamException(const std::vector<std::string>& arg);
+	InvalidModeParamException(const std::string& channelName, const char optionFlag, const std::string& optionArg);
 };

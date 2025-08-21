@@ -45,7 +45,6 @@ void IrcException::displayError(const int receiverSocket) const
 #include "NoSuchNickException.hpp"
 #include "ClientDisconnectedException.hpp"
 #include "ReiceveException.hpp"
-#include "SendException.hpp"
 #include "PasswordMismatchException.hpp"
 #include "ChannelIsFullException.hpp"
 #include "UnknownCmdException.hpp"
@@ -152,11 +151,13 @@ ClientDisconnectedException::ClientDisconnectedException():
 ReiceveException::ReiceveException():
 	IrcException(1, "Impossible to receive data") {}
 
-SendException::SendException(const std::vector<std::string>& arg, const std::string& nickname):
-	IrcException(1, arg, "Impossible to send data from " + nickname) {}
-
 MessageTooLongException::MessageTooLongException():
 	IrcException(686, "Message send is too long") {}
 
-InvalidModeParamException::InvalidModeParamException(const std::vector<std::string>& arg):
-	IrcException(696, arg, "Invalid parameter for mode") {}
+InvalidModeParamException::InvalidModeParamException(const std::string& channelName, const char optionFlag, const std::string& optionArg):
+	IrcException(696, "Invalid parameter for mode")
+{
+	arg_.push_back(channelName);
+	arg_.push_back(std::string(1, optionFlag));
+	arg_.push_back(optionArg);
+}
