@@ -7,9 +7,11 @@
 class Tester
 {
 private:
-	enum Color { WHITE = 0, BLACK = 30, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN };
+	enum Color { WHITE = 0, BOLT = 1, BLACK = 30, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN };
 	static unsigned int num;
 	static unsigned int subNum;
+	static unsigned int nbCorrectAnswers;
+	static unsigned int nbWrongAnswers;
 	static const Color colorError = RED;
 	static const Color colorSuccess = GREEN;
 	static const Color colorTest = YELLOW;
@@ -79,6 +81,38 @@ public:
 		++subNum;
 	}
 
+	static void printResults()
+	{
+		int total = nbCorrectAnswers + nbWrongAnswers;
+
+		std::cout << std::endl;
+		std::cout << std::endl;
+		setColorText(BLUE);
+		setColorText(BOLT);
+		std::cout << "═════════════════════════════════════════════════════════" << std::endl;
+		
+		std::cout << std::endl << "	Score " << nbCorrectAnswers << "/" << total << "  tests successful ✅" << std::endl;
+		std::cout << std::endl;
+		if (nbWrongAnswers == 0)
+		{
+			setColorText(GREEN);
+			setColorText(BOLT);
+			std::cout << "	🎉 Well done !! All tests passed! 🎉 " << std::endl;
+		}
+		else
+		{
+			setColorText(RED);
+			setColorText(BOLT);
+			std::cout << "	❌ FIX every problem right now !!! ❌" << std::endl;
+		}
+
+		std::cout << std::endl;
+		setColorText(BLUE);
+		setColorText(BOLT);
+		std::cout << "═════════════════════════════════════════════════════════" << std::endl;
+		resetColorText();
+	}
+
 private:
 	Tester();
 
@@ -111,6 +145,7 @@ private:
 		setColorText(colorDiff);
 		std::cerr << actual << std::endl;
 		resetColorText();
+		nbWrongAnswers += 1;
 	}
 };
 

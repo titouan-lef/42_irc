@@ -18,8 +18,6 @@
 #include "PrivMsgTester.hpp"
 #include "ListCmdTester.hpp"
 
-void testerUser();
-
 int main()
 {
 	UserManager::getInstance().addNewUser(0, dummyAddr(4242)); //simulate server at user 0
@@ -91,4 +89,5 @@ int main()
 		ListCmdTester test;
 		test.testerListCmd();
 	}
+	Tester::printResults();
 }

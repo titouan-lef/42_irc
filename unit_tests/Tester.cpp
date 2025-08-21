@@ -2,6 +2,8 @@
 
 unsigned int Tester::num = 1;
 unsigned int Tester::subNum = 1;
+unsigned int Tester::nbCorrectAnswers = 0;
+unsigned int Tester::nbWrongAnswers = 0;
 
 void Tester::startTest(const char* testName)
 {
@@ -41,4 +43,5 @@ void Tester::printSuccess()
 	setColorText(colorSuccess);
 	std::cout << subNum << ".OK " << std::flush;
 	resetColorText();
+	nbCorrectAnswers += 1;
 }
