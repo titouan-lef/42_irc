@@ -3,6 +3,7 @@
 #include <cerrno>
 #include <iomanip>
 #include <sstream>
+#include <netinet/in.h>
 
 #include "Server.hpp"
 #include "ClientDisconnectedException.hpp"

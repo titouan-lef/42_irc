@@ -1,6 +1,5 @@
 #pragma once
 
-#include <netinet/in.h>
 #include <iostream>
 #include <csignal>
 
@@ -27,12 +26,8 @@ private:
 	void stop();
 	void initServerConnection(std::string port, std::string password);
 	std::string getDate() const;
-	int createSocket();
-	void defineSocketOption(int serverSocket);
-	struct sockaddr_in createAddress(int port);
 	void bindSocketOnAddress(int serverSocket, struct sockaddr* serverAddr);
 	void defineSocketOnlistening(int serverSocket);
-	int parsePort(const std::string& port);
 	void definePassword(const std::string& password);
 	void parsePassword(const std::string& password);
 	void parsePasswordChar(const unsigned char c);

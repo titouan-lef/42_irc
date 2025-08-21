@@ -8,7 +8,7 @@ public:
 
 	static WeatherBot& getInstance();
 
-	int up(std::string port,std::string password);
+	int up(const std::string& port, const std::string& password);
 	void stop();
 
 private:
@@ -23,18 +23,16 @@ private:
 	~WeatherBot() {};
 
 	void run();
-	void initServerConnection(std::string port,std::string password);
-	int parsePort(const std::string& port);
-	void sendCommand(const std::string& cmd);
+	void initServerConnection(const std::string& port, const std::string& password);
+	void sendCommand(const std::string& cmd) const;
 	std::string listenToServer();
 
 	void interpretMsg(const std::string& recvMsg);
 	void parseMsg(const std::string& recvMsg, Msg& message);
 	std::string extractNickname(const std::string& recvMsg);
-	std::string extractServer(const std::string& recvMsg);
 	void extractRequest(const std::string& recvMsg, Msg& message);
 	void msgExec(Msg& message);
-	std::string getReplyMsg(std::string msg);
+	std::string getReplyMsg(const std::string& msg) const;
 
 	int socketBot_;
 	bool running_;

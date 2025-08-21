@@ -1,12 +1,12 @@
 #include "WeatherBot.hpp"
 
 #include <cstring>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <vector>
 #include <fstream>
-#include <string>
+
+#include "connexionUtils.hpp"
 
 
 WeatherBot& WeatherBot::getInstance()
@@ -15,7 +15,7 @@ WeatherBot& WeatherBot::getInstance()
 	return instance;
 }
 
-int WeatherBot::up(std::string port,std::string password)
+int WeatherBot::up(const std::string& port, const std::string& password)
 {
 	try
 	{
@@ -24,14 +24,14 @@ int WeatherBot::up(std::string port,std::string password)
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		stop();
+		std::cout << std::endl << "Shutting down WeatherBot..." << std::endl;
 		return 1;
 	}
 	run();
 	return 0;
 }
 
-void WeatherBot::sendCommand(const std::string& cmd)
+void WeatherBot::sendCommand(const std::string& cmd) const
 {
 	std::string fullCmd = cmd + "\r\n";
 	ssize_t sent = send(socketBot_, fullCmd.c_str(), fullCmd.length(), 0);
@@ -53,44 +53,23 @@ void WeatherBot::run()
 	}
 }
 
-void WeatherBot::initServerConnection(std::string port,std::string password)
+void WeatherBot::initServerConnection(const std::string& port, const std::string& password)
 {
 	int portNumber = parsePort(port);
-	socketBot_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if(socketBot_ <= 0)
-		throw std::runtime_error("Error: impossible to create the socket");
-	int opt = 1;
-	int result = setsockopt(socketBot_, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
-	if (result < 0)
-		throw std::runtime_error("Error: setsockopt failed");
-	sockaddr_in server_addr;
-	std::memset(&server_addr, 0, sizeof(server_addr));
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(portNumber);
-	server_addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	socketBot_ = createSocket();
+	defineSocketOption(socketBot_);
+	struct sockaddr_in serverAddr = createAddress(portNumber);
 
-	int res = connect(socketBot_, (sockaddr*)&server_addr, sizeof(server_addr)); // connect to server address
+	int res = connect(socketBot_, (sockaddr*)&serverAddr, sizeof(serverAddr)); // connect to server address
 	if (res < 0)
+	{
+		close(socketBot_);
 		throw std::runtime_error("Error: impossible to connect to the server");
+	}
 
 	sendCommand("PASS " + password);
 	sendCommand("NICK WthBot");
 	sendCommand("USER weatherBot 0 * :Master of the universe");
-}
-
-int WeatherBot::parsePort(const std::string& port)
-{
-	const int MIN_PORT_VALUE = 1024;
-	const int MAX_PORT_VALUE = 65535;
-
-	if (port.empty())
-		throw std::runtime_error("Error: Invalid port");
-	int portNumber = std::atoi(port.c_str()); /** @todo parse port like server */
-	if (portNumber < MIN_PORT_VALUE)
-		throw std::runtime_error("Error: Invalid port");
-	if (portNumber > MAX_PORT_VALUE)
-		throw std::runtime_error("Error: Invalid port");
-	return portNumber;
 }
 
 std::string WeatherBot::listenToServer()
@@ -146,12 +125,10 @@ void WeatherBot::WeatherBot::parseMsg(const std::string& recvMsg, Msg& message)
 std::string WeatherBot::extractNickname(const std::string& recvMsg)
 {
 	std::string nickname;
-	size_t start;
-	start = recvMsg.find(':');
+	size_t start = recvMsg.find(':');
 	if (start == std::string::npos || start == recvMsg.size())
 		return nickname;
-	size_t end;
-	end = recvMsg.find('!');
+	size_t end = recvMsg.find('!');
 	if (end == std::string::npos || end == recvMsg.size())
 		return recvMsg.substr(start + 1);
 	nickname = recvMsg.substr(start + 1, end -1);
@@ -251,7 +228,7 @@ std::vector<std::string> splitOnSpace(std::string msg)
 	return targetList;
 }
 
-std::string WeatherBot::getReplyMsg(std::string msg)
+std::string WeatherBot::getReplyMsg(const std::string& msg) const
 {
 	std::vector<std::string> args = splitOnSpace(msg);
 	if (args.size() != 3)
