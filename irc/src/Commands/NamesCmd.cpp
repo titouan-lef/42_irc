@@ -1,6 +1,7 @@
 #include "NamesCmd.hpp"
 
 #include "ChanServ.hpp"
+#include "IrcException.hpp"
 #include "command.hpp"
 #include "status.hpp"
 
@@ -23,7 +24,7 @@ void NamesCmd::execute(const Command& cmd, const int senderSocket, const Status&
 	if (cmd.arg.size() == nbArgMin_)
 		sendListUserInEachChannel(senderSocket);
 	else
-			sendListUserInSpecificChannel(cmd, senderSocket);
+		sendListUserInSpecificChannel(cmd, senderSocket);
 }
 
 void NamesCmd::sendListUserInEachChannel(const int senderSocket) const
@@ -40,6 +41,13 @@ void NamesCmd::sendListUserInSpecificChannel(const Command &cmd, const int sende
 
 void NamesCmd::sendListUserInOneChannel(const int senderSocket, const std::string& channelName) const
 {
-	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
-	channel.sendActualUsers(senderSocket);
+	try
+	{
+		const Channel& channel = ChanServ::getInstance().findChannel(channelName);
+		channel.sendActualUsers(senderSocket);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError(senderSocket);
+	}
 }

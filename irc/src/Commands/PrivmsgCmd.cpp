@@ -21,7 +21,7 @@ PrivmsgCmd::PrivmsgCmd(): ACommand(CONNECTED, CONNECTED, 2, 2) {}
  * @param userStatus The sender user status.
  *
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @throws Command: NoTextToSendException, TooManyTargetsException, NoRecipientException
+ * @throws Command: NeedMoreParamsException, NoTextToSendException, TooManyTargetsException, NoRecipientException
  */
 
 void PrivmsgCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
@@ -31,7 +31,7 @@ void PrivmsgCmd::execute(const Command& cmd, const int senderSocket, const Statu
 	const std::string& nicknameAllTarget = cmd.arg.at(0);
 	std::vector<std::string> targetList = splitTargets(nicknameAllTarget);
 	checkNbTarget(targetList.size(), nicknameAllTarget);
-	for (size_t i = 0; targetList.size() > i; i++)
+	for (std::size_t i = 0; i < targetList.size(); i++)
 		sendToTarget(cmd, senderSocket, targetList.at(i));
 }
 
@@ -67,12 +67,26 @@ bool PrivmsgCmd::isMsgToChannel(const std::string &target) const { return ChanSe
 
 void PrivmsgCmd::sendMsgToChannel(const Command &cmd, const int senderSocket, const std::string& channelName) const
 {
-	const Channel& channel = ChanServ::getInstance().findChannel(channelName);
-	channel.sendMessageToAllUsers(senderSocket, cmd);
+	try
+	{
+		const Channel& channel = ChanServ::getInstance().findChannel(channelName);
+		channel.sendMessageToAllUsers(senderSocket, cmd);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError(senderSocket);
+	}
 }
 
 void PrivmsgCmd::sendMsgToUser(const Command &cmd, const int senderSocket, const std::string &nickname) const
 {
-	int receiverSocket = UserManager::getInstance().findUserSocket(nickname);
-	MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd);
+	try
+	{
+		int receiverSocket = UserManager::getInstance().findUserSocket(nickname);
+		MsgServ::getInstance().sendMessageReply(senderSocket, receiverSocket, cmd);
+	}
+	catch(const IrcException& e)
+	{
+		e.sendError(senderSocket);
+	}
 }
