@@ -15,7 +15,6 @@ QuitCmd::QuitCmd(): ACommand(CONNECTED, CONNECTED, 0, -1) {}
  * @param userStatus The sender user status.
  *
  * @throws Connnection: PasswordMismatchException, NotRegisteredException, AlreadyRegistredException
- * @todo need throw if is not connect.
  */
 void QuitCmd::execute(const Command& cmd, const int senderSocket, const Status& userStatus) const
 {

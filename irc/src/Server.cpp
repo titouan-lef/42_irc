@@ -97,7 +97,7 @@ Server::Server(): creationDate_(getDate()), running_(false), sigIntDetected_(0)
 
 int Server::createSocket()
 {
-	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); /** @todo explain param*/
+	int serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // AF_INET : Address family set to IPv4, SOCK_STREAM : type of domain, IPPROTO_TCP : protocol TCP
 	if (serverSocket < 0)
 		throw std::runtime_error("Error: cannot open socket");
 	return serverSocket;
@@ -107,7 +107,7 @@ void Server::defineSocketOption(int serverSocket)
 {
 	// Set SO_REUSEADDR to avoid "address already in use" error on restart
 	int opt = 1;
-	int result = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)); /** @todo explain */
+	int result = setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt)); //allow bind() to reuse port already binded because linux block it a few moment.
 	if (result < 0)
 	{
 		close(serverSocket);
@@ -137,7 +137,9 @@ void Server::bindSocketOnAddress(int serverSocket, struct sockaddr* serverAddr)
 		throw std::runtime_error("Error: bind failed");
 	}
 }
-/** @todo explain function */
+/** 
+ * @brief Listen the serverSocket for connection and limit the queue in incomming connection.
+*/
 void Server::defineSocketOnlistening(int serverSocket)
 {
 	if (listen(serverSocket, SOMAXCONN) < 0)

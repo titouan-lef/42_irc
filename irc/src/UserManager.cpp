@@ -306,7 +306,7 @@ void UserManager::checkNewConnections()
  */
 bool UserManager::hasDataToRead(const int index) const
 {
-	return (pollfdList_.at(index).revents & POLLIN); /** @todo comment explanation */
+	return (pollfdList_.at(index).revents & POLLIN); //revents is a bitmask containning all possible events that occured
 }
 
 /**
