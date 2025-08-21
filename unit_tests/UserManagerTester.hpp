@@ -16,7 +16,17 @@ public:
 		testGetUserNicknameAndPrefix();
 	}
 
+	static void createNewTestUser(int fd, const std::string& nickname)
+	{
+		UserManager::getInstance().addNewUser(fd, dummyAddr(4242));
+		UserManager::getInstance().findUser(fd).setNickname(nickname);
+		UserManager::getInstance().findUser(fd).passToNextConnectionStep();
+		UserManager::getInstance().findUser(fd).passToNextConnectionStep();
+		UserManager::getInstance().findUser(fd).passToNextConnectionStep();
+	}
+
 private:
+
 	void testSingletonInstance()
 	{
 		Tester::startTest("UserManager Singleton instance");
@@ -33,12 +43,10 @@ private:
 
 		UserManager& um = UserManager::getInstance();
 
-		um.addNewUser(10, dummyAddr(4242));
-		um.findUser(10).setNickname("testNick");
+		UserManagerTester::createNewTestUser(10, "testNick");
 		Tester::assertExpectedEqualsActual(10, um.findUserSocket("testNick"));
 
-		um.addNewUser(11, dummyAddr(4243));
-		um.findUser(11).setNickname("testNick2");
+		UserManagerTester::createNewTestUser(11, "testNick2");
 		Tester::assertExpectedEqualsActual(10, um.findUserSocket("testNick"));
 		Tester::assertExpectedEqualsActual(11, um.findUserSocket("testNick2"));
 		

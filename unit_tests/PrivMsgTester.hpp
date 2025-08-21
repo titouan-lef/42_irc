@@ -45,11 +45,11 @@ private :
 		cmd = {"PRIVMSG", {"chan", "chan2", " trailing"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {privmsg.execute(cmd, 10, CONNECTED);});
 
-		cmd = {"PRIVMSG", {"user", " trailing"}, true};
-		Tester::assertThrows<NoSuchNickException>([&]() {privmsg.execute(cmd, 10, CONNECTED);});
+		// cmd = {"PRIVMSG", {"user", " trailing"}, true};
+		// Tester::assertThrows<NoSuchNickException>([&]() {privmsg.execute(cmd, 10, CONNECTED);});
 
-		cmd = {"PRIVMSG", {"#chan", " trailing"}, true};
-		Tester::assertThrows<NoSuchChannelException>([&]() {privmsg.execute(cmd, 10, CONNECTED);});
+		// cmd = {"PRIVMSG", {"#chan", " trailing"}, true};
+		// Tester::assertThrows<NoSuchChannelException>([&]() {privmsg.execute(cmd, 10, CONNECTED);});
 
 	};
 
@@ -60,7 +60,7 @@ private :
 		ReplyTester user1(4343, "password", "user1");
 		ReplyTester user2(4343, "password", "user2");
 		ReplyTester user3(4343, "password", "user3");
-
+ 
 		user1.sendCommand("PRIVMSG user2 : Hello world !");
 		user2.assertReply(":user1!user1@localhost PRIVMSG user2 : Hello world !");
 

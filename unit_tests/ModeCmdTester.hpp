@@ -122,10 +122,8 @@ public:
 		Tester::startTest("MODE operator tests");
 		{
 			ModeCmd mode;
-			UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-			UserManager::getInstance().findUser(10).setNickname("Alice");
-			UserManager::getInstance().addNewUser(11, dummyAddr(4243));
-			UserManager::getInstance().findUser(11).setNickname("Bob");
+			UserManagerTester::createNewTestUser(10, "Alice");
+			UserManagerTester::createNewTestUser(11, "Bob");
 			Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 			Tester::assertDoNotThrows([&]() {chan.connectUser(11);});
 

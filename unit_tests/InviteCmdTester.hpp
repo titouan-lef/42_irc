@@ -37,8 +37,7 @@ public:
 		cmd = {"INVITE", {"user1", "#test", "error"}, true};
 		Tester::assertThrows<NeedMoreParamsException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
-		UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-		UserManager::getInstance().findUser(10).setNickname("user1");
+		UserManagerTester::createNewTestUser(10, "user1");
 		cmd = {"INVITE", {"user1", "#testre"}, false};
 		Tester::assertThrows<NoSuchChannelException>([&]() {invite.execute(cmd,1, CONNECTED);});
 
@@ -47,8 +46,7 @@ public:
 
 		Tester::assertDoNotThrows([&]() {chan.connectUser(10);});
 		
-		UserManager::getInstance().addNewUser(11, dummyAddr(4242));
-		UserManager::getInstance().findUser(11).setNickname("user2");
+		UserManagerTester::createNewTestUser(11, "user2");
 		cmd = {"INVITE", {"user2", "#test"}, false};
 		Tester::assertDoNotThrows([&]() {invite.execute(cmd,10, CONNECTED);});
 		Tester::assertDoNotThrows([&]() {chan.enableInviteRestriction();});
@@ -69,8 +67,7 @@ public:
 			InviteCmd invite;
 
 			chan.enableInviteRestriction();
-			UserManager::getInstance().addNewUser(10, dummyAddr(4242));
-			UserManager::getInstance().findUser(10).setNickname("user1");
+			UserManagerTester::createNewTestUser(10, "user1");
 			Tester::assertThrows<InviteOnlyException>([&]() {chan.connectUser(10);});
 
 			Command cmd = {"INVITE", {"user1", "#test"}, false};
