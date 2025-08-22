@@ -10,8 +10,11 @@ int parsePort(const std::string& port)
 {
 	const int MIN_PORT_VALUE = 1024; //Well Known Ports (0, 1023)
 	const int MAX_PORT_VALUE = 65535;
+	const std::string AUTHORIZED_CHAR = "0123456789";
 
 	if (port.empty())
+		throw std::runtime_error("Error: Invalid port");
+	if (port.find_first_not_of(AUTHORIZED_CHAR) != std::string::npos)
 		throw std::runtime_error("Error: Invalid port");
 	int portNumber = std::atoi(port.c_str());
 	if (portNumber < MIN_PORT_VALUE || portNumber > MAX_PORT_VALUE)

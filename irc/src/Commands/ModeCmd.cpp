@@ -226,7 +226,7 @@ bool ModeCmd::setChannelLimit(Channel &channel, const Option &option) const
 	return channel.setLimitNbUsers(limit);
 }
 
-int ModeCmd::getChannelLimit(const std::string &limitArg) const /** @todo do the same for the server port */
+int ModeCmd::getChannelLimit(const std::string &limitArg) const
 {
 	const std::string AUTHORIZED_CHAR = "0123456789";
 
