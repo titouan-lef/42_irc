@@ -279,3 +279,5 @@ git push --force
 ```
 
 ## Links
+
+[Norm RFC 2812](https://datatracker.ietf.org/doc/html/rfc2812)

@@ -1,1 +1,0 @@
-- Supprimer le testeur du makefile et tout ce qui est en lien avec le testeur
