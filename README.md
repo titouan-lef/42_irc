@@ -120,41 +120,41 @@ git commit -m 'KEY_WORD(feature or branch): commit title' -m 'commit description
 A branch must be created for each feature.
 
 #### Commands
-See all branches in local (and what is the current branch)
+See all branches in local (and what is the current branch) :
 ```bash 
 git branch
 ```
-See all branches (and what is the current branch)
+See all branches (and what is the current branch) :
 ```bash 
 git branch -a
 ```
-Create a new branch `branch_name`
+Create a new branch `branch_name` :
 ```bash
 git branch <branch_name>
 ```
-Remove a branch `branch_name` (before remove the local branch)
+Remove a branch `branch_name` (before remove the local branch) :
 ```bash
 git push <remote> -d <branch_name>
 ```
-Remove a local branch `branch_name` (think to switch on an other branch before)
+Remove a local branch `branch_name` (think to switch on an other branch before) :
 ```bash
 git branch -d <branch_name>
 ```
-Switch to a branch `branch_name`
+Switch to a branch `branch_name` :
 ```bash
 git switch <branch_name>
 ```
 
 ### Log commands
-Log
+Log:
 ```bash
 git log
 ```
-Initialize the log at the begining of the project
+Initialize the log at the begining of the project :
 ```bash
 git config --global alias.adog "log --all --decorate --oneline --graph"
 ```
-Better log
+Better log :
 ```bash
 git adog
 ```
@@ -166,114 +166,114 @@ git pull
 ```
 
 ### Update your branch with current `main`
-1. Switch to your branch (if you are on another) and push to ensure your branch is up-to-date before merging
+1. Switch to your branch (if you are on another) and push to ensure your branch is up-to-date before merging :
 ```bash
 git switch <branch_name>
 git push
 ```
-2. Get the update version of main and add it in your branch
+2. Get the update version of main and add it in your branch :
 ```bash
 git pull <remote> main
 ```
 
 ### Merge
-1. Switch to `main`
+1. Switch to `main` :
 ```bash
 git switch main
 ```
-2. Update the local `main`
+2. Update the local `main` :
 ```bash
 git pull
 ```
-3. Merge your work in `main`
+3. Merge your work in `main` :
 ```bash
 git merge <branch_name>
 ```
 4. Fix conflicts and check that everything is working properly
 
-5. Add modifications
+5. Add modifications :
  ```bash
 git status
 git add <files>
 ``` 
-6. Commit the modifications
+6. Commit the modifications :
 ```bash
 git merge --continue
 ```
-7. Push modification
+7. Push modification :
 ```bash
 git push
 ```
 
-- To cancel a merge (impossible if the merge is committed)
+- To cancel a merge (impossible if the merge is committed) :
 ```bash
 git merge --abort
 ```
 
 ### Rebase
-1. Switch to `main`
+1. Switch to `main` :
 ```bash
 git switch main
 ```
-2. Update the local `main`
+2. Update the local `main` :
 ```bash
 git pull
 ```
-3. Rebase your work in `main`
+3. Rebase your work in `main` :
 ```bash
 git rebase <branch_name>
 ```
-If main contains a merge commit that's not present on your current branch, use the --rebase-merges option to preserve the branch structure during rebase:
+If main contains a merge commit that's not present on your current branch, use the --rebase-merges option to preserve the branch structure during rebase :
 ```bash
 git rebase <branch_name> --rebase-merges
 ```
 4. Fix conflicts
 
-5. Add modifications
+5. Add modifications :
  ```bash
 git status
 git add <files>
 ``` 
-6. Pass to the next commit
+6. Pass to the next commit :
 ```bash
 git rebase --continue
 ```
-7. Push modification
+7. Push modification :
 ```bash
 git push
 ```
 
-- To cancel a rebase (cancel at the last `--continue`)
+- To cancel a rebase (cancel at the last `--continue`) :
 ```bash
 git rebase --abort
 ```
 
 ### Git Helper
-Change the message of the last commit
+Change the message of the last commit :
 ```bash
 git commit --amend
 ```
-Cancel the last commit (go back just before validate the last commit)
+Cancel the last commit (go back just before validate the last commit) :
 ```bash
 git reset --soft HEAD~1
 ```
-Remove the last commit (remove commit and modifications)
+Remove the last commit (remove commit and modifications) :
 ```bash
 git reset --hard HEAD~1
 ```
-View logs and hide logs
+View logs and hide logs :
 ```bash
 git reflog
 ```
 Merge the last `n` commits
-1. Define the number of last commits to change
+1. Define the number of last commits to change :
 ```bash
 git rebase -i HEAD~<n>
 ```
 2. Change the `n-1` last commit from `pick` to `squash`
 3. Quit Vim (Echap and :x)
 4. Give name to the new commit which contains merge commits
-5. **Only if commits was push**, force push to apply modifications
+5. **Only if commits was push**, force push to apply modifications:
 ```bash
 git push --force
 ```
