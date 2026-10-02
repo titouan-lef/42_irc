@@ -33,14 +33,14 @@ DEP				:= $(SRC:%.cpp=$(BUILD_DIR)%.d)
 
 #==================== COLOR =====================#
 
-INIT			:= \e[0m
-BLACK			:= \e[30m
-RED				:= \e[31m
-GREEN			:= \e[32m
-YELLOW			:= \e[33m
-BLUE			:= \e[34m
-MAGENTA			:= \e[35m
-CYAN			:= \e[36m
+INIT			:= \033[0m
+BLACK			:= \033[30m
+RED				:= \033[31m
+GREEN			:= \033[32m
+YELLOW			:= \033[33m
+BLUE			:= \033[34m
+MAGENTA			:= \033[35m
+CYAN			:= \033[36m
 
 #===================== RULE =====================#
 
@@ -48,10 +48,10 @@ all:	$(NAME)
 
 $(NAME):	$(DISPLAY_TRACKER) $(OBJ)
 	@$(CXX) $(CXXFLAGS) $(OBJ) -o $@
-	@echo "$(GREEN)$(NAME) ready ✅️$(INIT)"
+	@printf "$(GREEN)$(NAME) ready ✅️$(INIT)\n"
 
 $(BUILD_DIR)%.o:	$(SRC_DIR)%.cpp | $(OBJ_DIR)
-	@echo "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)"
+	@printf "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)\n"
 	@$(CXX) $(CXXFLAGS) $(addprefix -I,$(HEADERS)) -c $< -o $@
 
 $(OBJ_DIR):
@@ -64,62 +64,62 @@ bonus: $(BOT_NAME)
 
 $(BOT_NAME): $(NAME) $(OBJ_BONUS)
 	@$(CXX) $(CXXFLAGS) $(OBJ_BONUS) -o $(BOT_NAME)
-	@echo "$(GREEN)$(BOT_NAME) ready ✅️$(INIT)"
+	@printf "$(GREEN)$(BOT_NAME) ready ✅️$(INIT)\n"
 
 $(BUILD_DIR)%.o:	$(BOT_DIR)%.cpp | $(OBJ_DIR)
-	@echo "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)"
+	@printf "$(GREEN)Compiling : $(MAGENTA)$<$(INIT)\n"
 	@$(CXX) $(CXXFLAGS) $(addprefix -I,$(HEADERS)) -c $< -o $@
 
 clean:
-	@echo "$(BLUE)Cleanning $(NAME) ✨🧹$(INIT)"
+	@printf "$(BLUE)Cleanning $(NAME) ✨🧹$(INIT)\n"
 	@if [ -d $(BUILD_DIR) ]; then\
-		echo "$(RED)Removing directory : $(BLUE)$(BUILD_DIR)$(INIT)";\
+		printf "$(RED)Removing directory : $(BLUE)$(BUILD_DIR)$(INIT)\n";\
 		rm -rf $(BUILD_DIR);\
 	fi;
 	@rm -f $(DISPLAY_TRACKER)
 
 fclean:	clean
 	@if [ -f $(NAME) ]; then\
-		echo "$(RED)Removing : $(MAGENTA)$(NAME)$(INIT)";\
+		printf "$(RED)Removing : $(MAGENTA)$(NAME)$(INIT)\n";\
 		rm -f $(NAME);\
 	fi;
 	@if [ -f $(BOT_NAME) ]; then\
-		echo "$(RED)Removing : $(MAGENTA)$(BOT_NAME)$(INIT)";\
+		printf "$(RED)Removing : $(MAGENTA)$(BOT_NAME)$(INIT)\n";\
 		rm -f $(BOT_NAME);\
 	fi;
 
 re:	fclean $(DISPLAY_TRACKER) all
 
 $(DISPLAY_TRACKER):
-	@echo
-	@echo "***********************************************************************************"
-	@echo "*                                                                                 *"
-	@echo "*             _____                    _____                    _____             *"
-	@echo "*            /\    \                  /\    \                  /\    \            *"
-	@echo "*           /::\    \                /::\    \                /::\    \           *"
-	@echo "*           \:::\    \              /::::\    \              /::::\    \          *"
-	@echo "*            \:::\    \            /::::::\    \            /::::::\    \         *"
-	@echo "*             \:::\    \          /:::/\:::\    \          /:::/\:::\    \        *"
-	@echo "*              \:::\    \        /:::/__\:::\    \        /:::/  \:::\    \       *"
-	@echo "*              /::::\    \      /::::\   \:::\    \      /:::/    \:::\    \      *"
-	@echo "*     ____    /::::::\    \    /::::::\   \:::\    \    /:::/    / \:::\    \     *"
-	@echo "*    /\   \  /:::/\:::\    \  /:::/\:::\   \:::\____\  /:::/    /   \:::\    \    *"
-	@echo "*   /::\   \/:::/  \:::\____\/:::/  \:::\   \:::|    |/:::/____/     \:::\____\   *"
-	@echo "*   \:::\  /:::/    \::/    /\::/   |::::\  /:::|____|\:::\    \      \::/    /   *"
-	@echo "*    \:::\/:::/    / \/____/  \/____|:::::\/:::/    /  \:::\    \      \/____/    *"
-	@echo "*     \::::::/    /                 |:::::::::/    /    \:::\    \                *"
-	@echo "*      \::::/____/                  |::|\::::/    /      \:::\    \               *"
-	@echo "*       \:::\    \                  |::| \::/____/        \:::\    \              *"
-	@echo "*        \:::\    \                 |::|  ~|               \:::\    \             *"
-	@echo "*         \:::\    \                |::|   |                \:::\    \            *"
-	@echo "*          \:::\____\               \::|   |                 \:::\____\           *"
-	@echo "*           \::/    /                \:|   |                  \::/    /           *"
-	@echo "*            \/____/                  \|___|                   \/____/            *"
-	@echo "*                                                                                 *"
-	@echo "***********************************************************************************"
+	@printf "\n"
+	@printf "***********************************************************************************\n"
+	@printf "*                                                                                 *\n"
+	@printf "*             _____                    _____                    _____             *\n"
+	@printf "*            /\    \                  /\    \                  /\    \            *\n"
+	@printf "*           /::\    \                /::\    \                /::\    \           *\n"
+	@printf "*           \:::\    \              /::::\    \              /::::\    \          *\n"
+	@printf "*            \:::\    \            /::::::\    \            /::::::\    \         *\n"
+	@printf "*             \:::\    \          /:::/\:::\    \          /:::/\:::\    \        *\n"
+	@printf "*              \:::\    \        /:::/__\:::\    \        /:::/  \:::\    \       *\n"
+	@printf "*              /::::\    \      /::::\   \:::\    \      /:::/    \:::\    \      *\n"
+	@printf "*     ____    /::::::\    \    /::::::\   \:::\    \    /:::/    / \:::\    \     *\n"
+	@printf "*    /\   \  /:::/\:::\    \  /:::/\:::\   \:::\____\  /:::/    /   \:::\    \    *\n"
+	@printf "*   /::\   \/:::/  \:::\____\/:::/  \:::\   \:::|    |/:::/____/     \:::\____\   *\n"
+	@printf "*   \:::\  /:::/    \::/    /\::/   |::::\  /:::|____|\:::\    \      \::/    /   *\n"
+	@printf "*    \:::\/:::/    / \/____/  \/____|:::::\/:::/    /  \:::\    \      \/____/    *\n"
+	@printf "*     \::::::/    /                 |:::::::::/    /    \:::\    \                *\n"
+	@printf "*      \::::/____/                  |::|\::::/    /      \:::\    \               *\n"
+	@printf "*       \:::\    \                  |::| \::/____/        \:::\    \              *\n"
+	@printf "*        \:::\    \                 |::|  ~|               \:::\    \             *\n"
+	@printf "*         \:::\    \                |::|   |                \:::\    \            *\n"
+	@printf "*          \:::\____\               \::|   |                 \:::\____\           *\n"
+	@printf "*           \::/    /                \:|   |                  \::/    /           *\n"
+	@printf "*            \/____/                  \|___|                   \/____/            *\n"
+	@printf "*                                                                                 *\n"
+	@printf "***********************************************************************************\n"
 	@sleep 0.5
 	@touch $(DISPLAY_TRACKER)
 
-.PHONY: all clean fclean re bonus
+.PHONY: all clean fclean re bonus tester
 
 -include $(DEP)
